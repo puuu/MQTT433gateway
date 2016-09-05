@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/puuu/MQTT433gateway.svg?branch=master)](https://travis-ci.org/puuu/MQTT433gateway)
+
 # MQTT433gateway
 
 This Project implements a [MQTT](https://en.wikipedia.org/wiki/MQTT)
