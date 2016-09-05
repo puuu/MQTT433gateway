@@ -1,0 +1,4 @@
+#define mySSID "wifissid"
+#define myWIFIPASSWD "wifi_secret"
+#define myMQTT_BROCKER "192.168.1.1"
+#define myOTA_PASSWD "ota_secret"
