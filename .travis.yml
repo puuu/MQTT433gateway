@@ -21,4 +21,4 @@ install:
   - cp net-passwd.h-example net-passwd.h
 
 script:
-  - platformio ci --board=huzzah
+  - platformio ci --board=huzzah --project-option="lib_deps=ESP8266WiFi, ESP8266httpUpdate, ESP8266HTTPClient, PubSubClient, ESPiLight"
