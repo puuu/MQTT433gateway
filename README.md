@@ -38,11 +38,13 @@ yourself, e.g., by copying and modifying the example file.
 
 ## Hardware
 
+![MQTT433gateway box](hardware/MQTT433gateway_photo.jpg) ![MQTT433gateway box open](hardware/MQTT433gateway_photo_inside.jpg)
+
 The Software is primary written for ESP8266 devices.  It is tested
 with an
 [Adafruit HUZZAH ESP8266](https://www.adafruit.com/product/2471), but
 any other ESP8266 board should be fine too.  The circuitry can be
-found in the `hardware` folder.  The circuitry utilizes a separate 5V
+found in the [`hardware`](hardware/) folder.  The circuitry utilizes a separate 5V
 voltage regulator.  This way it is possible to supply the
 MQTT433gateway with up to 12V.  The 434MHz transmitter is directly
 connected to the power-supply input, thus it can be driven with 12V
