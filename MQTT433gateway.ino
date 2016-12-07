@@ -47,7 +47,7 @@ const char* mqtt_server = myMQTT_BROCKER;
 
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
-Heartbeat beatLED(0);
+Heartbeat beatLED(myHEARTBEAD_LED_PIN);
 ESPiLight rf(TRANSMITTER_PIN);
 SHAauth otaAuth(myOTA_PASSWD);
 

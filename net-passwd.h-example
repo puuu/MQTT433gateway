@@ -13,3 +13,5 @@
 // Password for the OTA update
 #define myOTA_PASSWD "ota_secret"
 
+// Pin the status LED is connected to
+#define myHEARTBEAD_LED_PIN 0
