@@ -42,9 +42,9 @@ const char* ssid = mySSID;
 const char* password = myWIFIPASSWD;
 const char* mqtt_server = myMQTT_BROCKER;
 
-#define RECEIVER_PIN 12 //avoid 0, 2, 15, 16
-#define TRANSMITTER_PIN 4
-#define HEARTBEAD_LED_PIN 0
+const int RECEIVER_PIN = 12; //avoid 0, 2, 15, 16
+const int TRANSMITTER_PIN = 4;
+const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
