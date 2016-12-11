@@ -35,16 +35,17 @@
 class Heartbeat {
  public:
   Heartbeat(int pin, int interval=100);
-  void on();
-  void off();
+  virtual void on();
+  virtual void off();
   void loop();
- private:
-  void beatStep();
+ protected:
   int _pin;
   int _interval;
+  boolean _state;
+ private:
+  void beatStep();
   int _tick;
   unsigned long _last;
-  boolean _state;
 };
 
 #endif
