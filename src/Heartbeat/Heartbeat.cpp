@@ -52,7 +52,7 @@ void Heartbeat::off() {
 
 void Heartbeat::loop() {
   unsigned long now = millis();
-  if( (_last - now) >= _interval ) {
+  if( (now - _last) >= _interval ) {
     beatStep();
     _last = now;
   };
