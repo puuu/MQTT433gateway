@@ -60,7 +60,7 @@ String otaURL = "";
 
 void setup() {
   Serial.begin(115200);
-  setup_wifi();
+  setupWifi();
   mqtt.setServer(mqttBroker, 1883);
   mqtt.setCallback(mqttCallback);
   pinMode(RECEIVER_PIN, INPUT_PULLUP); //5V protection with reverse diode needs pullup
@@ -72,7 +72,7 @@ void setup() {
   Serial.println(mainTopic);
 }
 
-void setup_wifi() {
+void setupWifi() {
   delay(10);
   beatLED.on();
   // We start by connecting to a WiFi network
