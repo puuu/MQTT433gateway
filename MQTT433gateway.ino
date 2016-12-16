@@ -67,8 +67,8 @@ void setup() {
   rf.setCallback(rfCallback);
   rf.setPulseTrainCallBack(rfRawCallback);
   rf.initReceiver(RECEIVER_PIN);
-  Serial.println("");
-  Serial.print("Name: ");
+  Serial.println();
+  Serial.print(F("Name: "));
   Serial.println(mainTopic);
 }
 
@@ -77,7 +77,7 @@ void setupWifi() {
   beatLED.on();
   // We start by connecting to a WiFi network
   Serial.println();
-  Serial.print("Connecting to ");
+  Serial.print(F("Connecting to "));
   Serial.println(ssid);
 
   WiFi.begin(ssid, password);
@@ -88,22 +88,22 @@ void setupWifi() {
     beatLED.off();
     delay(500);
     beatLED.on();
-    Serial.print(".");
+    Serial.print(F("."));
   }
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.println();
+  Serial.println(F("WiFi connected"));
+  Serial.println(F("IP address: "));
   Serial.println(WiFi.localIP());
 }
 
 void transmitt(const String &protocol, const char *message) {
-  Serial.print("rf send ");
+  Serial.print(F("rf send "));
   Serial.print(message);
-  Serial.print(" with protocol ");
+  Serial.print(F(" with protocol "));
   Serial.println(protocol);
 
-  if (protocol == "RAW") {
+  if (protocol == F("RAW")) {
     int rawpulses[MAXPULSESTREAMLENGTH];
     int rawlen = rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
     if (rawlen > 0) {
@@ -115,9 +115,9 @@ void transmitt(const String &protocol, const char *message) {
 }
 
 void mqttCallback(const char* topic_, const byte* payload_, unsigned int length) {
-  Serial.print("Message arrived [");
+  Serial.print(F("Message arrived ["));
   Serial.print(topic_);
-  Serial.print("] ");
+  Serial.print(F("] "));
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload_[i]);
   }
@@ -128,16 +128,16 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
   strncpy(payload, (char *)payload_, length);
   payload[length] = '\0';
 
-  String sendTopic = globalTopic + "/send/";
+  String sendTopic = globalTopic + F("/send/");
   if (topic.startsWith(sendTopic)) {
     transmitt(topic.substring(sendTopic.length()), payload);
   }
-  sendTopic = mainTopic + "/send/";
+  sendTopic = mainTopic + F("/send/");
   if (topic.startsWith(sendTopic)) {
     transmitt(topic.substring(sendTopic.length()), payload);
   }
-  if (topic == (mainTopic + "/set/raw")) {
-    Serial.println("Change raw mode.");
+  if (topic == (mainTopic + F("/set/raw"))) {
+    Serial.println(F("Change raw mode."));
     if (payload[0] == '1') {
       rawMode = true;
     }
@@ -145,8 +145,8 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
       rawMode = false;
     }
   }
-  if (topic == (mainTopic + "/set/log")) {
-    Serial.println("Change log mode.");
+  if (topic == (mainTopic + F("/set/log"))) {
+    Serial.println(F("Change log mode."));
     if (payload[0] == '1') {
       logMode = true;
     }
@@ -154,58 +154,61 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
       logMode = false;
     }
   }
-  if (topic == (mainTopic + "/ota/url")) {
+  if (topic == (mainTopic + F("/ota/url"))) {
     otaURL = String(payload);
-    mqtt.publish((mainTopic+ "/ota/nonce").c_str(), otaAuth.nonce().c_str());
+    mqtt.publish((mainTopic+ F("/ota/nonce")).c_str(), otaAuth.nonce().c_str());
   }
-  if ((topic == (mainTopic + "/ota/passwd")) && (otaURL.length() > 7)) {
+  if ((topic == (mainTopic + F("/ota/passwd"))) && (otaURL.length() > 7)) {
     if (otaAuth.verify(payload)) {
       beatLED.on();
-      Serial.print("Start OTA update from: ");
+      Serial.print(F("Start OTA update from: "));
       Serial.println(otaURL);
       rf.disableReceiver();
       t_httpUpdate_return ret = ESPhttpUpdate.update(otaURL);
       switch (ret) {
         case HTTP_UPDATE_FAILED:
-          Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+          Serial.print(F("HTTP_UPDATE_FAILD Error ("));
+          Serial.print(ESPhttpUpdate.getLastError());
+          Serial.print(F("): "));
+          Serial.println(ESPhttpUpdate.getLastErrorString());
           break;
         case HTTP_UPDATE_NO_UPDATES:
-          Serial.println("HTTP_UPDATE_NO_UPDATES");
+          Serial.println(F("HTTP_UPDATE_NO_UPDATES"));
           break;
         case HTTP_UPDATE_OK:
-          Serial.println("HTTP_UPDATE_OK"); // may not called ESPhttpUpdate reboot the ESP?
+          Serial.println(F("HTTP_UPDATE_OK")); // may not called ESPhttpUpdate reboot the ESP?
           ESP.restart();
           break;
       }
       rf.enableReceiver();
     } else {
-      Serial.println("OTA authentication failed!");
+      Serial.println(F("OTA authentication failed!"));
     }
   }
 }
 
 void rfCallback(const String &protocol, const String &message, int status, int repeats, const String &deviceID) {
-  Serial.print("RF signal arrived [");
+  Serial.print(F("RF signal arrived ["));
   Serial.print(protocol);
-  Serial.print("]/[");
+  Serial.print(F("]/["));
   Serial.print(deviceID);
-  Serial.print("] (");
+  Serial.print(F("] ("));
   Serial.print(status);
-  Serial.print(") ");
+  Serial.print(F(") "));
   Serial.print(message);
-  Serial.print(" (");
+  Serial.print(F(" ("));
   Serial.print(repeats);
-  Serial.println(")");
+  Serial.println(F(")"));
 
   if (status == VALID) {
-    String topic = globalTopic + String("/recv/") + protocol;
+    String topic = globalTopic + String(F("/recv/")) + protocol;
     if (deviceID != NULL) {
       topic += String('/') + deviceID;
     }
     mqtt.publish(topic.c_str(), message.c_str(), true);
   }
   if (logMode) {
-    String topic = mainTopic + String("/log/") + String(status) + String('/') + protocol;
+    String topic = mainTopic + String(F("/log/")) + String(status) + String('/') + protocol;
     mqtt.publish(topic.c_str(), message.c_str());
   }
 }
@@ -214,13 +217,13 @@ void rfRawCallback(const int* pulses, int length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
-      Serial.print("RAW RF signal (");
+      Serial.print(F("RAW RF signal ("));
       Serial.print(length);
-      Serial.print("): ");
+      Serial.print(F("): "));
       Serial.print(data);
       Serial.println();
 
-      mqtt.publish((mainTopic + "/recvRaw").c_str(), data.c_str());
+      mqtt.publish((mainTopic + F("/recvRaw")).c_str(), data.c_str());
     }
   }
 }
@@ -229,19 +232,19 @@ void reconnect() {
   beatLED.on();
   // Loop until we're reconnected
   while (!mqtt.connected()) {
-    Serial.print("Attempting MQTT connection...");
+    Serial.print(F("Attempting MQTT connection..."));
     // Attempt to connect
     if (mqtt.connect(mainTopic.c_str(), mainTopic.c_str(), 0, true, "offline")) {
-      Serial.println("connected");
+      Serial.println(F("connected"));
       mqtt.publish(mainTopic.c_str(), "online", true);
-      mqtt.subscribe((mainTopic + "/set/+").c_str());
-      mqtt.subscribe((mainTopic + "/ota/+").c_str());
-      mqtt.subscribe((mainTopic + "/send/+").c_str());
-      mqtt.subscribe((globalTopic + "/send/+").c_str());
+      mqtt.subscribe((mainTopic + F("/set/+")).c_str());
+      mqtt.subscribe((mainTopic + F("/ota/+")).c_str());
+      mqtt.subscribe((mainTopic + F("/send/+")).c_str());
+      mqtt.subscribe((globalTopic + F("/send/+")).c_str());
     } else {
-      Serial.print("failed, rc=");
+      Serial.print(F("failed, rc="));
       Serial.print(mqtt.state());
-      Serial.println(" try again in 5 seconds");
+      Serial.println(F(" try again in 5 seconds"));
       // Wait 5 seconds before retrying
       beatLED.off();
       delay(500);
