@@ -51,13 +51,13 @@ boolean SHAauth::verify(const String &answer) {
     if ((pos > 1) && (answer.length() > pos)) {
       String cnonce = answer.substring(0, pos);
       String response = answer.substring(pos+1);
-      String result = sha1(_passHash + ":" + _nonceHash + ":" + cnonce);
+      String result = sha1(_passHash + F(":") + _nonceHash + F(":") + cnonce);
 #ifdef DEBUG
-      Serial.print("SHAauth::verify: ");
+      Serial.print(F("SHAauth::verify: "));
       Serial.print(cnonce);
-      Serial.print(" ");
+      Serial.print(F(" "));
       Serial.print(response);
-      Serial.print(" ");
+      Serial.print(F(" "));
       Serial.println(result);
 #endif //DEBUG
       return response == result;
