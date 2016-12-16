@@ -52,7 +52,7 @@ Heartbeat beatLED(HEARTBEAD_LED_PIN);
 ESPiLight rf(TRANSMITTER_PIN);
 SHAauth otaAuth(myOTA_PASSWD);
 
-const String mainTopic = String("rfESP_")+String(ESP.getChipId(), HEX);;
+const String mainTopic = String("rfESP_") + String(ESP.getChipId(), HEX);
 const String globalTopic = "rf434";
 boolean logMode = false;
 boolean rawMode = false;
@@ -103,10 +103,10 @@ void transmitt(const String &protocol, const char *message) {
   Serial.print(" with protocol ");
   Serial.println(protocol);
 
-  if(protocol == "RAW") {
+  if (protocol == "RAW") {
     int rawpulses[MAXPULSESTREAMLENGTH];
     int rawlen = rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
-    if(rawlen > 0) {
+    if (rawlen > 0) {
       rf.sendPulseTrain(rawpulses, rawlen);
     }
   } else {
@@ -124,19 +124,19 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
   Serial.println();
 
   String topic = topic_;
-  char payload[length+1];
+  char payload[length + 1];
   strncpy(payload, (char *)payload_, length);
-  payload[length]='\0';
+  payload[length] = '\0';
 
   String sendTopic = globalTopic + "/send/";
-  if(topic.startsWith(sendTopic)) {
+  if (topic.startsWith(sendTopic)) {
     transmitt(topic.substring(sendTopic.length()), payload);
   }
   sendTopic = mainTopic + "/send/";
-  if(topic.startsWith(sendTopic)) {
+  if (topic.startsWith(sendTopic)) {
     transmitt(topic.substring(sendTopic.length()), payload);
   }
-  if(topic == (mainTopic + "/set/raw")) {
+  if (topic == (mainTopic + "/set/raw")) {
     Serial.println("Change raw mode.");
     if (payload[0] == '1') {
       rawMode = true;
@@ -145,7 +145,7 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
       rawMode = false;
     }
   }
-  if(topic == (mainTopic + "/set/log")) {
+  if (topic == (mainTopic + "/set/log")) {
     Serial.println("Change log mode.");
     if (payload[0] == '1') {
       logMode = true;
@@ -154,18 +154,18 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
       logMode = false;
     }
   }
-  if(topic == (mainTopic + "/ota/url")) {
+  if (topic == (mainTopic + "/ota/url")) {
     otaURL = String(payload);
     mqtt.publish((mainTopic+ "/ota/nonce").c_str(), otaAuth.nonce().c_str());
   }
-  if((topic == (mainTopic + "/ota/passwd")) && (otaURL.length() > 7)) {
-    if(otaAuth.verify(payload)) {
+  if ((topic == (mainTopic + "/ota/passwd")) && (otaURL.length() > 7)) {
+    if (otaAuth.verify(payload)) {
       beatLED.on();
       Serial.print("Start OTA update from: ");
       Serial.println(otaURL);
       rf.disableReceiver();
       t_httpUpdate_return ret = ESPhttpUpdate.update(otaURL);
-      switch(ret) {
+      switch (ret) {
         case HTTP_UPDATE_FAILED:
           Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
           break;
@@ -176,8 +176,8 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
           Serial.println("HTTP_UPDATE_OK"); // may not called ESPhttpUpdate reboot the ESP?
           ESP.restart();
           break;
-        }
-        rf.enableReceiver();
+      }
+      rf.enableReceiver();
     } else {
       Serial.println("OTA authentication failed!");
     }
@@ -197,23 +197,23 @@ void rfCallback(const String &protocol, const String &message, int status, int r
   Serial.print(repeats);
   Serial.println(")");
 
-  if(status==VALID) {
+  if (status == VALID) {
     String topic = globalTopic + String("/recv/") + protocol;
     if (deviceID != NULL) {
       topic += String('/') + deviceID;
     }
     mqtt.publish(topic.c_str(), message.c_str(), true);
   }
-  if(logMode) {
+  if (logMode) {
     String topic = mainTopic + String("/log/") + String(status) + String('/') + protocol;
     mqtt.publish(topic.c_str(), message.c_str());
   }
 }
 
 void rfRawCallback(const int* pulses, int length) {
-  if(rawMode) {
+  if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
-    if(data.length()>0) {
+    if (data.length() > 0) {
       Serial.print("RAW RF signal (");
       Serial.print(length);
       Serial.print("): ");
