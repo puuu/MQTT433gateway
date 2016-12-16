@@ -53,7 +53,7 @@ ESPiLight rf(TRANSMITTER_PIN);
 SHAauth otaAuth(myOTA_PASSWD);
 
 const String mainTopic = String("rfESP_")+String(ESP.getChipId(), HEX);;
-const String rfTopic = "rf434";
+const String globalTopic = "rf434";
 boolean logMode = false;
 boolean rawMode = false;
 String otaURL = "";
@@ -128,7 +128,7 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
   strncpy(payload, (char *)payload_, length);
   payload[length]='\0';
 
-  String sendTopic = rfTopic + "/send/";
+  String sendTopic = globalTopic + "/send/";
   if(topic.startsWith(sendTopic)) {
     transmitt(topic.substring(sendTopic.length()), payload);
   }
@@ -198,7 +198,7 @@ void rfCallback(const String &protocol, const String &message, int status, int r
   Serial.println(")");
 
   if(status==VALID) {
-    String topic = rfTopic + String("/recv/") + protocol;
+    String topic = globalTopic + String("/recv/") + protocol;
     if (deviceID != NULL) {
       topic += String('/') + deviceID;
     }
@@ -237,7 +237,7 @@ void reconnect() {
       mqtt.subscribe((mainTopic + "/set/+").c_str());
       mqtt.subscribe((mainTopic + "/ota/+").c_str());
       mqtt.subscribe((mainTopic + "/send/+").c_str());
-      mqtt.subscribe((rfTopic + "/send/+").c_str());
+      mqtt.subscribe((globalTopic + "/send/+").c_str());
     } else {
       Serial.print("failed, rc=");
       Serial.print(mqtt.state());
