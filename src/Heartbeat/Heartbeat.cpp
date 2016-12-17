@@ -60,7 +60,7 @@ void Heartbeat::loop() {
 
 void Heartbeat::beatStep() {
   if (_tick <= 3) {
-    _state = ! _state;
+    _state = !(_tick % 2);
     digitalWrite(_pin, !_state); //active low
   }
   _tick = (_tick + 1) % 10;
