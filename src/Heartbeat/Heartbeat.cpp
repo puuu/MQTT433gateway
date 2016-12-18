@@ -29,25 +29,32 @@
 
 #include "Heartbeat.h"
 
-Heartbeat::Heartbeat(int pin, int interval) {
-  pinMode(pin, OUTPUT);
-  _pin = pin;
+
+Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
+  _ptr_led = NULL;
   _interval = interval;
   off();
+}
+
+Heartbeat::Heartbeat(int pin, int interval)
+  : Heartbeat(*new LED(pin), interval) {
+  _ptr_led = &_led;
+}
+
+Heartbeat::~Heartbeat() {
+  delete _ptr_led;
 }
 
 void Heartbeat::on() {
   _tick = 1;
   _last = millis();
-  _state = true;
-  digitalWrite(_pin, !_state); //active low
+  _led.on();
 }
 
 void Heartbeat::off() {
   _tick = 0;
   _last = millis();
-  _state = false;
-  digitalWrite(_pin, !_state); //active low
+  _led.off();
 }
 
 void Heartbeat::loop() {
@@ -60,8 +67,7 @@ void Heartbeat::loop() {
 
 void Heartbeat::beatStep() {
   if (_tick <= 3) {
-    _state = !(_tick % 2);
-    digitalWrite(_pin, !_state); //active low
+    _led.setState(!(_tick % 2));
   }
   _tick = (_tick + 1) % 10;
 }

@@ -37,6 +37,7 @@
 
 class HeartbeatFlashing : public Heartbeat {
  public:
+  HeartbeatFlashing(LED& led, int interval=100);
   HeartbeatFlashing(int pin, int interval=100);
   virtual void off();
   void flash(unsigned int onMilliseconds);

@@ -31,17 +31,20 @@
 #define Heartbeat_h
 
 #include <Arduino.h>
+#include "LED.h"
 
 class Heartbeat {
  public:
+  Heartbeat(LED& led, int interval=100);
   Heartbeat(int pin, int interval=100);
+  ~Heartbeat();
   virtual void on();
   virtual void off();
   void loop();
  protected:
-  int _pin;
+  LED& _led;
+  LED* _ptr_led;
   int _interval;
-  boolean _state;
  private:
   void beatStep();
   int _tick;

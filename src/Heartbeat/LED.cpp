@@ -1,5 +1,5 @@
 /*
-  HeartbeatFlashing - Library for flashing LED
+  Heartbeat - Library for flashing LED
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
@@ -27,32 +27,39 @@
   SOFTWARE.
 */
 
-#include "HeartbeatFlashing.h"
+#include "LED.h"
 
-void _flash_tick(LED* led) {
-  led->toggle();
+LED::LED(int pin, boolean activeHigh) {
+  _pin = pin;
+  pinMode(_pin, OUTPUT);
+  _activeHigh = activeHigh;
+  off();
 }
 
-HeartbeatFlashing::HeartbeatFlashing(LED& led, int interval)
-  : Heartbeat(led, interval) {
-  _flashing = false;
+void LED::on() {
+  digitalWrite(_pin, _activeHigh);
 }
 
-HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
-  : Heartbeat(pin, interval) {
-  _flashing = false;
+void LED::off() {
+  digitalWrite(_pin, !_activeHigh);
 }
 
-void HeartbeatFlashing::off() {
-  if (_flashing) {
-    _ticker.detach();
-    _flashing = false;
+void LED::toggle() {
+  if (getState()) {
+    off();
+  } else {
+    on();
   }
-  Heartbeat::off();
 }
 
-void HeartbeatFlashing::flash(unsigned int onMilliseconds) {
-  on();
-  _flashing = true;
-  _ticker.attach_ms(onMilliseconds, _flash_tick, &_led);
+void LED::setState(boolean state) {
+  if (state) {
+    on();
+  } else {
+    off();
+  }
+}
+
+boolean LED::getState() {
+  return digitalRead(_pin) ^ !_activeHigh;
 }
