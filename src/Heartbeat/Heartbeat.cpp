@@ -37,7 +37,7 @@ Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
 }
 
 Heartbeat::Heartbeat(int pin, int interval)
-  : Heartbeat(*new LED(pin), interval) {
+  : Heartbeat(*new LEDOpenDrain(pin), interval) {
   _ptr_led = &_led;
 }
 
