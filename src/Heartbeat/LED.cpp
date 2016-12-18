@@ -63,3 +63,21 @@ void LED::setState(boolean state) {
 boolean LED::getState() {
   return digitalRead(_pin) ^ !_activeHigh;
 }
+
+
+LEDOpenDrain::LEDOpenDrain(int pin) : LED(pin) {}
+
+void LEDOpenDrain::on() {
+  pinMode(_pin, OUTPUT);
+  digitalWrite(_pin, LOW); // open drain is always active low
+  _state = true;
+}
+
+void LEDOpenDrain::off() {
+  pinMode(_pin, INPUT_PULLUP);
+  _state = false;
+}
+
+boolean LEDOpenDrain::getState() {
+  return _state;
+}

@@ -46,4 +46,14 @@ class LED {
   boolean _activeHigh;
 };
 
+class LEDOpenDrain : public LED {
+ public:
+  LEDOpenDrain(int pin);
+  virtual void on();
+  virtual void off();
+  virtual boolean getState();
+ protected:
+  boolean _state;
+};
+
 #endif
