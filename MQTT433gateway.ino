@@ -104,7 +104,7 @@ void transmitt(const String &protocol, const char *message) {
   Serial.println(protocol);
 
   if (protocol == F("RAW")) {
-    int rawpulses[MAXPULSESTREAMLENGTH];
+    uint16_t rawpulses[MAXPULSESTREAMLENGTH];
     int rawlen = rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
     if (rawlen > 0) {
       rf.sendPulseTrain(rawpulses, rawlen);
@@ -213,7 +213,7 @@ void rfCallback(const String &protocol, const String &message, int status, int r
   }
 }
 
-void rfRawCallback(const int* pulses, int length) {
+void rfRawCallback(const uint16_t* pulses, int length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
