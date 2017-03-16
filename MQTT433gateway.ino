@@ -80,6 +80,7 @@ void setupWifi() {
   Serial.print(F("Connecting to "));
   Serial.println(ssid);
 
+  WiFi.mode(WIFI_STA); // Explicitly set station mode
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
