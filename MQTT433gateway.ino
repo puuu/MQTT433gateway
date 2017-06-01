@@ -44,7 +44,7 @@ const char* mqttBroker = myMQTT_BROCKER;
 const char* mqttUser = myMQTT_USERNAME;
 const char* mqttPass = myMQTT_PASSWORD;
 
-const int RECEIVER_PIN = 12; //avoid 0, 2, 15, 16
+const int RECEIVER_PIN = 3; //avoid 0, 2, 15, 16
 const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
@@ -61,7 +61,13 @@ boolean rawMode = false;
 String otaURL = "";
 
 void setup() {
-  Serial.begin(115200);
+  if (RECEIVER_PIN==3) {
+    Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY); 
+    Serial.println("Using Gpio3 as receiver input");
+  }
+  else {
+    Serial.begin(115200);
+  }
   setupWifi();
   mqtt.setServer(mqttBroker, 1883);
   mqtt.setCallback(mqttCallback);
