@@ -41,6 +41,8 @@
 const char* ssid = mySSID;
 const char* password = myWIFIPASSWD;
 const char* mqttBroker = myMQTT_BROCKER;
+const char* mqttUser = myMQTT_USERNAME;
+const char* mqttPass = myMQTT_PASSWORD;
 
 const int RECEIVER_PIN = 12; //avoid 0, 2, 15, 16
 const int TRANSMITTER_PIN = 4;
@@ -235,7 +237,7 @@ void reconnect() {
   while (!mqtt.connected()) {
     Serial.print(F("Attempting MQTT connection..."));
     // Attempt to connect
-    if (mqtt.connect(mainTopic.c_str(), mainTopic.c_str(), 0, true, "offline")) {
+    if (mqtt.connect(mainTopic.c_str(), mqttUser, mqttPass, mainTopic.c_str(), 0, true, "offline")) {
       Serial.println(F("connected"));
       mqtt.publish(mainTopic.c_str(), "online", true);
       mqtt.subscribe((mainTopic + F("/set/+")).c_str());
