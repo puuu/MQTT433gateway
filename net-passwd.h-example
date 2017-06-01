@@ -9,6 +9,8 @@
 
 // IP Address of the MQTT BROCKER
 #define myMQTT_BROCKER "192.168.1.1"
+#define myMQTT_USERNAME "user"
+#define myMQTT_PASSWORD "pass"
 
 // Password for the OTA update
 #define myOTA_PASSWD "ota_secret"
