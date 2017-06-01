@@ -9,6 +9,8 @@
 
 // IP Address of the MQTT BROCKER
 #define myMQTT_BROCKER "192.168.1.1"
+#define myMQTT_USERNAME "user"
+#define myMQTT_PASSWORD "pass"
 
 // Uncomment and edit the following two lines if your Mqtt-broker needs username/password authentication.
 //#define myMQTT_USERNAME "user"
