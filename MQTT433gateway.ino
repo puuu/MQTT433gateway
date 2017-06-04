@@ -59,7 +59,7 @@ boolean rawMode = false;
 String otaURL = "";
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY); 
   setupWifi();
   mqtt.setServer(mqttBroker, 1883);
   mqtt.setCallback(mqttCallback);
