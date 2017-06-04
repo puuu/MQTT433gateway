@@ -46,6 +46,11 @@ const int RECEIVER_PIN = 12; //avoid 0, 2, 15, 16
 const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
+#ifndef myMQTT_USERNAME
+#define myMQTT_USERNAME NULL
+#define myMQTT_PASSWORD NULL
+#endif
+
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
@@ -235,7 +240,7 @@ void reconnect() {
   while (!mqtt.connected()) {
     Serial.print(F("Attempting MQTT connection..."));
     // Attempt to connect
-    if (mqtt.connect(mainTopic.c_str(), mainTopic.c_str(), 0, true, "offline")) {
+    if (mqtt.connect(mainTopic.c_str(), myMQTT_USERNAME, myMQTT_PASSWORD, mainTopic.c_str(), 0, true, "offline")) {
       Serial.println(F("connected"));
       mqtt.publish(mainTopic.c_str(), "online", true);
       mqtt.subscribe((mainTopic + F("/set/+")).c_str());
