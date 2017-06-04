@@ -41,8 +41,10 @@
 const char* ssid = mySSID;
 const char* password = myWIFIPASSWD;
 const char* mqttBroker = myMQTT_BROCKER;
+const char* mqttUser = myMQTT_USERNAME;
+const char* mqttPass = myMQTT_PASSWORD;
 
-const int RECEIVER_PIN = 12; //avoid 0, 2, 15, 16
+const int RECEIVER_PIN = 3; //avoid 0, 2, 15, 16
 const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
