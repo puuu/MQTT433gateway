@@ -35,8 +35,8 @@
 #include <PubSubClient.h>
 #include <ESPiLight.h>
 
-#include "src/SHAauth/SHAauth.h"
-#include "src/Heartbeat/Heartbeat.h"
+#include <SHAauth.h>
+#include <Heartbeat.h>
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME NULL
@@ -66,7 +66,7 @@ boolean rawMode = false;
 String otaURL = "";
 
 void setup() {
-  Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY); 
+  Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY);
   setupWifi();
   mqtt.setServer(mqttBroker, 1883);
   mqtt.setCallback(mqttCallback);
