@@ -35,8 +35,8 @@
 #include <ESPiLight.h>
 #include <PubSubClient.h>
 
-#include "src/SHAauth/SHAauth.h"
-#include "src/Heartbeat/Heartbeat.h"
+#include <Heartbeat.h>
+#include <SHAauth.h>
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
