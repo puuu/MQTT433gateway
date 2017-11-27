@@ -134,19 +134,11 @@ void mqttCallback(const char *topic_, const byte *payload_,
   }
   if (topic == (mainTopic + F("/set/raw"))) {
     Serial.println(F("Change raw mode."));
-    if (payload[0] == '1') {
-      rawMode = true;
-    } else {
-      rawMode = false;
-    }
+    rawMode = payload[0] == '1';
   }
   if (topic == (mainTopic + F("/set/log"))) {
     Serial.println(F("Change log mode."));
-    if (payload[0] == '1') {
-      logMode = true;
-    } else {
-      logMode = false;
-    }
+    logMode = payload[0] == '1';
   }
   if (topic == (mainTopic + F("/ota/url"))) {
     otaURL = String(payload);
