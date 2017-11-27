@@ -40,6 +40,7 @@ class LED {
   virtual void toggle();
   virtual void setState(boolean state);
   virtual boolean getState();
+  virtual ~LED();
 
  protected:
   int _pin;
