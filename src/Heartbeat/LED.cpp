@@ -58,6 +58,8 @@ void LED::setState(boolean state) {
 
 boolean LED::getState() { return digitalRead(_pin) ^ !_activeHigh; }
 
+LED::~LED() = default;
+
 LEDOpenDrain::LEDOpenDrain(int pin) : LED(pin) {}
 
 void LEDOpenDrain::on() {
