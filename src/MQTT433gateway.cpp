@@ -114,7 +114,7 @@ void mqttCallback(const char *topic_, const byte *payload_,
   Serial.print(F("Message arrived ["));
   Serial.print(topic_);
   Serial.print(F("] "));
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     Serial.print((char)payload_[i]);
   }
   Serial.println();
