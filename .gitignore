@@ -5,4 +5,4 @@
 .piolibdeps
 .clang_complete
 .gcc-flags.json
-src/net-passwd.h
+src/config.h

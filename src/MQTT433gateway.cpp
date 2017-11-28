@@ -27,7 +27,7 @@
   SOFTWARE.
 */
 
-#include "net-passwd.h"
+#include "config.h"
 
 #include <ESP8266WiFi.h>
 #include <ESP8266httpUpdate.h>

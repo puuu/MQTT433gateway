@@ -37,7 +37,7 @@ platformio init
 3. To avoid accidentally uploads of the passwords to a (public) git
 repository, the WiFI, MQTT and OTA configuration is organized in a
 separate file and not part of git.  An example is provided in
-`/src/net-passwd.h-example`.  Therefore, create `/src/net-passwd.h` by
+`/src/config.h-example`.  Therefore, create `/src/config.h` by
 yourself, e.g., by copying and modifying the example file.
 
 4. After that, decide for which board to create the firmware and give
