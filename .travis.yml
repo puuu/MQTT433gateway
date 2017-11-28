@@ -18,7 +18,7 @@ install:
   - platformio lib install 89 # PubSubClient
   - platformio lib install 996 # ESPiLight
   # copy password file
-  - cp src/net-passwd.h-example src/net-passwd.h
+  - cp src/config.h-example src/config.h
 
 script:
   - platformio ci --project-conf platformio.ini --lib ./lib/* ./src/*

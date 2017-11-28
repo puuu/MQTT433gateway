@@ -34,7 +34,7 @@ platformio int
 
 To avoid accidentally uploads of the passwords, the WiFI, MQTT and OTA
 configuration is organized in a separate file.  An example is provided
-in `passwd-net.h-example`.  You must create `passwd-net.h` by
+in `config.h-example`.  You must create `config.h` by
 yourself, e.g., by copying and modifying the example file.
 
 After that you need to decide for which board you want to build and give this as
