@@ -36,7 +36,7 @@
 class Heartbeat {
  public:
   Heartbeat(LED& led, int interval = 100);
-  Heartbeat(int pin, int interval = 100);
+  Heartbeat(uint8_t pin, int interval = 100);
   ~Heartbeat();
   virtual void on();
   virtual void off();

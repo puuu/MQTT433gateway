@@ -29,16 +29,20 @@
 
 #include "LED.h"
 
-LED::LED(int pin, bool activeHigh) {
+static inline uint8_t _pin_val(const bool value) {
+  return ((value) ? HIGH : LOW);
+}
+
+LED::LED(uint8_t pin, bool activeHigh) {
   _pin = pin;
   pinMode(_pin, OUTPUT);
   _activeHigh = activeHigh;
   off();
 }
 
-void LED::on() { digitalWrite(_pin, _activeHigh); }
+void LED::on() { digitalWrite(_pin, _pin_val(_activeHigh)); }
 
-void LED::off() { digitalWrite(_pin, !_activeHigh); }
+void LED::off() { digitalWrite(_pin, _pin_val(!_activeHigh)); }
 
 void LED::toggle() {
   if (getState()) {
@@ -56,11 +60,13 @@ void LED::setState(bool state) {
   }
 }
 
-bool LED::getState() { return digitalRead(_pin) ^ !_activeHigh; }
+bool LED::getState() {
+  return digitalRead(_pin) == _activeHigh;
+}
 
 LED::~LED() = default;
 
-LEDOpenDrain::LEDOpenDrain(int pin) : LED(pin) {}
+LEDOpenDrain::LEDOpenDrain(uint8_t pin) : LED(pin) {}
 
 void LEDOpenDrain::on() {
   pinMode(_pin, OUTPUT);
