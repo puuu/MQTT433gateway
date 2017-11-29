@@ -29,13 +29,13 @@
 
 #include "Heartbeat.h"
 
-Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
+Heartbeat::Heartbeat(LED& led, unsigned int interval) : _led(led) {
   _ptr_led = nullptr;
   _interval = interval;
   off();
 }
 
-Heartbeat::Heartbeat(uint8_t pin, int interval)
+Heartbeat::Heartbeat(uint8_t pin, unsigned int interval)
     : Heartbeat(*new LEDOpenDrain(pin), interval) {
   _ptr_led = &_led;
 }
