@@ -34,13 +34,13 @@
 #include <Ticker.h>
 #include "Heartbeat.h"
 
-
 class HeartbeatFlashing : public Heartbeat {
  public:
-  HeartbeatFlashing(LED& led, int interval=100);
-  HeartbeatFlashing(int pin, int interval=100);
+  HeartbeatFlashing(LED& led, int interval = 100);
+  HeartbeatFlashing(int pin, int interval = 100);
   virtual void off();
   void flash(unsigned int onMilliseconds);
+
  protected:
   boolean _flashing;
   Ticker _ticker;
