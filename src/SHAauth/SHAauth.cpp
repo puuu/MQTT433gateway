@@ -46,11 +46,11 @@ String SHAauth::nonce(void) {
 }
 
 boolean SHAauth::verify(const String &answer) {
-  if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)){
+  if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)) {
     int pos = answer.indexOf(' ');
     if ((pos > 1) && (answer.length() > pos)) {
       String cnonce = answer.substring(0, pos);
-      String response = answer.substring(pos+1);
+      String response = answer.substring(pos + 1);
       String result = sha1(_passHash + F(":") + _nonceHash + F(":") + cnonce);
 #ifdef DEBUG
       Serial.print(F("SHAauth::verify: "));
@@ -59,7 +59,7 @@ boolean SHAauth::verify(const String &answer) {
       Serial.print(response);
       Serial.print(F(" "));
       Serial.println(result);
-#endif //DEBUG
+#endif  // DEBUG
       return response == result;
     }
   }
