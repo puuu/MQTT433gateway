@@ -34,17 +34,17 @@
 
 class LED {
  public:
-  LED(int pin, boolean activeHigh = false);
+  LED(int pin, bool activeHigh = false);
   virtual void on();
   virtual void off();
   virtual void toggle();
-  virtual void setState(boolean state);
-  virtual boolean getState();
+  virtual void setState(bool state);
+  virtual bool getState();
   virtual ~LED();
 
  protected:
   int _pin;
-  boolean _activeHigh;
+  bool _activeHigh;
 };
 
 class LEDOpenDrain : public LED {
@@ -52,10 +52,10 @@ class LEDOpenDrain : public LED {
   LEDOpenDrain(int pin);
   virtual void on();
   virtual void off();
-  virtual boolean getState();
+  virtual bool getState();
 
  protected:
-  boolean _state;
+  bool _state;
 };
 
 #endif
