@@ -45,7 +45,7 @@ String SHAauth::nonce(void) {
   return _nonceHash;
 }
 
-boolean SHAauth::verify(const String &answer) {
+bool SHAauth::verify(const String &answer) {
   if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)) {
     int pos = answer.indexOf(' ');
     if ((pos > 1) && (answer.length() > pos)) {
