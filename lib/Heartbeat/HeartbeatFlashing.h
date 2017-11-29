@@ -42,7 +42,7 @@ class HeartbeatFlashing : public Heartbeat {
   void flash(unsigned int onMilliseconds);
 
  protected:
-  boolean _flashing;
+  bool _flashing;
   Ticker _ticker;
 };
 
