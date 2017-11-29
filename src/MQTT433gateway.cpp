@@ -61,8 +61,8 @@ SHAauth otaAuth(myOTA_PASSWD);
 
 const String mainTopic = String("rfESP_") + String(ESP.getChipId(), HEX);
 const String globalTopic = "rf434";
-boolean logMode = false;
-boolean rawMode = false;
+bool logMode = false;
+bool rawMode = false;
 String otaURL = "";
 
 void setupWifi() {
