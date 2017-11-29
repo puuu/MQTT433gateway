@@ -34,7 +34,7 @@
 
 class LED {
  public:
-  LED(int pin, boolean activeHigh=false);
+  LED(int pin, boolean activeHigh = false);
   virtual void on();
   virtual void off();
   virtual void toggle();
@@ -52,6 +52,7 @@ class LEDOpenDrain : public LED {
   virtual void on();
   virtual void off();
   virtual boolean getState();
+
  protected:
   boolean _state;
 };
