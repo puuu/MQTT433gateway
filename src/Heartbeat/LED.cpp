@@ -29,7 +29,7 @@
 
 #include "LED.h"
 
-LED::LED(int pin, boolean activeHigh) {
+LED::LED(int pin, bool activeHigh) {
   _pin = pin;
   pinMode(_pin, OUTPUT);
   _activeHigh = activeHigh;
@@ -48,7 +48,7 @@ void LED::toggle() {
   }
 }
 
-void LED::setState(boolean state) {
+void LED::setState(bool state) {
   if (state) {
     on();
   } else {
@@ -56,7 +56,7 @@ void LED::setState(boolean state) {
   }
 }
 
-boolean LED::getState() { return digitalRead(_pin) ^ !_activeHigh; }
+bool LED::getState() { return digitalRead(_pin) ^ !_activeHigh; }
 
 LED::~LED() = default;
 
@@ -73,4 +73,4 @@ void LEDOpenDrain::off() {
   _state = false;
 }
 
-boolean LEDOpenDrain::getState() { return _state; }
+bool LEDOpenDrain::getState() { return _state; }
