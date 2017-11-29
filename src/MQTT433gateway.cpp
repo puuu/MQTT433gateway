@@ -38,6 +38,14 @@
 #include <Heartbeat.h>
 #include <SHAauth.h>
 
+#ifdef DEBUG
+#define Debug(x) Serial.print(x)
+#define DebugLn(x) Serial.println(x)
+#else
+#define Debug(x)
+#define DebugLn(x)
+#endif
+
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
 #define myMQTT_PASSWORD nullptr
@@ -69,9 +77,9 @@ void setupWifi() {
   delay(10);
   beatLED.on();
   // We start by connecting to a WiFi network
-  Serial.println();
-  Serial.print(F("Connecting to "));
-  Serial.println(ssid);
+  DebugLn();
+  Debug(F("Connecting to "));
+  DebugLn(ssid);
 
   WiFi.mode(WIFI_STA);  // Explicitly set station mode
   WiFi.begin(ssid, password);
@@ -82,20 +90,20 @@ void setupWifi() {
     beatLED.off();
     delay(500);
     beatLED.on();
-    Serial.print(F("."));
+    Debug(F("."));
   }
 
-  Serial.println();
-  Serial.println(F("WiFi connected"));
-  Serial.println(F("IP address: "));
-  Serial.println(WiFi.localIP());
+  DebugLn();
+  DebugLn(F("WiFi connected"));
+  DebugLn(F("IP address: "));
+  DebugLn(WiFi.localIP());
 }
 
 void transmitt(const String &protocol, const char *message) {
-  Serial.print(F("rf send "));
-  Serial.print(message);
-  Serial.print(F(" with protocol "));
-  Serial.println(protocol);
+  Debug(F("rf send "));
+  Debug(message);
+  Debug(F(" with protocol "));
+  DebugLn(protocol);
 
   if (protocol == F("RAW")) {
     uint16_t rawpulses[MAXPULSESTREAMLENGTH];
@@ -111,13 +119,13 @@ void transmitt(const String &protocol, const char *message) {
 
 void mqttCallback(const char *topic_, const byte *payload_,
                   unsigned int length) {
-  Serial.print(F("Message arrived ["));
-  Serial.print(topic_);
-  Serial.print(F("] "));
+  Debug(F("Message arrived ["));
+  Debug(topic_);
+  Debug(F("] "));
   for (unsigned int i = 0; i < length; i++) {
-    Serial.print((char)payload_[i]);
+    Debug((char)payload_[i]);
   }
-  Serial.println();
+  DebugLn();
 
   String topic = topic_;
   char payload[length + 1];
@@ -133,11 +141,11 @@ void mqttCallback(const char *topic_, const byte *payload_,
     transmitt(topic.substring(sendTopic.length()), payload);
   }
   if (topic == (mainTopic + F("/set/raw"))) {
-    Serial.println(F("Change raw mode."));
+    DebugLn(F("Change raw mode."));
     rawMode = payload[0] == '1';
   }
   if (topic == (mainTopic + F("/set/log"))) {
-    Serial.println(F("Change log mode."));
+    DebugLn(F("Change log mode."));
     logMode = payload[0] == '1';
   }
   if (topic == (mainTopic + F("/ota/url"))) {
@@ -148,46 +156,46 @@ void mqttCallback(const char *topic_, const byte *payload_,
   if ((topic == (mainTopic + F("/ota/passwd"))) && (otaURL.length() > 7)) {
     if (otaAuth.verify(payload)) {
       beatLED.on();
-      Serial.print(F("Start OTA update from: "));
-      Serial.println(otaURL);
+      Debug(F("Start OTA update from: "));
+      DebugLn(otaURL);
       rf.disableReceiver();
       t_httpUpdate_return ret = ESPhttpUpdate.update(otaURL);
       switch (ret) {
         case HTTP_UPDATE_FAILED:
-          Serial.print(F("HTTP_UPDATE_FAILD Error ("));
-          Serial.print(ESPhttpUpdate.getLastError());
-          Serial.print(F("): "));
-          Serial.println(ESPhttpUpdate.getLastErrorString());
+          Debug(F("HTTP_UPDATE_FAILD Error ("));
+          Debug(ESPhttpUpdate.getLastError());
+          Debug(F("): "));
+          DebugLn(ESPhttpUpdate.getLastErrorString());
           break;
         case HTTP_UPDATE_NO_UPDATES:
-          Serial.println(F("HTTP_UPDATE_NO_UPDATES"));
+          DebugLn(F("HTTP_UPDATE_NO_UPDATES"));
           break;
         case HTTP_UPDATE_OK:
-          Serial.println(F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
-                                                // reboot the ESP?
+          DebugLn(F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
+                                         // reboot the ESP?
           ESP.restart();
           break;
       }
       rf.enableReceiver();
     } else {
-      Serial.println(F("OTA authentication failed!"));
+      DebugLn(F("OTA authentication failed!"));
     }
   }
 }
 
 void rfCallback(const String &protocol, const String &message, int status,
                 int repeats, const String &deviceID) {
-  Serial.print(F("RF signal arrived ["));
-  Serial.print(protocol);
-  Serial.print(F("]/["));
-  Serial.print(deviceID);
-  Serial.print(F("] ("));
-  Serial.print(status);
-  Serial.print(F(") "));
-  Serial.print(message);
-  Serial.print(F(" ("));
-  Serial.print(repeats);
-  Serial.println(F(")"));
+  Debug(F("RF signal arrived ["));
+  Debug(protocol);
+  Debug(F("]/["));
+  Debug(deviceID);
+  Debug(F("] ("));
+  Debug(status);
+  Debug(F(") "));
+  Debug(message);
+  Debug(F(" ("));
+  Debug(repeats);
+  DebugLn(F(")"));
 
   if (status == VALID) {
     String topic = globalTopic + String(F("/recv/")) + protocol;
@@ -207,11 +215,11 @@ void rfRawCallback(const uint16_t *pulses, int length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
-      Serial.print(F("RAW RF signal ("));
-      Serial.print(length);
-      Serial.print(F("): "));
-      Serial.print(data);
-      Serial.println();
+      Debug(F("RAW RF signal ("));
+      Debug(length);
+      Debug(F("): "));
+      Debug(data);
+      DebugLn();
 
       mqtt.publish((mainTopic + F("/recvRaw")).c_str(), data.c_str());
     }
@@ -222,20 +230,20 @@ void reconnect() {
   beatLED.on();
   // Loop until we're reconnected
   while (!mqtt.connected()) {
-    Serial.print(F("Attempting MQTT connection..."));
+    Debug(F("Attempting MQTT connection..."));
     // Attempt to connect
     if (mqtt.connect(mainTopic.c_str(), mqttUser, mqttPassword,
                      mainTopic.c_str(), 0, true, "offline")) {
-      Serial.println(F("connected"));
+      DebugLn(F("connected"));
       mqtt.publish(mainTopic.c_str(), "online", true);
       mqtt.subscribe((mainTopic + F("/set/+")).c_str());
       mqtt.subscribe((mainTopic + F("/ota/+")).c_str());
       mqtt.subscribe((mainTopic + F("/send/+")).c_str());
       mqtt.subscribe((globalTopic + F("/send/+")).c_str());
     } else {
-      Serial.print(F("failed, rc="));
-      Serial.print(mqtt.state());
-      Serial.println(F(" try again in 5 seconds"));
+      Debug(F("failed, rc="));
+      Debug(mqtt.state());
+      DebugLn(F(" try again in 5 seconds"));
       // Wait 5 seconds before retrying
       beatLED.off();
       delay(500);
@@ -256,9 +264,9 @@ void setup() {
   rf.setCallback(rfCallback);
   rf.setPulseTrainCallBack(rfRawCallback);
   rf.initReceiver(RECEIVER_PIN);
-  Serial.println();
-  Serial.print(F("Name: "));
-  Serial.println(mainTopic);
+  DebugLn();
+  Debug(F("Name: "));
+  DebugLn(mainTopic);
 }
 
 void loop() {
