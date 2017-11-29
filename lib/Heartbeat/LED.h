@@ -34,7 +34,7 @@
 
 class LED {
  public:
-  LED(uint8_t pin, bool activeHigh = false);
+  explicit LED(uint8_t pin, bool activeHigh = false);
   virtual void on();
   virtual void off();
   virtual void toggle();
@@ -49,7 +49,7 @@ class LED {
 
 class LEDOpenDrain : public LED {
  public:
-  LEDOpenDrain(uint8_t pin);
+  explicit LEDOpenDrain(uint8_t pin);
   virtual void on();
   virtual void off();
   virtual bool getState();
