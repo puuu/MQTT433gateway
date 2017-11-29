@@ -29,7 +29,6 @@
 
 #include "Heartbeat.h"
 
-
 Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
   _ptr_led = NULL;
   _interval = interval;
@@ -37,13 +36,11 @@ Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
 }
 
 Heartbeat::Heartbeat(int pin, int interval)
-  : Heartbeat(*new LEDOpenDrain(pin), interval) {
+    : Heartbeat(*new LEDOpenDrain(pin), interval) {
   _ptr_led = &_led;
 }
 
-Heartbeat::~Heartbeat() {
-  delete _ptr_led;
-}
+Heartbeat::~Heartbeat() { delete _ptr_led; }
 
 void Heartbeat::on() {
   _tick = 1;
@@ -59,7 +56,7 @@ void Heartbeat::off() {
 
 void Heartbeat::loop() {
   unsigned long now = millis();
-  if( (now - _last) >= _interval ) {
+  if ((now - _last) >= _interval) {
     beatStep();
     _last = now;
   };
