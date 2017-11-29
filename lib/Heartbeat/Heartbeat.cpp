@@ -30,7 +30,7 @@
 #include "Heartbeat.h"
 
 Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
-  _ptr_led = NULL;
+  _ptr_led = nullptr;
   _interval = interval;
   off();
 }
