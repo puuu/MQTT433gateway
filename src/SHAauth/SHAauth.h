@@ -34,9 +34,10 @@
 
 class SHAauth {
  public:
-  SHAauth(const String &password, unsigned long validMillis=10000);
+  SHAauth(const String &password, unsigned long validMillis = 10000);
   String nonce(void);
   boolean verify(const String &response);
+
  private:
   String _passHash;
   String _nonceHash;
