@@ -39,8 +39,8 @@
 #include "src/Heartbeat/Heartbeat.h"
 
 #ifndef myMQTT_USERNAME
-#define myMQTT_USERNAME NULL
-#define myMQTT_PASSWORD NULL
+#define myMQTT_USERNAME nullptr
+#define myMQTT_PASSWORD nullptr
 #endif
 
 const char *ssid = mySSID;
@@ -199,7 +199,7 @@ void rfCallback(const String &protocol, const String &message, int status,
 
   if (status == VALID) {
     String topic = globalTopic + String(F("/recv/")) + protocol;
-    if (deviceID != NULL) {
+    if (deviceID != nullptr) {
       topic += String('/') + deviceID;
     }
     mqtt.publish(topic.c_str(), message.c_str(), true);
