@@ -140,6 +140,10 @@ void mqttCallback(const char *topic_, const byte *payload_,
   if (topic.startsWith(sendTopic)) {
     transmitt(topic.substring(sendTopic.length()), payload);
   }
+  if (topic == (mainTopic + F("/set/protocols"))) {
+    DebugLn(F("Change available protocols."));
+    rf.limitProtocols(payload);
+  }
   if (topic == (mainTopic + F("/set/raw"))) {
     DebugLn(F("Change raw mode."));
     rawMode = payload[0] == '1';
