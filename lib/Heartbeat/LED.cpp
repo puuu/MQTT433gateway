@@ -36,13 +36,9 @@ LED::LED(int pin, boolean activeHigh) {
   off();
 }
 
-void LED::on() {
-  digitalWrite(_pin, _activeHigh);
-}
+void LED::on() { digitalWrite(_pin, _activeHigh); }
 
-void LED::off() {
-  digitalWrite(_pin, !_activeHigh);
-}
+void LED::off() { digitalWrite(_pin, !_activeHigh); }
 
 void LED::toggle() {
   if (getState()) {
@@ -60,16 +56,13 @@ void LED::setState(boolean state) {
   }
 }
 
-boolean LED::getState() {
-  return digitalRead(_pin) ^ !_activeHigh;
-}
-
+boolean LED::getState() { return digitalRead(_pin) ^ !_activeHigh; }
 
 LEDOpenDrain::LEDOpenDrain(int pin) : LED(pin) {}
 
 void LEDOpenDrain::on() {
   pinMode(_pin, OUTPUT);
-  digitalWrite(_pin, LOW); // open drain is always active low
+  digitalWrite(_pin, LOW);  // open drain is always active low
   _state = true;
 }
 
@@ -78,6 +71,4 @@ void LEDOpenDrain::off() {
   _state = false;
 }
 
-boolean LEDOpenDrain::getState() {
-  return _state;
-}
+boolean LEDOpenDrain::getState() { return _state; }
