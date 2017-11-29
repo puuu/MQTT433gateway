@@ -35,16 +35,18 @@
 
 class Heartbeat {
  public:
-  Heartbeat(LED& led, int interval=100);
-  Heartbeat(int pin, int interval=100);
+  Heartbeat(LED& led, int interval = 100);
+  Heartbeat(int pin, int interval = 100);
   ~Heartbeat();
   virtual void on();
   virtual void off();
   void loop();
+
  protected:
   LED& _led;
   LED* _ptr_led;
   int _interval;
+
  private:
   void beatStep();
   int _tick;
