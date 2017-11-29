@@ -39,7 +39,7 @@ SHAauth::SHAauth(const String &password, unsigned long validMillis) {
   _nonceHash = "";
 };
 
-String SHAauth::nonce(void) {
+String SHAauth::nonce() {
   _nonceHash = sha1(String(micros()));
   _timestamb = millis();
   return _nonceHash;
