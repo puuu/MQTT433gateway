@@ -50,9 +50,9 @@ class LED {
 class LEDOpenDrain : public LED {
  public:
   explicit LEDOpenDrain(uint8_t pin);
-  virtual void on();
-  virtual void off();
-  virtual bool getState();
+  void on() override;
+  void off() override;
+  bool getState() override;
 
  protected:
   bool _state;
