@@ -355,6 +355,19 @@ rfESP_fd804/recvRaw c:0102020102010101010101010101010101010202010102010101010102
 ```
 
 
+## Protocol limitation
+
+If you have the situation that there is a lot of noise in the air
+and/or your device matches multiple protocols, you can limit the
+available protocols. This is easily possible with a MQTT message. Just
+send a JSON array with your needed protocols to
+`rfESP_<ChipId>/set/protocols`. For example:
+
+```console
+$ mosquitto_pub -t rfESP_fd804/set/protocols -m '["elro_800_switch", "arctech_switch"]'
+```
+
+
 ## Contributions
 
 If you find any bug, please feel free to fill an issue.  Also, pull
