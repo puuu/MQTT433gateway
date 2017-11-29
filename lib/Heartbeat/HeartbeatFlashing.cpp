@@ -27,7 +27,6 @@
   SOFTWARE.
 */
 
-
 // This is commented out for now as platformIO finds
 // the CPP file and tries to build an object file, but
 // because the header was not included anywhere the
