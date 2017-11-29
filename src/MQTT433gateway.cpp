@@ -32,24 +32,24 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266httpUpdate.h>
 
-#include <PubSubClient.h>
 #include <ESPiLight.h>
+#include <PubSubClient.h>
 
-#include "src/SHAauth/SHAauth.h"
-#include "src/Heartbeat/Heartbeat.h"
+#include <Heartbeat.h>
+#include <SHAauth.h>
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME NULL
 #define myMQTT_PASSWORD NULL
 #endif
 
-const char* ssid = mySSID;
-const char* password = myWIFIPASSWD;
-const char* mqttBroker = myMQTT_BROCKER;
-const char* mqttUser = myMQTT_USERNAME;
-const char* mqttPassword = myMQTT_PASSWORD;
+const char *ssid = mySSID;
+const char *password = myWIFIPASSWD;
+const char *mqttBroker = myMQTT_BROCKER;
+const char *mqttUser = myMQTT_USERNAME;
+const char *mqttPassword = myMQTT_PASSWORD;
 
-const int RECEIVER_PIN = 12; //avoid 0, 2, 15, 16
+const int RECEIVER_PIN = 12;  // avoid 0, 2, 15, 16
 const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
@@ -65,20 +65,6 @@ boolean logMode = false;
 boolean rawMode = false;
 String otaURL = "";
 
-void setup() {
-  Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY); 
-  setupWifi();
-  mqtt.setServer(mqttBroker, 1883);
-  mqtt.setCallback(mqttCallback);
-  pinMode(RECEIVER_PIN, INPUT_PULLUP); //5V protection with reverse diode needs pullup
-  rf.setCallback(rfCallback);
-  rf.setPulseTrainCallBack(rfRawCallback);
-  rf.initReceiver(RECEIVER_PIN);
-  Serial.println();
-  Serial.print(F("Name: "));
-  Serial.println(mainTopic);
-}
-
 void setupWifi() {
   delay(10);
   beatLED.on();
@@ -87,7 +73,7 @@ void setupWifi() {
   Serial.print(F("Connecting to "));
   Serial.println(ssid);
 
-  WiFi.mode(WIFI_STA); // Explicitly set station mode
+  WiFi.mode(WIFI_STA);  // Explicitly set station mode
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -113,7 +99,8 @@ void transmitt(const String &protocol, const char *message) {
 
   if (protocol == F("RAW")) {
     uint16_t rawpulses[MAXPULSESTREAMLENGTH];
-    int rawlen = rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
+    int rawlen =
+        rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
     if (rawlen > 0) {
       rf.sendPulseTrain(rawpulses, rawlen);
     }
@@ -122,7 +109,8 @@ void transmitt(const String &protocol, const char *message) {
   }
 }
 
-void mqttCallback(const char* topic_, const byte* payload_, unsigned int length) {
+void mqttCallback(const char *topic_, const byte *payload_,
+                  unsigned int length) {
   Serial.print(F("Message arrived ["));
   Serial.print(topic_);
   Serial.print(F("] "));
@@ -148,8 +136,7 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
     Serial.println(F("Change raw mode."));
     if (payload[0] == '1') {
       rawMode = true;
-    }
-    else {
+    } else {
       rawMode = false;
     }
   }
@@ -157,14 +144,14 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
     Serial.println(F("Change log mode."));
     if (payload[0] == '1') {
       logMode = true;
-    }
-    else {
+    } else {
       logMode = false;
     }
   }
   if (topic == (mainTopic + F("/ota/url"))) {
     otaURL = String(payload);
-    mqtt.publish((mainTopic+ F("/ota/nonce")).c_str(), otaAuth.nonce().c_str());
+    mqtt.publish((mainTopic + F("/ota/nonce")).c_str(),
+                 otaAuth.nonce().c_str());
   }
   if ((topic == (mainTopic + F("/ota/passwd"))) && (otaURL.length() > 7)) {
     if (otaAuth.verify(payload)) {
@@ -184,7 +171,8 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
           Serial.println(F("HTTP_UPDATE_NO_UPDATES"));
           break;
         case HTTP_UPDATE_OK:
-          Serial.println(F("HTTP_UPDATE_OK")); // may not called ESPhttpUpdate reboot the ESP?
+          Serial.println(F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
+                                                // reboot the ESP?
           ESP.restart();
           break;
       }
@@ -195,7 +183,8 @@ void mqttCallback(const char* topic_, const byte* payload_, unsigned int length)
   }
 }
 
-void rfCallback(const String &protocol, const String &message, int status, int repeats, const String &deviceID) {
+void rfCallback(const String &protocol, const String &message, int status,
+                int repeats, const String &deviceID) {
   Serial.print(F("RF signal arrived ["));
   Serial.print(protocol);
   Serial.print(F("]/["));
@@ -216,12 +205,13 @@ void rfCallback(const String &protocol, const String &message, int status, int r
     mqtt.publish(topic.c_str(), message.c_str(), true);
   }
   if (logMode) {
-    String topic = mainTopic + String(F("/log/")) + String(status) + String('/') + protocol;
+    String topic = mainTopic + String(F("/log/")) + String(status) +
+                   String('/') + protocol;
     mqtt.publish(topic.c_str(), message.c_str());
   }
 }
 
-void rfRawCallback(const uint16_t* pulses, int length) {
+void rfRawCallback(const uint16_t *pulses, int length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
@@ -242,7 +232,8 @@ void reconnect() {
   while (!mqtt.connected()) {
     Serial.print(F("Attempting MQTT connection..."));
     // Attempt to connect
-    if (mqtt.connect(mainTopic.c_str(), mqttUser, mqttPassword, mainTopic.c_str(), 0, true, "offline")) {
+    if (mqtt.connect(mainTopic.c_str(), mqttUser, mqttPassword,
+                     mainTopic.c_str(), 0, true, "offline")) {
       Serial.println(F("connected"));
       mqtt.publish(mainTopic.c_str(), "online", true);
       mqtt.subscribe((mainTopic + F("/set/+")).c_str());
@@ -261,6 +252,21 @@ void reconnect() {
     }
   }
   beatLED.off();
+}
+
+void setup() {
+  Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+  setupWifi();
+  mqtt.setServer(mqttBroker, 1883);
+  mqtt.setCallback(mqttCallback);
+  pinMode(RECEIVER_PIN,
+          INPUT_PULLUP);  // 5V protection with reverse diode needs pullup
+  rf.setCallback(rfCallback);
+  rf.setPulseTrainCallBack(rfRawCallback);
+  rf.initReceiver(RECEIVER_PIN);
+  Serial.println();
+  Serial.print(F("Name: "));
+  Serial.println(mainTopic);
 }
 
 void loop() {

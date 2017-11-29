@@ -18,7 +18,7 @@ install:
   - platformio lib install 89 # PubSubClient
   - platformio lib install 996 # ESPiLight
   # copy password file
-  - cp net-passwd.h-example net-passwd.h
+  - cp src/net-passwd.h-example src/net-passwd.h
 
 script:
-  - platformio ci --board=huzzah --project-option="lib_deps=ESP8266WiFi, ESP8266httpUpdate, ESP8266HTTPClient, PubSubClient, ESPiLight"
+  - platformio ci --project-conf platformio.ini --lib ./lib/* ./src/*

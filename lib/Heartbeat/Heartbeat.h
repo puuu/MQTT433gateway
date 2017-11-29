@@ -27,33 +27,30 @@
   SOFTWARE.
 */
 
-#ifndef LED_h
-#define LED_h
+#ifndef Heartbeat_h
+#define Heartbeat_h
 
 #include <Arduino.h>
+#include "LED.h"
 
-class LED {
+class Heartbeat {
  public:
-  LED(int pin, boolean activeHigh=false);
+  Heartbeat(LED& led, int interval = 100);
+  Heartbeat(int pin, int interval = 100);
+  ~Heartbeat();
   virtual void on();
   virtual void off();
-  virtual void toggle();
-  virtual void setState(boolean state);
-  virtual boolean getState();
+  void loop();
 
  protected:
-  int _pin;
-  boolean _activeHigh;
-};
+  LED& _led;
+  LED* _ptr_led;
+  int _interval;
 
-class LEDOpenDrain : public LED {
- public:
-  LEDOpenDrain(int pin);
-  virtual void on();
-  virtual void off();
-  virtual boolean getState();
- protected:
-  boolean _state;
+ private:
+  void beatStep();
+  int _tick;
+  unsigned long _last;
 };
 
 #endif

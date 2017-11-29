@@ -1,5 +1,5 @@
 /*
-  Heartbeat - Library for flashing LED
+  SHAauth - SHA1 digest authentication
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
@@ -27,28 +27,22 @@
   SOFTWARE.
 */
 
-#ifndef Heartbeat_h
-#define Heartbeat_h
+#ifndef SHAauth_h
+#define SHAauth_h
 
 #include <Arduino.h>
-#include "LED.h"
 
-class Heartbeat {
+class SHAauth {
  public:
-  Heartbeat(LED& led, int interval=100);
-  Heartbeat(int pin, int interval=100);
-  ~Heartbeat();
-  virtual void on();
-  virtual void off();
-  void loop();
- protected:
-  LED& _led;
-  LED* _ptr_led;
-  int _interval;
+  SHAauth(const String &password, unsigned long validMillis = 10000);
+  String nonce(void);
+  boolean verify(const String &response);
+
  private:
-  void beatStep();
-  int _tick;
-  unsigned long _last;
+  String _passHash;
+  String _nonceHash;
+  unsigned long _timestamb;
+  unsigned long _validMillis;
 };
 
 #endif
