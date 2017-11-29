@@ -324,6 +324,9 @@ rfESP_fd804/recvRaw c:0102020102010101010101010101010101010202010102010101010102
 If you find any bug, please feel free to fill an issue.  Also, pull
 request are welcome.
 
+Please format the code using `clang-format` and the style configuration
+`.clang-format` provided by this project.
+
 
 ## Acknowledgement
 
