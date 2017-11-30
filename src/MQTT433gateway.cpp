@@ -37,14 +37,8 @@
 
 #include <Heartbeat.h>
 #include <SHAauth.h>
+#include <debug_helper.h>
 
-#ifdef DEBUG
-#define Debug(x) Serial.print(x)
-#define DebugLn(x) Serial.println(x)
-#else
-#define Debug(x)
-#define DebugLn(x)
-#endif
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
