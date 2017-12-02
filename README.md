@@ -23,32 +23,48 @@ https://wiki.pilight.org/doku.php/protocols
 ## Software/Requirements
 
 The software is using the [PlatformIO](http://platformio.org/) ecosystem. See their
-[install intructions](http://docs.platformio.org/en/latest/installation.html) Or get
+[install instructions](http://docs.platformio.org/en/latest/installation.html) Or get
 their [IDE](http://docs.platformio.org/en/latest/ide/pioide.html) to get the
-software. More infomation can be found in their [documentation](http://docs.platformio.org/en/latest/).
+software. More information can be found in their [documentation](http://docs.platformio.org/en/latest/).
 
-Then initialize the project:
+1. Open a terminal and go to the MQTT433Gateway project folder.
+
+2. Then initialize the project:
 ```
-platformio int
+platformio init
 ```
 
-To avoid accidentally uploads of the passwords, the WiFI, MQTT and OTA
-configuration is organized in a separate file.  An example is provided
-in `passwd-net.h-example`.  You must create `passwd-net.h` by
+3. To avoid accidentally uploads of the passwords to a (public) git
+repository, the WiFI, MQTT and OTA configuration is organized in a
+separate file and not part of git.  An example is provided in
+`/src/net-passwd.h-example`.  Therefore, create `/src/net-passwd.h` by
 yourself, e.g., by copying and modifying the example file.
 
-After that you need to decide for which board you want to build and give this as
-`--environment` to the platformio `run` command:
+4. After that, decide for which board to create the firmware and give
+this as `--environment` to the platformio `run` command:
 ```
 platformio run --environment <board>
 ```
-The available boards are defined in `platformio.ini`. At the time of writing this
-is `esp12e` for ESP8266-12e/f models, `nodemcuv2` for NodeMCU boards and `d1_mini`
-for D1 Mini boards.
+The available boards are defined in `platformio.ini`. Currently, this are
++ `esp12e` for ESP8266-12e/f models,
++ `nodemcuv2` for NodeMCU boards,
++ `d1_mini`for D1 Mini boards,
++ `huzzah` for the Huzzah boards.
 
-To flash the software to the device the `platformio run` has the upload target:
+5. To flash the firmware to the board, connect the board to the PC via
+USB or a serial adapter. Make sure, it is the only device currently
+connected, as otherwise you might flash the wrong unit
+accidentaly. Some boards need to be set manually into a programming
+mode, please check the manual of the board to get more details about
+how to do that.  The `platformio run` has the upload target to
+initialize flashing:
 ```
 platformio run --environment <board> --target upload
+```
+this will try to autodetect the serial port. If this is not
+successful, try
+```
+platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
 ```
 
 ## Hardware
