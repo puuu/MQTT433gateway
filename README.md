@@ -22,19 +22,43 @@ https://wiki.pilight.org/doku.php/protocols
 
 ## Software/Requirements
 
-The Software is written for the Arduino IDE.  To get it running, you
-need to install the
-[ESP8266 Boards Manager package](https://github.com/esp8266/Arduino#installing-with-boards-manager).
-Additionally, the following libraries are needed, please install them
-with the Adruino Library Manager:
-- [ESPiLight](https://github.com/puuu/ESPiLight)
-- [PubSubClient](http://pubsubclient.knolleary.net/)
+The software is using the [PlatformIO](http://platformio.org/) ecosystem. See their
+[install instructions](http://docs.platformio.org/en/latest/installation.html) Or get
+their [IDE](http://docs.platformio.org/en/latest/ide/pioide.html) to get the
+software. More information can be found in their [documentation](http://docs.platformio.org/en/latest/).
 
-To avoid accidentally uploads of the passwords, the WiFI, MQTT and OTA
-configuration is organized in a separate file.  An example is provided
-in `passwd-net.h-example`.  You must create `passwd-net.h` by
+1. Open a terminal and go to the MQTT433Gateway project folder.
+
+2. Then initialize the project:
+```
+platformio init
+```
+
+3. To avoid accidentally uploads of the passwords to a (public) git repository, the WiFI, MQTT and OTA
+configuration is organized in a separate file and not part of git.  An example is provided
+in `/src/passwd-net.h-example`.  Therefore, create `/src/passwd-net.h` by
 yourself, e.g., by copying and modifying the example file.
 
+4. After that, decide for which board to create the firmware and give this as
+`--environment` to the platformio `run` command:
+```
+platformio run --environment <board>
+```
+The available boards are defined in `platformio.ini`. Currently, this are 
++ `esp12e` for ESP8266-12e/f models,
++ `nodemcuv2` for NodeMCU boards,
++ `d1_mini`for D1 Mini boards,
++ `huzzah` for the Huzzah boards.
+
+5. To flash the firmware to the board, connect the board to the PC via USB or a serial adapter. Make sure, it is the only device currently connected, as otherwise you might flash the wrong unit accidentaly. Some boards need to be set manually into a programming mode, please check the manual of the board to get more details about how to do that.
+The `platformio run` has the upload target to initialize flashing:
+```
+platformio run --environment <board> --target upload
+```
+this will try to autodetect the serial port. If this is not successful, try
+```
+platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
+```
 
 ## Hardware
 
@@ -133,7 +157,7 @@ binary_sensor:
 ```
 
 The message of a TCM 218943 weather station sensor looks like this:
-`rf434/recv/tcm/108 {"id":108,"temperature":22.7,"humidity":50,"battery":1,"button":0}`. 
+`rf434/recv/tcm/108 {"id":108,"temperature":22.7,"humidity":50,"battery":1,"button":0}`.
 A corresponding Home Assistant configuration is:
 
 ```yaml
