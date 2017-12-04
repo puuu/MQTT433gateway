@@ -22,19 +22,34 @@ https://wiki.pilight.org/doku.php/protocols
 
 ## Software/Requirements
 
-The Software is written for the Arduino IDE.  To get it running, you
-need to install the
-[ESP8266 Boards Manager package](https://github.com/esp8266/Arduino#installing-with-boards-manager).
-Additionally, the following libraries are needed, please install them
-with the Adruino Library Manager:
-- [ESPiLight](https://github.com/puuu/ESPiLight)
-- [PubSubClient](http://pubsubclient.knolleary.net/)
+The software is using the [PlatformIO](http://platformio.org/) ecosystem. See their
+[install intructions](http://docs.platformio.org/en/latest/installation.html) Or get
+their [IDE](http://docs.platformio.org/en/latest/ide/pioide.html) to get the
+software. More infomation can be found in their [documentation](http://docs.platformio.org/en/latest/).
+
+Then initialize the project:
+```
+platformio int
+```
 
 To avoid accidentally uploads of the passwords, the WiFI, MQTT and OTA
 configuration is organized in a separate file.  An example is provided
-in `passwd-net.h-example`.  You must create `passwd-net.h` by
+in `config.h-example`.  You must create `config.h` by
 yourself, e.g., by copying and modifying the example file.
 
+After that you need to decide for which board you want to build and give this as
+`--environment` to the platformio `run` command:
+```
+platformio run --environment <board>
+```
+The available boards are defined in `platformio.ini`. At the time of writing this
+is `esp12e` for ESP8266-12e/f models, `nodemcuv2` for NodeMCU boards and `d1_mini`
+for D1 Mini boards.
+
+To flash the software to the device the `platformio run` has the upload target:
+```
+platformio run --environment <board> --target upload
+```
 
 ## Hardware
 
@@ -133,7 +148,7 @@ binary_sensor:
 ```
 
 The message of a TCM 218943 weather station sensor looks like this:
-`rf434/recv/tcm/108 {"id":108,"temperature":22.7,"humidity":50,"battery":1,"button":0}`. 
+`rf434/recv/tcm/108 {"id":108,"temperature":22.7,"humidity":50,"battery":1,"button":0}`.
 A corresponding Home Assistant configuration is:
 
 ```yaml
@@ -323,6 +338,9 @@ rfESP_fd804/recvRaw c:0102020102010101010101010101010101010202010102010101010102
 
 If you find any bug, please feel free to fill an issue.  Also, pull
 request are welcome.
+
+Please format the code using `clang-format` and the style configuration
+`.clang-format` provided by this project.
 
 
 ## Acknowledgement
