@@ -1,5 +1,5 @@
 /*
-  SHAauth - SHA1 digest authentication
+  Heartbeat - Library for flashing LED
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
@@ -27,21 +27,56 @@
   SOFTWARE.
 */
 
-#ifndef SHAauth_h
-#define SHAauth_h
+#include "LED.h"
 
-#include <Arduino.h>
+static inline uint8_t _pin_val(const bool value) {
+  return ((value) ? HIGH : LOW);
+}
 
-class SHAauth {
- public:
-  SHAauth(const String &password, unsigned long validMillis=10000);
-  String nonce(void);
-  boolean verify(const String &response);
- private:
-  String _passHash;
-  String _nonceHash;
-  unsigned long _timestamb;
-  unsigned long _validMillis;
-};
+LED::LED(uint8_t pin, bool activeHigh) {
+  _pin = pin;
+  pinMode(_pin, OUTPUT);
+  _activeHigh = activeHigh;
+  off();
+}
 
-#endif
+void LED::on() { digitalWrite(_pin, _pin_val(_activeHigh)); }
+
+void LED::off() { digitalWrite(_pin, _pin_val(!_activeHigh)); }
+
+void LED::toggle() {
+  if (getState()) {
+    off();
+  } else {
+    on();
+  }
+}
+
+void LED::setState(bool state) {
+  if (state) {
+    on();
+  } else {
+    off();
+  }
+}
+
+bool LED::getState() {
+  return digitalRead(_pin) == _activeHigh;
+}
+
+LED::~LED() = default;
+
+LEDOpenDrain::LEDOpenDrain(uint8_t pin) : LED(pin) {}
+
+void LEDOpenDrain::on() {
+  pinMode(_pin, OUTPUT);
+  digitalWrite(_pin, LOW);  // open drain is always active low
+  _state = true;
+}
+
+void LEDOpenDrain::off() {
+  pinMode(_pin, INPUT_PULLUP);
+  _state = false;
+}
+
+bool LEDOpenDrain::getState() { return _state; }

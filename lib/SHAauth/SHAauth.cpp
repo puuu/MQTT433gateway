@@ -1,5 +1,5 @@
 /*
-  Heartbeat - Library for flashing LED
+  SHAauth - SHA1 digest authentication
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
@@ -27,33 +27,41 @@
   SOFTWARE.
 */
 
-#ifndef LED_h
-#define LED_h
+#include "SHAauth.h"
+#include <Hash.h>
 
-#include <Arduino.h>
+//#define DEBUG
 
-class LED {
- public:
-  LED(int pin, boolean activeHigh=false);
-  virtual void on();
-  virtual void off();
-  virtual void toggle();
-  virtual void setState(boolean state);
-  virtual boolean getState();
-
- protected:
-  int _pin;
-  boolean _activeHigh;
+SHAauth::SHAauth(const String &password, unsigned long validMillis) {
+  _passHash = sha1(password);
+  _validMillis = validMillis;
+  _timestamb = 0;
+  _nonceHash = "";
 };
 
-class LEDOpenDrain : public LED {
- public:
-  LEDOpenDrain(int pin);
-  virtual void on();
-  virtual void off();
-  virtual boolean getState();
- protected:
-  boolean _state;
-};
+String SHAauth::nonce() {
+  _nonceHash = sha1(String(micros()));
+  _timestamb = millis();
+  return _nonceHash;
+}
 
-#endif
+bool SHAauth::verify(const String &answer) {
+  if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)) {
+    int pos = answer.indexOf(' ');
+    if ((pos > 1) && (answer.length() > pos)) {
+      String cnonce = answer.substring(0, pos);
+      String response = answer.substring(pos + 1);
+      String result = sha1(_passHash + F(":") + _nonceHash + F(":") + cnonce);
+#ifdef DEBUG
+      Serial.print(F("SHAauth::verify: "));
+      Serial.print(cnonce);
+      Serial.print(F(" "));
+      Serial.print(response);
+      Serial.print(F(" "));
+      Serial.println(result);
+#endif  // DEBUG
+      return response == result;
+    }
+  }
+  return false;
+};
