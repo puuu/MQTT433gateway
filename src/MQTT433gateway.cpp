@@ -188,7 +188,7 @@ void rfCallback(const String &protocol, const String &message, int status,
   }
 }
 
-void rfRawCallback(const uint16_t *pulses, int length) {
+void rfRawCallback(const uint16_t *pulses, size_t length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
