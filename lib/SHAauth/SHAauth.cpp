@@ -27,21 +27,41 @@
   SOFTWARE.
 */
 
-#ifndef SHAauth_h
-#define SHAauth_h
+#include "SHAauth.h"
+#include <Hash.h>
 
-#include <Arduino.h>
+//#define DEBUG
 
-class SHAauth {
- public:
-  SHAauth(const String &password, unsigned long validMillis=10000);
-  String nonce(void);
-  boolean verify(const String &response);
- private:
-  String _passHash;
-  String _nonceHash;
-  unsigned long _timestamb;
-  unsigned long _validMillis;
+SHAauth::SHAauth(const String &password, unsigned long validMillis) {
+  _passHash = sha1(password);
+  _validMillis = validMillis;
+  _timestamb = 0;
+  _nonceHash = "";
 };
 
-#endif
+String SHAauth::nonce() {
+  _nonceHash = sha1(String(micros()));
+  _timestamb = millis();
+  return _nonceHash;
+}
+
+bool SHAauth::verify(const String &answer) {
+  if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)) {
+    int pos = answer.indexOf(' ');
+    if ((pos > 1) && (answer.length() > pos)) {
+      String cnonce = answer.substring(0, pos);
+      String response = answer.substring(pos + 1);
+      String result = sha1(_passHash + F(":") + _nonceHash + F(":") + cnonce);
+#ifdef DEBUG
+      Serial.print(F("SHAauth::verify: "));
+      Serial.print(cnonce);
+      Serial.print(F(" "));
+      Serial.print(response);
+      Serial.print(F(" "));
+      Serial.println(result);
+#endif  // DEBUG
+      return response == result;
+    }
+  }
+  return false;
+};

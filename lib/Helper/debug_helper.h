@@ -1,10 +1,10 @@
 /*
-  Heartbeat - Library for flashing LED
+  debug_helper - defines for debugging via serial console.
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,47 +27,15 @@
   SOFTWARE.
 */
 
-#include "Heartbeat.h"
+#ifndef debug_helper_h
+#define debug_helper_h
 
+#ifdef DEBUG
+#define Debug(x) Serial.print(x)
+#define DebugLn(x) Serial.println(x)
+#else
+#define Debug(x)
+#define DebugLn(x)
+#endif
 
-Heartbeat::Heartbeat(LED& led, int interval) : _led(led) {
-  _ptr_led = NULL;
-  _interval = interval;
-  off();
-}
-
-Heartbeat::Heartbeat(int pin, int interval)
-  : Heartbeat(*new LEDOpenDrain(pin), interval) {
-  _ptr_led = &_led;
-}
-
-Heartbeat::~Heartbeat() {
-  delete _ptr_led;
-}
-
-void Heartbeat::on() {
-  _tick = 1;
-  _last = millis();
-  _led.on();
-}
-
-void Heartbeat::off() {
-  _tick = 0;
-  _last = millis();
-  _led.off();
-}
-
-void Heartbeat::loop() {
-  unsigned long now = millis();
-  if( (now - _last) >= _interval ) {
-    beatStep();
-    _last = now;
-  };
-}
-
-void Heartbeat::beatStep() {
-  if (_tick <= 3) {
-    _led.setState(!(_tick % 2));
-  }
-  _tick = (_tick + 1) % 10;
-}
+#endif

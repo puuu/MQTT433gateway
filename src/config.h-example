@@ -1,6 +1,9 @@
 /* Example for a config file for the MQTT433gateway. Adapt as needed and copy to net-passwd.h
 */
 
+// Debug on or off
+#define DEBUG
+
 // The locale Wifi SSID
 #define mySSID "wifissid"
 

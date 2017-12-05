@@ -1,10 +1,10 @@
 /*
-  Heartbeat - Library for flashing LED
+  WifiConnection - Helper for connecting to a wifi network
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,33 +27,28 @@
   SOFTWARE.
 */
 
-#ifndef LED_h
-#define LED_h
 
-#include <Arduino.h>
+#ifndef WIFICONNECTION_H
+#define WIFICONNECTION_H
 
-class LED {
- public:
-  LED(int pin, boolean activeHigh=false);
-  virtual void on();
-  virtual void off();
-  virtual void toggle();
-  virtual void setState(boolean state);
-  virtual boolean getState();
+#include <functional>
 
- protected:
-  int _pin;
-  boolean _activeHigh;
-};
+#define CAPTIVE_PW "rfESP_password"
 
-class LEDOpenDrain : public LED {
- public:
-  LEDOpenDrain(int pin);
-  virtual void on();
-  virtual void off();
-  virtual boolean getState();
- protected:
-  boolean _state;
-};
+/**
+ * Connect to a network static or via teh connection manager.
+ *
+ * If the ssid is nullptr, the WiFiManager will open a SoftAP and start an
+ * captive portal where the user can configure
+ * the wifi to use.
+ *
+ * @param ssid The ssid in static mode.
+ * @param passwd  The password for static mode.
+ * @param waitCb  A callback that gets called peridically to indicate that the
+ * device is alive.
+ * @return true if connected successful.
+ */
+bool connectWifi(const char *ssid, const char *passwd,
+                 const std::function<void()> &waitCb);
 
-#endif
+#endif  // WIFICONNECTION_H
