@@ -9,16 +9,15 @@ cache:
     - "~/.platformio"
 
 env:
-  - PLATFORMIO_CI_SRC=.
+  - PLATFORMIO_ENV=esp12e
+  - PLATFORMIO_ENV=nodemcuv2
 
 install:
   # PlatformIO
-  - pip install -U platformio
-  # install libraries
-  - platformio lib install 89 # PubSubClient
-  - platformio lib install 996 # ESPiLight
+  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
   # copy password file
   - cp src/config.h-example src/config.h
+  - platformio lib install
 
 script:
-  - platformio ci --project-conf platformio.ini --lib ./lib/* ./src/*
+  - platformio run --environment=$PLATFORMIO_ENV
