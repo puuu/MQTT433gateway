@@ -30,15 +30,18 @@
 #ifndef MQTT433GATEWAY_SETTINGS_H
 #define MQTT433GATEWAY_SETTINGS_H
 
+#include <bitset>
+
 #include <WString.h>
 #include <functional>
 
-enum SettingType { MQTT, RF_PROTOCOL, RF_ECHO, OTA };
+enum SettingType { MQTT, RF_PROTOCOL, RF_ECHO, OTA, _END };
 
 class SettingListener;
 
 class Settings {
  public:
+  using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
 
   void onChange(SettingType setting, const SettingCallbackFn &callback);
@@ -73,7 +76,7 @@ class Settings {
   ~Settings();
 
  private:
-  void fireChange(SettingType type) const;
+  void fireChange(SettingTypeSet typeSet) const;
 
   SettingListener *listeners = nullptr;
 };

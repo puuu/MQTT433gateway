@@ -29,6 +29,10 @@
 
 #include "Settings.h"
 
+static inline Settings::SettingTypeSet setFor(const SettingType type) {
+  return Settings::SettingTypeSet().set(type);
+}
+
 struct SettingListener {
   const SettingType type;
   const Settings::SettingCallbackFn callback;
@@ -45,10 +49,10 @@ void Settings::onChange(const SettingType setting,
   listeners = new SettingListener(setting, callback, listeners);
 }
 
-void Settings::fireChange(const SettingType type) const {
+void Settings::fireChange(const SettingTypeSet typeSet) const {
   SettingListener *current = listeners;
   while (current != nullptr) {
-    if (type == current->type) {
+    if (typeSet[current->type]) {
       current->callback(*this);
     }
     current = current->next;
@@ -58,10 +62,8 @@ void Settings::fireChange(const SettingType type) const {
 void Settings::load() {
   // ToDo load
 
-  fireChange(MQTT);
-  fireChange(RF_ECHO);
-  fireChange(RF_PROTOCOL);
-  fireChange(OTA);
+  // Fire for all
+  fireChange(SettingTypeSet().set());
 }
 
 Settings::~Settings() {
@@ -75,7 +77,7 @@ Settings::~Settings() {
 
 void Settings::updateProtocols(const String &protocols) {
   this->rfProtocols = protocols;
-  fireChange(RF_PROTOCOL);
+  fireChange(setFor(RF_PROTOCOL));
 }
 
 void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
