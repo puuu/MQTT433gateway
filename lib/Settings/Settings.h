@@ -40,7 +40,7 @@
 #include <Stream.h>
 #include <WString.h>
 
-enum SettingType { MQTT, RF_PROTOCOL, RF_ECHO, OTA, RF_CONFIG, _END };
+enum SettingType { BASE, MQTT, RF_PROTOCOL, RF_ECHO, OTA, RF_CONFIG, _END };
 
 class SettingListener;
 
@@ -101,6 +101,7 @@ class Settings {
   void updateOtaUrl(const String &otaUrl);
 
   void serialize(Stream &stream, bool pretty, bool sensible = true);
+  void deserialize(const String &json, bool fireCallbacks = true);
 
   ~Settings();
 

@@ -31,12 +31,26 @@
 
 #include <ArduinoJson.h>
 
+#include <debug_helper.h>
+
 static inline Settings::SettingTypeSet setFor(const SettingType type) {
   return Settings::SettingTypeSet().set(type);
 }
 
 static inline String maskSensible(const String &val, const bool sensible) {
   return (sensible ? val : F("xxx"));
+}
+
+template <typename TVal, typename TKey>
+bool setIfPresent(JsonObject &obj, TKey key, TVal &var) {
+  if (obj.containsKey(key)) {
+    TVal tmp = obj.get<TVal>(key);
+    if (tmp != var) {
+      var = tmp;
+      return true;
+    }
+  }
+  return false;
 }
 
 struct SettingListener {
@@ -115,5 +129,53 @@ void Settings::serialize(Stream &stream, bool pretty, bool sensible) {
     root.prettyPrintTo(stream);
   } else {
     root.printTo(stream);
+  }
+}
+
+void Settings::deserialize(const String &json, const bool fireCallbacks) {
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &parsedSettings = jsonBuffer.parseObject(json);
+
+  if (!parsedSettings.success()) {
+    DebugLn(F("Config parse failled!"));
+    return;
+  }
+
+  SettingTypeSet changed;
+
+  changed.set(BASE,
+              (setIfPresent(parsedSettings, F("deviceName"), deviceName)));
+
+  changed.set(
+      MQTT,
+      (setIfPresent(parsedSettings, F("mqttReceiveTopic"), mqttReceiveTopic) ||
+       setIfPresent(parsedSettings, F("mqttLogTopic"), mqttLogTopic) ||
+       setIfPresent(parsedSettings, F("mqttRawRopic"), mqttRawRopic) ||
+       setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic) ||
+       setIfPresent(parsedSettings, F("mqttConfigTopic"), mqttConfigTopic) ||
+       setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic) ||
+       setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker) ||
+       setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort) ||
+       setIfPresent(parsedSettings, F("mqttUser"), mqttUser) ||
+       setIfPresent(parsedSettings, F("mqttPassword"), mqttPassword) ||
+       setIfPresent(parsedSettings, F("mqttRetain"), mqttRetain)));
+
+  changed.set(
+      RF_CONFIG,
+      (setIfPresent(parsedSettings, F("rfReceiverPin"), rfReceiverPin) ||
+       setIfPresent(parsedSettings, F("rfTransmitterPin"), rfTransmitterPin)));
+
+  changed.set(RF_ECHO, (setIfPresent(parsedSettings, F("rfEchoMessages"),
+                                     rfEchoMessages)));
+
+  changed.set(RF_PROTOCOL,
+              (setIfPresent(parsedSettings, F("rfProtocols"), rfProtocols)));
+
+  changed.set(OTA,
+              (setIfPresent(parsedSettings, F("otaPassword"), otaPassword) ||
+               setIfPresent(parsedSettings, F("otaUrl"), otaUrl)));
+
+  if (fireCallbacks) {
+    fireChange(changed);
   }
 }
