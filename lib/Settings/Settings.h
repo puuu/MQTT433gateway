@@ -34,10 +34,11 @@
 #define TRANSMITTER_PIN 4
 
 #include <bitset>
+#include <functional>
 
 #include <Esp.h>
+#include <Stream.h>
 #include <WString.h>
-#include <functional>
 
 enum SettingType { MQTT, RF_PROTOCOL, RF_ECHO, OTA, RF_CONFIG, _END };
 
@@ -98,6 +99,8 @@ class Settings {
 
   void updateProtocols(const String &protocols);
   void updateOtaUrl(const String &otaUrl);
+
+  void serialize(Stream &stream, bool pretty, bool sensible = true);
 
   ~Settings();
 

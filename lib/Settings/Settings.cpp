@@ -29,8 +29,14 @@
 
 #include "Settings.h"
 
+#include <ArduinoJson.h>
+
 static inline Settings::SettingTypeSet setFor(const SettingType type) {
   return Settings::SettingTypeSet().set(type);
+}
+
+static inline String maskSensible(const String &val, const bool sensible) {
+  return (sensible ? val : F("xxx"));
 }
 
 struct SettingListener {
@@ -81,3 +87,33 @@ void Settings::updateProtocols(const String &protocols) {
 }
 
 void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
+
+void Settings::serialize(Stream &stream, bool pretty, bool sensible) {
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+
+  root[F("deviceName")] = this->deviceName;
+  root[F("mqttReceiveTopic")] = this->mqttReceiveTopic;
+  root[F("mqttLogTopic")] = this->mqttLogTopic;
+  root[F("mqttRawRopic")] = this->mqttRawRopic;
+  root[F("mqttSendTopic")] = this->mqttSendTopic;
+  root[F("mqttConfigTopic")] = this->mqttConfigTopic;
+  root[F("mqttOtaTopic")] = this->mqttOtaTopic;
+  root[F("mqttBroker")] = this->mqttBroker;
+  root[F("mqttBrokerPort")] = this->mqttBrokerPort;
+  root[F("mqttUser")] = this->mqttUser;
+  root[F("mqttPassword")] = maskSensible(this->mqttPassword, sensible);
+  root[F("mqttRetain")] = this->mqttRetain;
+  root[F("rfReceiverPin")] = this->rfReceiverPin;
+  root[F("rfTransmitterPin")] = this->rfTransmitterPin;
+  root[F("rfEchoMessages")] = this->rfEchoMessages;
+  root[F("rfProtocols")] = this->rfProtocols;
+  root[F("otaPassword")] = maskSensible(this->otaPassword, sensible);
+  root[F("otaUrl")] = this->otaUrl;
+
+  if (pretty) {
+    root.prettyPrintTo(stream);
+  } else {
+    root.printTo(stream);
+  }
+}
