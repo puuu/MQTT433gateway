@@ -178,10 +178,15 @@ void setup() {
 
   settings.onChange(RF_CONFIG, setupRf);
 
-  DebugLn(F("Load Settings"));
+  DebugLn(F("Load Settings..."));
   settings.load();
 
-  DebugLn();
+#ifdef DEBUG
+  DebugLn(F("Current configuration:"));
+  settings.serialize(Serial, true, false);
+#endif
+
+  DebugLn("\n");
   Debug(F("Name: "));
   DebugLn(String(ESP.getChipId(), HEX));
 }
