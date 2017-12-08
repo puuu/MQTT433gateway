@@ -179,3 +179,5 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
     fireChange(changed);
   }
 }
+
+void Settings::reset() {}

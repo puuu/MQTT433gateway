@@ -27,7 +27,6 @@
   SOFTWARE.
 */
 
-
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
@@ -86,3 +85,5 @@ bool connectWifi(const char *ssid, const char *passwd,
     return wifiManager.autoConnect(portal_ssid.c_str(), CAPTIVE_PW);
   }
 }
+
+void resetWifiConfig() { wifiManager.resetSettings(); }

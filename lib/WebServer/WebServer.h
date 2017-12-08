@@ -1,5 +1,5 @@
-/*
-  WifiConnection - Helper for connecting to a wifi network
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
@@ -27,29 +27,16 @@
   SOFTWARE.
 */
 
-#ifndef WIFICONNECTION_H
-#define WIFICONNECTION_H
+#ifndef WEBSERVER_H
+#define WEBSERVER_H
 
-#include <functional>
+#include <ESP8266WebServer.h>
 
-#define CAPTIVE_PW "rfESP_password"
+class WebServer : public ESP8266WebServer {
+ public:
+  WebServer(int port) : ESP8266WebServer(port) {}
 
-/**
- * Connect to a network static or via teh connection manager.
- *
- * If the ssid is nullptr, the WiFiManager will open a SoftAP and start an
- * captive portal where the user can configure
- * the wifi to use.
- *
- * @param ssid The ssid in static mode.
- * @param passwd  The password for static mode.
- * @param waitCb  A callback that gets called peridically to indicate that the
- * device is alive.
- * @return true if connected successful.
- */
-bool connectWifi(const char *ssid, const char *passwd,
-                 const std::function<void()> &waitCb);
+ private:
+};
 
-void resetWifiConfig();
-
-#endif  // WIFICONNECTION_H
+#endif  // WEBSERVER_H
