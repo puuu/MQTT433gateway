@@ -31,10 +31,9 @@
 
 #include <ESP8266httpUpdate.h>
 
-#include <ESPiLight.h>
-
 #include <Heartbeat.h>
 #include <MqttClient.h>
+#include <RfHandler.h>
 #include <SHAauth.h>
 #include <Settings.h>
 #include <WifiConnection.h>
@@ -50,40 +49,20 @@
 #define myWIFIPASSWD nullptr
 #endif
 
-const int RECEIVER_PIN = 12;  // avoid 0, 2, 15, 16
-const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 
 Settings settings(myMQTT_BROCKER, myMQTT_USERNAME, myMQTT_PASSWORD);
+RfHandler *rf = nullptr;
 MqttClient *mqttClient = nullptr;
 
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
-ESPiLight rf(TRANSMITTER_PIN);
 
 SHAauth *otaAuth = nullptr;
 
 bool logMode = false;
 bool rawMode = false;
-
-void transmitt(const String &protocol, const String &message) {
-  Debug(F("rf send "));
-  Debug(message);
-  Debug(F(" with protocol "));
-  DebugLn(protocol);
-
-  if (protocol == F("RAW")) {
-    uint16_t rawpulses[MAXPULSESTREAMLENGTH];
-    int rawlen =
-        rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
-    if (rawlen > 0) {
-      rf.sendPulseTrain(rawpulses, rawlen);
-    }
-  } else {
-    rf.send(protocol, message);
-  }
-}
 
 void handleOta(const String &topic, const String &payload) {
   if (topic == F("url")) {
@@ -97,7 +76,7 @@ void handleOta(const String &topic, const String &payload) {
       beatLED.on();
       Debug(F("Start OTA update from: "));
       DebugLn(settings.otaUrl);
-      rf.disableReceiver();
+      rf->disableReceiver();
       t_httpUpdate_return ret = ESPhttpUpdate.update(settings.otaUrl);
       switch (ret) {
         case HTTP_UPDATE_FAILED:
@@ -115,54 +94,9 @@ void handleOta(const String &topic, const String &payload) {
           ESP.restart();
           break;
       }
-      rf.enableReceiver();
+      rf->enableReceiver();
     } else {
       DebugLn(F("OTA authentication failed!"));
-    }
-  }
-}
-
-void rfCallback(const String &protocol, const String &message, int status,
-                int repeats, const String &deviceID) {
-  Debug(F("RF signal arrived ["));
-  Debug(protocol);
-  Debug(F("]/["));
-  Debug(deviceID);
-  Debug(F("] ("));
-  Debug(status);
-  Debug(F(") "));
-  Debug(message);
-  Debug(F(" ("));
-  Debug(repeats);
-  DebugLn(F(")"));
-
-  if (!mqttClient) {
-    return;
-  }
-
-  if (status == VALID) {
-    if (deviceID != nullptr) {
-      mqttClient->sendCode(protocol + "/" + deviceID, message);
-    }
-    mqttClient->sendCode(protocol, message);
-  }
-  if (logMode) {
-    mqttClient->sendLog(status, protocol, message);
-  }
-}
-
-void rfRawCallback(const uint16_t *pulses, int length) {
-  if (rawMode) {
-    String data = rf.pulseTrainToString(pulses, length);
-    if (data.length() > 0) {
-      Debug(F("RAW RF signal ("));
-      Debug(length);
-      Debug(F("): "));
-      Debug(data);
-      DebugLn();
-      if (mqttClient) {
-        mqttClient->sendRaw(data);
-      }
     }
   }
 }
@@ -176,16 +110,45 @@ void reconnectMqtt(const Settings &) {
   mqttClient = new MqttClient(settings, wifi);
   mqttClient->begin();
 
-  mqttClient->onSet(F("log"),
-                    [](const String &payload) { logMode = payload[0] == '1'; });
-  mqttClient->onSet(F("raw"),
-                    [](const String &payload) { rawMode = payload[0] == '1'; });
+  mqttClient->onSet(F("log"), [](const String &payload) {
+    if (rf) rf->setLogMode(payload[0] == '1');
+  });
+  mqttClient->onSet(F("raw"), [](const String &payload) {
+    if (rf) rf->setRawMode(payload[0] == '1');
+  });
   mqttClient->onSet(F("protocols"), [](const String &payload) {
     settings.updateProtocols(payload);
   });
 
-  mqttClient->onRfData(transmitt);
+  mqttClient->onRfData([](const String &protocol, const String &data) {
+    if (rf) rf->transmitCode(protocol, data);
+  });
   mqttClient->onOta(handleOta);
+}
+
+void setupRf(const Settings &) {
+  // Init only on first load. We need to reboot else.
+  if (rf) {
+    return;
+  }
+  rf =
+      new RfHandler(settings,
+                    [](const String &protocol, const String &data) {
+                      if (mqttClient) {
+                        mqttClient->sendCode(protocol, data);
+                      }
+                    },
+                    [](int statuc, const String &protocol, const String &data) {
+                      if (mqttClient) {
+                        mqttClient->sendLog(statuc, protocol, data);
+                      }
+                    },
+                    [](const String &data) {
+                      if (mqttClient) {
+                        mqttClient->sendRaw(data);
+                      }
+                    });
+  rf->begin();
 }
 
 void setup() {
@@ -197,10 +160,15 @@ void setup() {
   }
 
   settings.onChange(MQTT, reconnectMqtt);
-  settings.onChange(
-      RF_ECHO, [](const Settings &s) { rf.setEchoEnabled(s.rfEchoMessages); });
-  settings.onChange(
-      RF_PROTOCOL, [](const Settings &s) { rf.limitProtocols(s.rfProtocols); });
+
+  settings.onChange(RF_ECHO, [](const Settings &s) {
+    if (rf) rf->setEchoEnabled(s.rfEchoMessages);
+  });
+
+  settings.onChange(RF_PROTOCOL, [](const Settings &s) {
+    if (rf) rf->filterProtocols(s.rfProtocols);
+  });
+
   settings.onChange(OTA, [](const Settings &s) {
     if (otaAuth) {
       delete (otaAuth);
@@ -208,13 +176,11 @@ void setup() {
     otaAuth = new SHAauth(s.otaPassword);
   });
 
+  settings.onChange(RF_CONFIG, setupRf);
+
+  DebugLn(F("Load Settings"));
   settings.load();
 
-  pinMode(RECEIVER_PIN,
-          INPUT_PULLUP);  // 5V protection with reverse diode needs pullup
-  rf.setCallback(rfCallback);
-  rf.setPulseTrainCallBack(rfRawCallback);
-  rf.initReceiver(RECEIVER_PIN);
   DebugLn();
   Debug(F("Name: "));
   DebugLn(String(ESP.getChipId(), HEX));
@@ -223,6 +189,6 @@ void setup() {
 void loop() {
   mqttClient->loop();
 
-  rf.loop();
+  rf->loop();
   beatLED.loop();
 }

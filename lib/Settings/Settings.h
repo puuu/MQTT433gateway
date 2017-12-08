@@ -30,13 +30,16 @@
 #ifndef MQTT433GATEWAY_SETTINGS_H
 #define MQTT433GATEWAY_SETTINGS_H
 
+#define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
+#define TRANSMITTER_PIN 4
+
 #include <bitset>
 
 #include <Esp.h>
 #include <WString.h>
 #include <functional>
 
-enum SettingType { MQTT, RF_PROTOCOL, RF_ECHO, OTA, _END };
+enum SettingType { MQTT, RF_PROTOCOL, RF_ECHO, OTA, RF_CONFIG, _END };
 
 class SettingListener;
 
@@ -44,20 +47,22 @@ class Settings {
  public:
   Settings(const char *defaultBroker, const char *defaultUser,
            const char *defaultPasswd)
-      : deviceName(String(F("rfESP_")) + String(ESP.getChipId(), HEX)),
-        mqttReceiveTopic(deviceName + F("/recv/")),
-        mqttLogTopic(deviceName + F("/log/")),
-        mqttRawRopic(deviceName + F("/raw/")),
-        mqttSendTopic(deviceName + F("/send/")),
-        mqttConfigTopic(deviceName + F("/set/")),
-        mqttOtaTopic(deviceName + F("/ota/")),
+      : deviceName(String(("rfESP_")) + String(ESP.getChipId(), HEX)),
+        mqttReceiveTopic(deviceName + ("/recv/")),
+        mqttLogTopic(deviceName + ("/log/")),
+        mqttRawRopic(deviceName + ("/raw/")),
+        mqttSendTopic(deviceName + ("/send/")),
+        mqttConfigTopic(deviceName + ("/set/")),
+        mqttOtaTopic(deviceName + ("/ota/")),
         mqttBroker(defaultBroker),
         mqttBrokerPort(1883),
         mqttUser(defaultUser),
         mqttPassword(defaultPasswd),
         mqttRetain(true),
+        rfReceiverPin(RECEIVER_PIN),
+        rfTransmitterPin(TRANSMITTER_PIN),
         rfEchoMessages(false),
-        rfProtocols(F("[]")),
+        rfProtocols(("[]")),
         otaPassword() {}
 
   using SettingTypeSet = std::bitset<SettingType::_END>;
@@ -81,6 +86,8 @@ class Settings {
   String mqttPassword;
   bool mqttRetain;
 
+  int8_t rfReceiverPin;
+  int8_t rfTransmitterPin;
   bool rfEchoMessages;
   String rfProtocols;
 
