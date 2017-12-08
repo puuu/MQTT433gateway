@@ -56,7 +56,7 @@ const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 
-Settings settings;
+Settings settings(myMQTT_BROCKER, myMQTT_USERNAME, myMQTT_PASSWORD);
 MqttClient *mqttClient = nullptr;
 
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
@@ -188,30 +188,6 @@ void reconnectMqtt(const Settings &) {
   mqttClient->onOta(handleOta);
 }
 
-// ToDO: default init should go to settings!
-void defaultSettings() {
-  settings.deviceName = String(F("rfESP_")) + String(ESP.getChipId(), HEX);
-
-  settings.mqttReceiveTopic = settings.deviceName + F("/recv/");
-  settings.mqttLogTopic = settings.deviceName + F("/log/");
-  settings.mqttRawRopic = settings.deviceName + F("/raw/");
-
-  settings.mqttSendTopic = settings.deviceName + F("/send/");
-  settings.mqttConfigTopic = settings.deviceName + F("/set/");
-  settings.mqttOtaTopic = settings.deviceName + F("/ota/");
-
-  settings.mqttBroker = F(myMQTT_BROCKER);
-  settings.mqttBrokerPort = 1883;
-  settings.mqttUser = static_cast<const char *>(myMQTT_USERNAME);
-  settings.mqttPassword = static_cast<const char *>(myMQTT_PASSWORD);
-  settings.mqttRetain = true;
-
-  settings.rfEchoMessages = false;
-  settings.rfProtocols = F("[]");
-
-  settings.otaPassword = F(myOTA_PASSWD);
-}
-
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
 
@@ -231,8 +207,6 @@ void setup() {
     }
     otaAuth = new SHAauth(s.otaPassword);
   });
-
-  defaultSettings();
 
   settings.load();
 

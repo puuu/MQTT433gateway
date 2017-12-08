@@ -32,6 +32,7 @@
 
 #include <bitset>
 
+#include <Esp.h>
 #include <WString.h>
 #include <functional>
 
@@ -41,6 +42,24 @@ class SettingListener;
 
 class Settings {
  public:
+  Settings(const char *defaultBroker, const char *defaultUser,
+           const char *defaultPasswd)
+      : deviceName(String(F("rfESP_")) + String(ESP.getChipId(), HEX)),
+        mqttReceiveTopic(deviceName + F("/recv/")),
+        mqttLogTopic(deviceName + F("/log/")),
+        mqttRawRopic(deviceName + F("/raw/")),
+        mqttSendTopic(deviceName + F("/send/")),
+        mqttConfigTopic(deviceName + F("/set/")),
+        mqttOtaTopic(deviceName + F("/ota/")),
+        mqttBroker(defaultBroker),
+        mqttBrokerPort(1883),
+        mqttUser(defaultUser),
+        mqttPassword(defaultPasswd),
+        mqttRetain(true),
+        rfEchoMessages(false),
+        rfProtocols(F("[]")),
+        otaPassword() {}
+
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
 
