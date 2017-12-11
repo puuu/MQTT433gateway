@@ -148,7 +148,7 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
     const SetHandler *current = setHandlers;
 
     while (current != nullptr) {
-      if (topicPart.startsWith(current->path)) {
+      if (topicPart == current->path) {
         current->cb(strPayload);
         return;
       }
