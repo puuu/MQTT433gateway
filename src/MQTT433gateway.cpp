@@ -31,6 +31,7 @@
 
 #include <ESP8266httpUpdate.h>
 
+#include <ConfigWebServer.h>
 #include <Heartbeat.h>
 #include <MqttClient.h>
 #include <RfHandler.h>
@@ -55,6 +56,7 @@ WiFiClient wifi;
 
 Settings settings(myMQTT_BROCKER, myMQTT_USERNAME, myMQTT_PASSWORD);
 RfHandler *rf = nullptr;
+ConfigWebServer *webServer;
 MqttClient *mqttClient = nullptr;
 
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
@@ -152,6 +154,20 @@ void setupRf(const Settings &) {
   rf->begin();
 }
 
+void setupWebServer(const Settings &s) {
+  webServer = new ConfigWebServer();
+
+  webServer->registerSystemCommandHandler(F("restart"), []() {
+    delay(100);
+    ESP.restart();
+  });
+  webServer->registerSystemCommandHandler(F("reset_wifi"), resetWifiConfig);
+  webServer->registerSystemCommandHandler(F("reset_config"),
+                                          []() { settings.reset(); });
+
+  webServer->begin(s);
+}
+
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
 
@@ -177,6 +193,14 @@ void setup() {
     otaAuth = new SHAauth(s.otaPassword);
   });
 
+  settings.registerChangeHandler(WEB_CONFIG, [](const Settings &s) {
+    if (!webServer) {
+      setupWebServer(s);
+    } else {
+      webServer->updateSettings(s);
+    }
+  });
+
   settings.registerChangeHandler(RF_CONFIG, setupRf);
 
   DebugLn(F("Load Settings..."));
@@ -193,6 +217,8 @@ void setup() {
 }
 
 void loop() {
+  webServer->handleClient();
+
   mqttClient->loop();
 
   rf->loop();
