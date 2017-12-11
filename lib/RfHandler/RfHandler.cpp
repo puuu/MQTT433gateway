@@ -127,7 +127,7 @@ void RfHandler::begin() {
   }
 }
 
-void RfHandler::enableReceiver() {}
+void RfHandler::enableReceiver() { rf->enableReceiver(); }
 
 void RfHandler::disableReceiver() { rf->disableReceiver(); }
 
