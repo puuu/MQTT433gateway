@@ -34,6 +34,7 @@
 #define TRANSMITTER_PIN 4
 
 #include <bitset>
+#include <forward_list>
 #include <functional>
 
 #include <Esp.h>
@@ -50,8 +51,6 @@ enum SettingType {
   WEB_CONFIG,
   _END
 };
-
-class SettingListener;
 
 class Settings {
  public:
@@ -117,9 +116,18 @@ class Settings {
   ~Settings();
 
  private:
+  struct SettingListener {
+    const SettingType type;
+    const Settings::SettingCallbackFn callback;
+
+    SettingListener(const SettingType &type,
+                    const Settings::SettingCallbackFn &cb)
+        : type(type), callback(cb) {}
+  };
+
   void onConfigChange(SettingTypeSet typeSet) const;
 
-  SettingListener *listeners = nullptr;
+  std::forward_list<SettingListener> listeners;
 };
 
 #endif  // MQTT433GATEWAY_SETTINGS_H

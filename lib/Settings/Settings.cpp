@@ -53,29 +53,16 @@ bool setIfPresent(JsonObject &obj, TKey key, TVal &var) {
   return false;
 }
 
-struct SettingListener {
-  const SettingType type;
-  const Settings::SettingCallbackFn callback;
-  SettingListener *const next;
-
-  SettingListener(const SettingType &type,
-                  const Settings::SettingCallbackFn &cb,
-                  SettingListener *const next)
-      : type(type), callback(cb), next(next) {}
-};
-
 void Settings::registerChangeHandler(SettingType setting,
                                      const SettingCallbackFn &callback) {
-  listeners = new SettingListener(setting, callback, listeners);
+  listeners.emplace_front(setting, callback);
 }
 
 void Settings::onConfigChange(SettingTypeSet typeSet) const {
-  SettingListener *current = listeners;
-  while (current != nullptr) {
-    if (typeSet[current->type]) {
-      current->callback(*this);
+  for (auto cur = listeners.begin(); cur != listeners.end(); ++cur) {
+    if (typeSet[cur->type]) {
+      cur->callback(*this);
     }
-    current = current->next;
   }
 }
 
@@ -86,14 +73,7 @@ void Settings::load() {
   onConfigChange(SettingTypeSet().set());
 }
 
-Settings::~Settings() {
-  SettingListener *current = listeners;
-  while (current != nullptr) {
-    SettingListener *tmp = current;
-    current = current->next;
-    delete tmp;
-  }
-}
+Settings::~Settings() = default;
 
 void Settings::updateProtocols(const String &protocols) {
   this->rfProtocols = protocols;
