@@ -34,17 +34,6 @@
 const char TEXT_PLAIN[] PROGMEM = "text/plain";
 const char APPLICATION_JSON[] = "application/json";
 
-struct SystemCommandHandler {
-  const String command;
-  const ConfigWebServer::SystemCommandCb cb;
-  const SystemCommandHandler* next;
-
-  SystemCommandHandler(const String& command,
-                       const ConfigWebServer::SystemCommandCb& cb,
-                       const SystemCommandHandler* next)
-      : command(command), cb(cb), next(next) {}
-};
-
 void ConfigWebServer::begin(const Settings& settings) {
   server.on("/",
             [this]() { server.send(200, TEXT_PLAIN, F("Hello from rfESP")); });
@@ -61,8 +50,7 @@ void ConfigWebServer::begin(const Settings& settings) {
 
 void ConfigWebServer::registerSystemCommandHandler(
     const String& command, const ConfigWebServer::SystemCommandCb& cb) {
-  systemCommandHandlers =
-      new SystemCommandHandler(command, cb, systemCommandHandlers);
+  systemCommandHandlers.emplace_front(command, cb);
 }
 
 void ConfigWebServer::onSystemCommand() {
@@ -79,14 +67,13 @@ void ConfigWebServer::onSystemCommand() {
     return;
   }
 
-  const SystemCommandHandler* cur = systemCommandHandlers;
-  while (cur != nullptr) {
+  for (auto cur = systemCommandHandlers.begin();
+       cur != systemCommandHandlers.end(); ++cur) {
     if (cur->command == request["command"]) {
       server.send(200, TEXT_PLAIN, F("Run command!"));
       cur->cb();
       return;
     }
-    cur = cur->next;
   }
 
   server.send(400, TEXT_PLAIN, F("Unknown command"));

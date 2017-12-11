@@ -30,11 +30,11 @@
 #ifndef CONFIGWEBSERVER_H
 #define CONFIGWEBSERVER_H
 
+#include <forward_list>
+
 #include <Settings.h>
 
 #include "WebServer.h"
-
-class SystemCommandHandler;
 
 class ConfigWebServer {
  public:
@@ -51,11 +51,19 @@ class ConfigWebServer {
                                     const SystemCommandCb& cb);
 
  private:
+  struct SystemCommandHandler {
+    const String command;
+    const ConfigWebServer::SystemCommandCb cb;
+
+    SystemCommandHandler(const String& command,
+                         const ConfigWebServer::SystemCommandCb& cb)
+        : command(command), cb(cb) {}
+  };
+
   void onSystemCommand();
 
   WebServer server;
-
-  SystemCommandHandler* systemCommandHandlers;
+  std::forward_list<SystemCommandHandler> systemCommandHandlers;
 };
 
 #endif  // CONFIGWEBSERVER_H
