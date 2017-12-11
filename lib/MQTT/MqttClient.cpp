@@ -27,18 +27,10 @@
   SOFTWARE.
 */
 
-#include "MqttClient.h"
+#include <PubSubClient.h>
+
 #include <debug_helper.h>
-
-struct SetHandler {
-  const String path;
-  const MqttClient::SettingHandlerCallback cb;
-  const SetHandler *next;
-
-  SetHandler(const String &path, const MqttClient::SettingHandlerCallback &cb,
-             const SetHandler *next)
-      : path(path), cb(cb), next(next) {}
-};
+#include "MqttClient.h"
 
 class PayloadString : public String {
  public:
@@ -58,13 +50,6 @@ MqttClient::~MqttClient() {
   if (mqttClient) {
     mqttClient->disconnect();
     delete mqttClient;
-  }
-  const SetHandler *current = setHandlers;
-
-  while (current != nullptr) {
-    const SetHandler *tmp = current;
-    current = current->next;
-    delete (tmp);
   }
 }
 
@@ -145,14 +130,11 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
     Debug(F("Config: "));
     DebugLn(topicPart);
 
-    const SetHandler *current = setHandlers;
-
-    while (current != nullptr) {
-      if (topicPart == current->path) {
-        current->cb(strPayload);
+    for (auto cur = setHandlers.begin(); cur != setHandlers.end(); ++cur) {
+      if (topicPart == cur->path) {
+        cur->cb(strPayload);
         return;
       }
-      current = current->next;
     }
   }
 
@@ -166,7 +148,7 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
 
 void MqttClient::registerSetHandler(
     const String &url_part, const MqttClient::SettingHandlerCallback &cb) {
-  setHandlers = new SetHandler(url_part, cb, setHandlers);
+  setHandlers.emplace_front(url_part, cb);
 }
 
 void MqttClient::registerOtaHandler(const MqttClient::HandlerCallback &cb) {

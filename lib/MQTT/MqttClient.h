@@ -30,12 +30,14 @@
 #ifndef MQTTCLIENT_H
 #define MQTTCLIENT_H
 
-#include <PubSubClient.h>
-#include <Settings.h>
+#include <forward_list>
+
 #include <WString.h>
 #include <WiFiClient.h>
 
-class SetHandler;
+#include <Settings.h>
+
+class PubSubClient;
 
 class MqttClient {
  public:
@@ -68,13 +70,21 @@ class MqttClient {
   ~MqttClient();
 
  private:
+  struct SetHandler {
+    const String path;
+    const MqttClient::SettingHandlerCallback cb;
+
+    SetHandler(const String &path, const MqttClient::SettingHandlerCallback &cb)
+        : path(path), cb(cb) {}
+  };
+
   void onMessage(char *topic, uint8_t *payload, unsigned int length);
 
   const Settings &settings;
   PubSubClient *mqttClient = nullptr;
 
   HandlerCallback codeCallback;
-  const SetHandler *setHandlers = nullptr;
+  std::forward_list<SetHandler> setHandlers;
   HandlerCallback otaCallback;
 };
 
