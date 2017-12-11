@@ -67,7 +67,7 @@ bool rawMode = false;
 void handleOta(const String &topic, const String &payload) {
   if (topic == F("url")) {
     settings.updateOtaUrl(payload);
-    mqttClient->sendOta(F("nonce"), otaAuth->nonce());
+    mqttClient->publishOta(F("nonce"), otaAuth->nonce());
     return;
   }
 
@@ -110,20 +110,21 @@ void reconnectMqtt(const Settings &) {
   mqttClient = new MqttClient(settings, wifi);
   mqttClient->begin();
 
-  mqttClient->onSet(F("log"), [](const String &payload) {
+  mqttClient->registerSetHandler(F("log"), [](const String &payload) {
     if (rf) rf->setLogMode(payload[0] == '1');
   });
-  mqttClient->onSet(F("raw"), [](const String &payload) {
+  mqttClient->registerSetHandler(F("raw"), [](const String &payload) {
     if (rf) rf->setRawMode(payload[0] == '1');
   });
-  mqttClient->onSet(F("protocols"), [](const String &payload) {
+  mqttClient->registerSetHandler(F("protocols"), [](const String &payload) {
     settings.updateProtocols(payload);
   });
 
-  mqttClient->onRfData([](const String &protocol, const String &data) {
-    if (rf) rf->transmitCode(protocol, data);
-  });
-  mqttClient->onOta(handleOta);
+  mqttClient->registerRfDataHandler(
+      [](const String &protocol, const String &data) {
+        if (rf) rf->transmitCode(protocol, data);
+      });
+  mqttClient->registerOtaHandler(handleOta);
 }
 
 void setupRf(const Settings &) {
@@ -135,17 +136,17 @@ void setupRf(const Settings &) {
       new RfHandler(settings,
                     [](const String &protocol, const String &data) {
                       if (mqttClient) {
-                        mqttClient->sendCode(protocol, data);
+                        mqttClient->publishCode(protocol, data);
                       }
                     },
                     [](int statuc, const String &protocol, const String &data) {
                       if (mqttClient) {
-                        mqttClient->sendLog(statuc, protocol, data);
+                        mqttClient->publishLog(statuc, protocol, data);
                       }
                     },
                     [](const String &data) {
                       if (mqttClient) {
-                        mqttClient->sendRaw(data);
+                        mqttClient->publishRaw(data);
                       }
                     });
   rf->begin();
@@ -159,24 +160,24 @@ void setup() {
     ESP.restart();
   }
 
-  settings.onChange(MQTT, reconnectMqtt);
+  settings.registerChangeHandler(MQTT, reconnectMqtt);
 
-  settings.onChange(RF_ECHO, [](const Settings &s) {
+  settings.registerChangeHandler(RF_ECHO, [](const Settings &s) {
     if (rf) rf->setEchoEnabled(s.rfEchoMessages);
   });
 
-  settings.onChange(RF_PROTOCOL, [](const Settings &s) {
+  settings.registerChangeHandler(RF_PROTOCOL, [](const Settings &s) {
     if (rf) rf->filterProtocols(s.rfProtocols);
   });
 
-  settings.onChange(OTA, [](const Settings &s) {
+  settings.registerChangeHandler(OTA, [](const Settings &s) {
     if (otaAuth) {
       delete (otaAuth);
     }
     otaAuth = new SHAauth(s.otaPassword);
   });
 
-  settings.onChange(RF_CONFIG, setupRf);
+  settings.registerChangeHandler(RF_CONFIG, setupRf);
 
   DebugLn(F("Load Settings..."));
   settings.load();

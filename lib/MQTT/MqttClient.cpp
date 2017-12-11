@@ -164,35 +164,35 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
   }
 }
 
-void MqttClient::onSet(const String &url_part,
-                       const MqttClient::SettingHandlerCallback &cb) {
+void MqttClient::registerSetHandler(
+    const String &url_part, const MqttClient::SettingHandlerCallback &cb) {
   setHandlers = new SetHandler(url_part, cb, setHandlers);
 }
 
-void MqttClient::onOta(const MqttClient::HandlerCallback &cb) {
+void MqttClient::registerOtaHandler(const MqttClient::HandlerCallback &cb) {
   otaCallback = cb;
 }
 
-void MqttClient::onRfData(const MqttClient::HandlerCallback &cb) {
+void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
   codeCallback = cb;
 }
 
-void MqttClient::sendCode(const String &protocol, const String &payload) {
+void MqttClient::publishCode(const String &protocol, const String &payload) {
   mqttClient->publish((settings.mqttReceiveTopic + protocol).c_str(),
                       payload.c_str(), settings.mqttRetain);
 }
 
-void MqttClient::sendLog(const int status, const String &protocol,
-                         const String &message) {
+void MqttClient::publishLog(int status, const String &protocol,
+                            const String &message) {
   mqttClient->publish(
       (settings.mqttLogTopic + String(status) + "/" + protocol).c_str(),
       message.c_str());
 }
 
-void MqttClient::sendRaw(const String &data) {
+void MqttClient::publishRaw(const String &data) {
   mqttClient->publish(settings.mqttRawRopic.c_str(), data.c_str());
 }
 
-void MqttClient::sendOta(const String &topic, const String payload) {
+void MqttClient::publishOta(const String &topic, const String payload) {
   mqttClient->publish((settings.mqttOtaTopic + topic).c_str(), payload.c_str());
 }

@@ -54,18 +54,18 @@ void ConfigWebServer::begin(const Settings& settings) {
   });
 
   server.on("/system", HTTP_POST,
-            std::bind(&::ConfigWebServer::handleSystemCommand, this));
+            std::bind(&::ConfigWebServer::onSystemCommand, this));
 
   server.begin();
 }
 
-void ConfigWebServer::onSystemCommand(
+void ConfigWebServer::registerSystemCommandHandler(
     const String& command, const ConfigWebServer::SystemCommandCb& cb) {
   systemCommandHandlers =
       new SystemCommandHandler(command, cb, systemCommandHandlers);
 }
 
-void ConfigWebServer::handleSystemCommand() {
+void ConfigWebServer::onSystemCommand() {
   DynamicJsonBuffer buffer;
   JsonObject& request = buffer.parse(server.arg("plain"));
 

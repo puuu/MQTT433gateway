@@ -40,7 +40,16 @@
 #include <Stream.h>
 #include <WString.h>
 
-enum SettingType { BASE, MQTT, RF_PROTOCOL, RF_ECHO, OTA, RF_CONFIG, WEB_CONFIG, _END };
+enum SettingType {
+  BASE,
+  MQTT,
+  RF_PROTOCOL,
+  RF_ECHO,
+  OTA,
+  RF_CONFIG,
+  WEB_CONFIG,
+  _END
+};
 
 class SettingListener;
 
@@ -69,7 +78,8 @@ class Settings {
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
 
-  void onChange(SettingType setting, const SettingCallbackFn &callback);
+  void registerChangeHandler(SettingType setting,
+                             const SettingCallbackFn &callback);
 
   String deviceName;
 
@@ -102,12 +112,12 @@ class Settings {
 
   void serialize(Stream &stream, bool pretty, bool sensible = true);
   void deserialize(const String &json, bool fireCallbacks = true);
-    void reset();
+  void reset();
 
   ~Settings();
 
  private:
-  void fireChange(SettingTypeSet typeSet) const;
+  void onConfigChange(SettingTypeSet typeSet) const;
 
   SettingListener *listeners = nullptr;
 };

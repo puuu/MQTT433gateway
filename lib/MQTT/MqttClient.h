@@ -55,14 +55,15 @@ class MqttClient {
 
   void loop();
 
-  void sendCode(const String &protocol, const String &payload);
-  void sendLog(int status, const String &protocol, const String &message);
-  void sendRaw(const String &data);
-  void sendOta(const String &topic, const String payload);
+  void publishCode(const String &protocol, const String &payload);
+  void publishLog(int status, const String &protocol, const String &message);
+  void publishRaw(const String &data);
+  void publishOta(const String &topic, const String payload);
 
-  void onSet(const String &url_part, const SettingHandlerCallback &cb);
-  void onOta(const HandlerCallback &cb);
-  void onRfData(const HandlerCallback &cb);
+  void registerSetHandler(const String &url_part,
+                          const SettingHandlerCallback &cb);
+  void registerOtaHandler(const HandlerCallback &cb);
+  void registerRfDataHandler(const HandlerCallback &cb);
 
   ~MqttClient();
 

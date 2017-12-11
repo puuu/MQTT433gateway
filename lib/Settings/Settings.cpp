@@ -64,12 +64,12 @@ struct SettingListener {
       : type(type), callback(cb), next(next) {}
 };
 
-void Settings::onChange(const SettingType setting,
-                        const SettingCallbackFn &callback) {
+void Settings::registerChangeHandler(SettingType setting,
+                                     const SettingCallbackFn &callback) {
   listeners = new SettingListener(setting, callback, listeners);
 }
 
-void Settings::fireChange(const SettingTypeSet typeSet) const {
+void Settings::onConfigChange(SettingTypeSet typeSet) const {
   SettingListener *current = listeners;
   while (current != nullptr) {
     if (typeSet[current->type]) {
@@ -83,7 +83,7 @@ void Settings::load() {
   // ToDo load
 
   // Fire for all
-  fireChange(SettingTypeSet().set());
+  onConfigChange(SettingTypeSet().set());
 }
 
 Settings::~Settings() {
@@ -97,7 +97,7 @@ Settings::~Settings() {
 
 void Settings::updateProtocols(const String &protocols) {
   this->rfProtocols = protocols;
-  fireChange(setFor(RF_PROTOCOL));
+  onConfigChange(setFor(RF_PROTOCOL));
 }
 
 void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
@@ -176,7 +176,7 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
                setIfPresent(parsedSettings, F("otaUrl"), otaUrl)));
 
   if (fireCallbacks) {
-    fireChange(changed);
+    onConfigChange(changed);
   }
 }
 

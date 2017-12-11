@@ -47,10 +47,11 @@ class ConfigWebServer {
 
   void handleClient();
 
-  void onSystemCommand(const String& command, const SystemCommandCb& cb);
+  void registerSystemCommandHandler(const String& command,
+                                    const SystemCommandCb& cb);
 
  private:
-  void handleSystemCommand();
+  void onSystemCommand();
 
   WebServer server;
 
