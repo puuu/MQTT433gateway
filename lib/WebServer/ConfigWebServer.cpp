@@ -38,7 +38,7 @@ void ConfigWebServer::begin(const Settings& settings) {
   server.on("/",
             [this]() { server.send(200, TEXT_PLAIN, F("Hello from rfESP")); });
 
-  server.on("/", [this]() {
+  server.on("/system", [this]() {
     server.send(200, TEXT_PLAIN, F("POST your commands here"));
   });
 
