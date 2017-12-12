@@ -59,9 +59,9 @@ void Settings::registerChangeHandler(SettingType setting,
 }
 
 void Settings::onConfigChange(SettingTypeSet typeSet) const {
-  for (auto cur = listeners.begin(); cur != listeners.end(); ++cur) {
-    if (typeSet[cur->type]) {
-      cur->callback(*this);
+  for (const auto &listener : listeners) {
+    if (typeSet[listener.type]) {
+      listener.callback(*this);
     }
   }
 }

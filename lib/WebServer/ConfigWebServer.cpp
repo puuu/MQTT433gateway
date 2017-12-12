@@ -67,11 +67,10 @@ void ConfigWebServer::onSystemCommand() {
     return;
   }
 
-  for (auto cur = systemCommandHandlers.begin();
-       cur != systemCommandHandlers.end(); ++cur) {
-    if (cur->command == request["command"]) {
+  for (const auto &systemCommandHandler : systemCommandHandlers) {
+    if (systemCommandHandler.command == request["command"]) {
       server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
-      cur->cb();
+      systemCommandHandler.cb();
       return;
     }
   }

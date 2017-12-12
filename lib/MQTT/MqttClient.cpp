@@ -131,9 +131,9 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
     Logger.debug.print(F("Config: "));
     Logger.debug.println(topicPart);
 
-    for (auto cur = setHandlers.begin(); cur != setHandlers.end(); ++cur) {
-      if (topicPart == cur->path) {
-        cur->cb(strPayload);
+    for (const auto &setHandler : setHandlers) {
+      if (topicPart == setHandler.path) {
+        setHandler.cb(strPayload);
         return;
       }
     }
