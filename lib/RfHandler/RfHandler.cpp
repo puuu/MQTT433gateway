@@ -33,18 +33,6 @@
 
 #include "RfHandler.h"
 
-// we need these because the ESPiLight cannot handle member function pointers.
-static RfHandler *_instance = nullptr;
-
-static void _rfCallback(const String &protocol, const String &message,
-                        int status, int repeats, const String &deviceID) {
-  _instance->rfCallback(protocol, message, status, repeats, deviceID);
-}
-
-static void _rfRawCallback(const uint16_t *pulses, int length) {
-  _instance->rfRawCallback(pulses, length);
-}
-
 RfHandler::RfHandler(const Settings &settings,
                      const RfHandler::SendCallback &sendCb,
                      const RfHandler::LogCallback &logCb,
@@ -76,7 +64,7 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
 }
 
 void RfHandler::rfCallback(const String &protocol, const String &message,
-                           int status, int repeats, const String &deviceID) {
+                           int status, size_t repeats, const String &deviceID) {
   Logger.debug.print(F("RF signal arrived ["));
   Logger.debug.print(protocol);
   Logger.debug.print(F("]/["));
@@ -100,7 +88,7 @@ void RfHandler::rfCallback(const String &protocol, const String &message,
   }
 }
 
-void RfHandler::rfRawCallback(const uint16_t *pulses, int length) {
+void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
   if (rawMode) {
     String data = rf->pulseTrainToString(pulses, length);
     if (data.length() > 0) {
@@ -120,9 +108,10 @@ void RfHandler::begin() {
 
     pinMode(RECEIVER_PIN,
             INPUT_PULLUP);  // 5V protection with reverse diode needs pullup
-    _instance = this;
-    rf->setCallback(_rfCallback);
-    rf->setPulseTrainCallBack(_rfRawCallback);
+    rf->setCallback(
+        std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
+    rf->setPulseTrainCallBack(
+        std::bind(&RfHandler::rfRawCallback, this, _1, _2));
     rf->initReceiver(RECEIVER_PIN);
   }
 }

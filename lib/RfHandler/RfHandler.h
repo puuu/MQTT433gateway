@@ -63,9 +63,9 @@ class RfHandler {
   void loop();
 
   void rfCallback(const String &protocol, const String &message, int status,
-                  int repeats, const String &deviceID);
+                  size_t repeats, const String &deviceID);
 
-  void rfRawCallback(const uint16_t *pulses, int length);
+  void rfRawCallback(const uint16_t *pulses, size_t length);
 
  private:
   ESPiLight *rf;
