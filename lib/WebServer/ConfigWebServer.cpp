@@ -58,25 +58,25 @@ void ConfigWebServer::onSystemCommand() {
   JsonObject& request = buffer.parse(server.arg("plain"));
 
   if (!request.success()) {
-    server.send(400, TEXT_PLAIN, F("Cannot parse command!"));
+    server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse command!"));
     return;
   }
 
   if (!request.containsKey("command")) {
-    server.send(400, TEXT_PLAIN, F("No command found!"));
+    server.send_P(400, TEXT_PLAIN, PSTR("No command found!"));
     return;
   }
 
   for (auto cur = systemCommandHandlers.begin();
        cur != systemCommandHandlers.end(); ++cur) {
     if (cur->command == request["command"]) {
-      server.send(200, TEXT_PLAIN, F("Run command!"));
+      server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
       cur->cb();
       return;
     }
   }
 
-  server.send(400, TEXT_PLAIN, F("Unknown command"));
+  server.send_P(400, TEXT_PLAIN, PSTR("Unknown command"));
 }
 
 void ConfigWebServer::handleClient() { server.handleClient(); }
