@@ -48,7 +48,7 @@ String SHAauth::nonce() {
 bool SHAauth::verify(const String &answer) {
   if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)) {
     int pos = answer.indexOf(' ');
-    if ((pos > 1) && (answer.length() > pos)) {
+    if ((pos > 1) && (answer.length() > (unsigned)pos)) {
       String cnonce = answer.substring(0, pos);
       String response = answer.substring(pos + 1);
       String result = sha1(_passHash + F(":") + _nonceHash + F(":") + cnonce);
