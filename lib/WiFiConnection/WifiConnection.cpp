@@ -32,7 +32,7 @@
 
 #include <WiFiManager.h>
 
-#include <debug_helper.h>
+#include <ArduinoSimpleLogging.h>
 
 #include "WifiConnection.h"
 
@@ -43,9 +43,9 @@ bool setupWifiStatic(const char *ssid, const char *passwd,
   delay(10);
   waitCb();
   // We start by connecting to a WiFi network
-  DebugLn();
-  Debug(F("Connecting to "));
-  DebugLn(ssid);
+  Logger.info.println();
+  Logger.info.print(F("Connecting to "));
+  Logger.info.println(ssid);
 
   WiFi.mode(WIFI_STA);  // Explicitly set station mode
   WiFi.begin(ssid, passwd);
@@ -58,19 +58,19 @@ bool setupWifiStatic(const char *ssid, const char *passwd,
     waitCb();
     delay(500);
     waitCb();
-    Debug(F("."));
+    Logger.info.print(F("."));
     if (counter > 180) {
-      DebugLn();
-      DebugLn(F("Could not connect to wifi in 180 seconds!"));
+      Logger.error.println();
+      Logger.error.println(F("Could not connect to wifi in 180 seconds!"));
       return false;
     }
     ++counter;
   }
 
-  DebugLn();
-  DebugLn(F("WiFi connected"));
-  DebugLn(F("IP address: "));
-  DebugLn(WiFi.localIP());
+  Logger.info.println();
+  Logger.info.println(F("WiFi connected"));
+  Logger.info.println(F("IP address: "));
+  Logger.info.println(WiFi.localIP());
   waitCb();
   return true;
 }

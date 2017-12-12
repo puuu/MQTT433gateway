@@ -31,7 +31,7 @@
 
 #include <ArduinoJson.h>
 
-#include <debug_helper.h>
+#include <ArduinoSimpleLogging.h>
 
 static inline Settings::SettingTypeSet setFor(const SettingType type) {
   return Settings::SettingTypeSet().set(type);
@@ -118,7 +118,7 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
   JsonObject &parsedSettings = jsonBuffer.parseObject(json);
 
   if (!parsedSettings.success()) {
-    DebugLn(F("Config parse failled!"));
+    Logger.warning.println(F("Config parse failed!"));
     return;
   }
 

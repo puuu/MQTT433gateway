@@ -39,7 +39,6 @@
 #include <SHAauth.h>
 #include <Settings.h>
 #include <WifiConnection.h>
-#include <debug_helper.h>
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
@@ -77,29 +76,30 @@ void handleOta(const String &topic, const String &payload) {
   if ((topic == F("passwd")) && (settings.otaUrl.length() > 7)) {
     if (otaAuth->verify(payload)) {
       beatLED.on();
-      Debug(F("Start OTA update from: "));
-      DebugLn(settings.otaUrl);
+      Logger.info.print(F("Start OTA update from: "));
+      Logger.info.println(settings.otaUrl);
       rf->disableReceiver();
       t_httpUpdate_return ret = ESPhttpUpdate.update(settings.otaUrl);
       switch (ret) {
         case HTTP_UPDATE_FAILED:
-          Debug(F("HTTP_UPDATE_FAILD Error ("));
-          Debug(ESPhttpUpdate.getLastError());
-          Debug(F("): "));
-          DebugLn(ESPhttpUpdate.getLastErrorString());
+          Logger.error.print(F("HTTP_UPDATE_FAILD Error ("));
+          Logger.error.print(ESPhttpUpdate.getLastError());
+          Logger.error.print(F("): "));
+          Logger.error.println(ESPhttpUpdate.getLastErrorString());
           break;
         case HTTP_UPDATE_NO_UPDATES:
-          DebugLn(F("HTTP_UPDATE_NO_UPDATES"));
+          Logger.info.println(F("HTTP_UPDATE_NO_UPDATES"));
           break;
         case HTTP_UPDATE_OK:
-          DebugLn(F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
+          Logger.info.println(
+              F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
           // reboot the ESP?
           ESP.restart();
           break;
       }
       rf->enableReceiver();
     } else {
-      DebugLn(F("OTA authentication failed!"));
+      Logger.warning.println(F("OTA authentication failed!"));
     }
   }
 }
@@ -174,7 +174,7 @@ void setup() {
   Logger.addHandler(Logger.DEBUG, Serial);
 
   if (!connectWifi(mySSID, myWIFIPASSWD, []() { beatLED.loop(); })) {
-    Logger.debug.println(F("Try connecting again after reboot"));
+    Logger.warning.println(F("Try connecting again after reboot"));
     ESP.restart();
   }
 
@@ -209,17 +209,15 @@ void setup() {
     Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
   });
 
-  DebugLn(F("Load Settings..."));
+  Logger.info.println(F("Load Settings..."));
   settings.load();
 
-#ifdef DEBUG
-  DebugLn(F("Current configuration:"));
-  settings.serialize(Serial, true, false);
-#endif
+  Logger.debug.println(F("Current configuration:"));
+  settings.serialize(Logger.debug, true, false);
 
-  DebugLn("\n");
-  Debug(F("Name: "));
-  DebugLn(String(ESP.getChipId(), HEX));
+  Logger.info.println("\n");
+  Logger.info.print(F("Name: "));
+  Logger.info.println(String(ESP.getChipId(), HEX));
 }
 
 void loop() {

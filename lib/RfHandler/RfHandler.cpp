@@ -29,7 +29,7 @@
 
 #include <ESPiLight.h>
 
-#include <debug_helper.h>
+#include <ArduinoSimpleLogging.h>
 
 #include "RfHandler.h"
 
@@ -58,10 +58,10 @@ RfHandler::RfHandler(const Settings &settings,
 }
 
 void RfHandler::transmitCode(const String &protocol, const String &message) {
-  Debug(F("rf send "));
-  Debug(message);
-  Debug(F(" with protocol "));
-  DebugLn(protocol);
+  Logger.debug.print(F("rf send "));
+  Logger.debug.print(message);
+  Logger.debug.print(F(" with protocol "));
+  Logger.debug.println(protocol);
 
   if (protocol == F("RAW")) {
     uint16_t rawpulses[MAXPULSESTREAMLENGTH];
@@ -77,17 +77,17 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
 
 void RfHandler::rfCallback(const String &protocol, const String &message,
                            int status, int repeats, const String &deviceID) {
-  Debug(F("RF signal arrived ["));
-  Debug(protocol);
-  Debug(F("]/["));
-  Debug(deviceID);
-  Debug(F("] ("));
-  Debug(status);
-  Debug(F(") "));
-  Debug(message);
-  Debug(F(" ("));
-  Debug(repeats);
-  DebugLn(F(")"));
+  Logger.debug.print(F("RF signal arrived ["));
+  Logger.debug.print(protocol);
+  Logger.debug.print(F("]/["));
+  Logger.debug.print(deviceID);
+  Logger.debug.print(F("] ("));
+  Logger.debug.print(status);
+  Logger.debug.print(F(") "));
+  Logger.debug.print(message);
+  Logger.debug.print(F(" ("));
+  Logger.debug.print(repeats);
+  Logger.debug.println(F(")"));
 
   if (status == VALID) {
     if (deviceID != nullptr) {
@@ -104,11 +104,11 @@ void RfHandler::rfRawCallback(const uint16_t *pulses, int length) {
   if (rawMode) {
     String data = rf->pulseTrainToString(pulses, length);
     if (data.length() > 0) {
-      Debug(F("RAW RF signal ("));
-      Debug(length);
-      Debug(F("): "));
-      Debug(data);
-      DebugLn();
+      Logger.debug.print(F("RAW RF signal ("));
+      Logger.debug.print(length);
+      Logger.debug.print(F("): "));
+      Logger.debug.print(data);
+      Logger.debug.println();
       rawCb(data);
     }
   }

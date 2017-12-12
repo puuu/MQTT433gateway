@@ -29,7 +29,8 @@
 
 #include <PubSubClient.h>
 
-#include <debug_helper.h>
+#include <ArduinoSimpleLogging.h>
+
 #include "MqttClient.h"
 
 class PayloadString : public String {
@@ -43,7 +44,7 @@ class PayloadString : public String {
 
 MqttClient::MqttClient(const Settings &settings, WiFiClient &client)
     : settings(settings), mqttClient(new PubSubClient(client)) {
-  DebugLn(F("New MQTT client instance."));
+  Logger.debug.println(F("New MQTT client instance."));
 }
 
 MqttClient::~MqttClient() {
@@ -77,15 +78,15 @@ bool MqttClient::connect() {
 bool MqttClient::reconnect() {
   if (!mqttClient->connected()) {
     if (connect()) {
-      DebugLn(F("MQTT connected"));
+      Logger.info.println(F("MQTT connected"));
       if (subsrcibe()) {
         mqttClient->publish(settings.deviceName.c_str(), "online", true);
-        DebugLn(F("Subscribed!"));
+        Logger.info.println(F("Subscribed!"));
       } else {
-        DebugLn(F("Cannot subsrcibe!"));
+        Logger.error.println(F("Cannot subsrcibe!"));
       }
     } else {
-      DebugLn(F("Cannot connect!"));
+      Logger.error.println(F("Cannot connect!"));
       return false;
     }
   }
@@ -93,10 +94,10 @@ bool MqttClient::reconnect() {
 }
 
 bool MqttClient::subsrcibe() {
-  DebugLn(F("...Subscribe to: "));
-  DebugLn((settings.mqttOtaTopic + "+").c_str());
-  DebugLn((settings.mqttConfigTopic + "+").c_str());
-  DebugLn((settings.mqttSendTopic + "+").c_str());
+  Logger.debug.println(F("...Subscribe to: "));
+  Logger.debug.println((settings.mqttOtaTopic + "+").c_str());
+  Logger.debug.println((settings.mqttConfigTopic + "+").c_str());
+  Logger.debug.println((settings.mqttSendTopic + "+").c_str());
 
   return mqttClient->subscribe((settings.mqttOtaTopic + "+").c_str()) &&
          mqttClient->subscribe((settings.mqttConfigTopic + "+").c_str()) &&
@@ -113,10 +114,10 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
   PayloadString strPayload(payload, length);
   String strTopic(topic);
 
-  Debug(F("New MQTT message: "));
-  Debug(strTopic);
-  Debug(F(" .. "));
-  DebugLn(strPayload);
+  Logger.debug.print(F("New MQTT message: "));
+  Logger.debug.print(strTopic);
+  Logger.debug.print(F(" .. "));
+  Logger.debug.println(strPayload);
 
   if (strTopic.startsWith(settings.mqttSendTopic)) {
     if (codeCallback) {
@@ -127,8 +128,8 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
   if (strTopic.startsWith(settings.mqttConfigTopic)) {
     String topicPart(topic + settings.mqttConfigTopic.length());
 
-    Debug(F("Config: "));
-    DebugLn(topicPart);
+    Logger.debug.print(F("Config: "));
+    Logger.debug.println(topicPart);
 
     for (auto cur = setHandlers.begin(); cur != setHandlers.end(); ++cur) {
       if (topicPart == cur->path) {
