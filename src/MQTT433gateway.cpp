@@ -31,6 +31,7 @@
 
 #include <ESP8266httpUpdate.h>
 
+#include <ArduinoSimpleLogging.h>
 #include <ConfigWebServer.h>
 #include <Heartbeat.h>
 #include <MqttClient.h>
@@ -170,9 +171,10 @@ void setupWebServer(const Settings &s) {
 
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+  Logger.addHandler(Logger.DEBUG, Serial);
 
   if (!connectWifi(mySSID, myWIFIPASSWD, []() { beatLED.loop(); })) {
-    DebugLn(F("Try connectiing again after reboot"));
+    Logger.debug.println(F("Try connecting again after reboot"));
     ESP.restart();
   }
 
@@ -202,6 +204,10 @@ void setup() {
   });
 
   settings.registerChangeHandler(RF_CONFIG, setupRf);
+
+  settings.registerChangeHandler(LOGGING, [](const Settings &s) {
+    Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
+  });
 
   DebugLn(F("Load Settings..."));
   settings.load();

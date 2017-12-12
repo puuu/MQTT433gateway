@@ -49,6 +49,7 @@ enum SettingType {
   OTA,
   RF_CONFIG,
   WEB_CONFIG,
+  LOGGING,
   _END
 };
 
@@ -72,7 +73,8 @@ class Settings {
         rfTransmitterPin(TRANSMITTER_PIN),
         rfEchoMessages(false),
         rfProtocols(("[]")),
-        otaPassword() {}
+        otaPassword(),
+        serialLogLevel("debug") {}
 
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
@@ -104,12 +106,14 @@ class Settings {
   String otaPassword;
   String otaUrl;
 
+  String serialLogLevel;
+
   void load();
 
   void updateProtocols(const String &protocols);
   void updateOtaUrl(const String &otaUrl);
 
-  void serialize(Stream &stream, bool pretty, bool sensible = true);
+  void serialize(Print &stream, bool pretty, bool sensible = true);
   void deserialize(const String &json, bool fireCallbacks = true);
   void reset();
 

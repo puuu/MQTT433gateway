@@ -82,7 +82,7 @@ void Settings::updateProtocols(const String &protocols) {
 
 void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
 
-void Settings::serialize(Stream &stream, bool pretty, bool sensible) {
+void Settings::serialize(Print &stream, bool pretty, bool sensible) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
 
@@ -104,6 +104,7 @@ void Settings::serialize(Stream &stream, bool pretty, bool sensible) {
   root[F("rfProtocols")] = this->rfProtocols;
   root[F("otaPassword")] = maskSensible(this->otaPassword, sensible);
   root[F("otaUrl")] = this->otaUrl;
+  root[F("serialLogLevel")] = this->serialLogLevel;
 
   if (pretty) {
     root.prettyPrintTo(stream);
@@ -154,6 +155,9 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
   changed.set(OTA,
               (setIfPresent(parsedSettings, F("otaPassword"), otaPassword) ||
                setIfPresent(parsedSettings, F("otaUrl"), otaUrl)));
+
+  changed.set(LOGGING, (setIfPresent(parsedSettings, F("serialLogLevel"),
+                                     serialLogLevel)));
 
   if (fireCallbacks) {
     onConfigChange(changed);
