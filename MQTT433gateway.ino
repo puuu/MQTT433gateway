@@ -65,20 +65,6 @@ boolean logMode = false;
 boolean rawMode = false;
 String otaURL = "";
 
-void setup() {
-  Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY); 
-  setupWifi();
-  mqtt.setServer(mqttBroker, 1883);
-  mqtt.setCallback(mqttCallback);
-  pinMode(RECEIVER_PIN, INPUT_PULLUP); //5V protection with reverse diode needs pullup
-  rf.setCallback(rfCallback);
-  rf.setPulseTrainCallBack(rfRawCallback);
-  rf.initReceiver(RECEIVER_PIN);
-  Serial.println();
-  Serial.print(F("Name: "));
-  Serial.println(mainTopic);
-}
-
 void setupWifi() {
   delay(10);
   beatLED.on();
@@ -261,6 +247,20 @@ void reconnect() {
     }
   }
   beatLED.off();
+}
+
+void setup() {
+  Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+  setupWifi();
+  mqtt.setServer(mqttBroker, 1883);
+  mqtt.setCallback(mqttCallback);
+  pinMode(RECEIVER_PIN, INPUT_PULLUP); //5V protection with reverse diode needs pullup
+  rf.setCallback(rfCallback);
+  rf.setPulseTrainCallBack(rfRawCallback);
+  rf.initReceiver(RECEIVER_PIN);
+  Serial.println();
+  Serial.print(F("Name: "));
+  Serial.println(mainTopic);
 }
 
 void loop() {
