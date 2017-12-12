@@ -1,4 +1,10 @@
-[![Build Status](https://travis-ci.org/puuu/MQTT433gateway.svg?branch=master)](https://travis-ci.org/puuu/MQTT433gateway)
+[![Build Status](https://travis-ci.org/puuu/MQTT433gateway.svg?branch=arduino)](https://travis-ci.org/puuu/MQTT433gateway)
+
+**Warning:** This is the departed `arduino` branch of
+MQTT433gateway. It will only get minor patches and is a verry simple
+implementation utilizing the Arduino IDE. Further development will
+done with PlatformIO in the [`master`](../../tree/master) branch.
+
 
 # MQTT433gateway
 
