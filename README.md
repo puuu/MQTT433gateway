@@ -67,6 +67,11 @@ successful, try
 platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
 ```
 
+Older versions of MQTT433gateway were developed with the Arduino
+IDE. You can find the old sources in the departed
+[`arduino`](../../tree/arduino) branch.
+
+
 ## Hardware
 
 ![MQTT433gateway box](hardware/MQTT433gateway_photo.jpg) ![MQTT433gateway box open](hardware/MQTT433gateway_photo_inside.jpg)
