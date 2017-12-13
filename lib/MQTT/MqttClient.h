@@ -37,6 +37,10 @@
 
 #include <Settings.h>
 
+#ifndef MQTT_CONNECTION_ATTEMPT_FREQUENCY
+#define MQTT_CONNECTION_ATTEMPT_FREQUENCY 5000
+#endif
+
 class PubSubClient;
 
 class MqttClient {
@@ -51,7 +55,7 @@ class MqttClient {
 
   bool connect();
 
-  bool reconnect();
+  void reconnect();
 
   bool subsrcibe();
 
@@ -86,6 +90,7 @@ class MqttClient {
   HandlerCallback codeCallback;
   std::forward_list<SetHandler> setHandlers;
   HandlerCallback otaCallback;
+  unsigned long lastConnectAttempt;
 };
 
 #endif  // MQTTCLIENT_H

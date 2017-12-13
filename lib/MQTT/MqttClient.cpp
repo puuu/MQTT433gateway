@@ -43,7 +43,9 @@ class PayloadString : public String {
 };
 
 MqttClient::MqttClient(const Settings &settings, WiFiClient &client)
-    : settings(settings), mqttClient(new PubSubClient(client)) {
+    : settings(settings),
+      mqttClient(new PubSubClient(client)),
+      lastConnectAttempt(0) {
   Logger.debug.println(F("New MQTT client instance."));
 }
 
@@ -75,7 +77,12 @@ bool MqttClient::connect() {
   }
 }
 
-bool MqttClient::reconnect() {
+void MqttClient::reconnect() {
+  if (lastConnectAttempt > 0 &&
+      (millis() - lastConnectAttempt) < MQTT_CONNECTION_ATTEMPT_FREQUENCY) {
+    return;
+  }
+
   if (!mqttClient->connected()) {
     if (connect()) {
       Logger.info.println(F("MQTT connected"));
@@ -87,10 +94,10 @@ bool MqttClient::reconnect() {
       }
     } else {
       Logger.error.println(F("Cannot connect!"));
-      return false;
     }
   }
-  return true;
+
+  lastConnectAttempt = millis();
 }
 
 bool MqttClient::subsrcibe() {
@@ -105,9 +112,8 @@ bool MqttClient::subsrcibe() {
 }
 
 void MqttClient::loop() {
-  if (reconnect()) {
-    mqttClient->loop();
-  }
+  reconnect();
+  mqttClient->loop();
 }
 
 void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
