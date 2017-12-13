@@ -30,6 +30,7 @@
 #include "Settings.h"
 
 #include <ArduinoJson.h>
+#include <FS.h>
 
 #include <ArduinoSimpleLogging.h>
 #include <StringStream.h>
@@ -68,10 +69,27 @@ void Settings::onConfigChange(SettingTypeSet typeSet) const {
 }
 
 void Settings::load() {
-  // ToDo load
+  if (SPIFFS.exists(SETTINGS_FILE)) {
+    File file = SPIFFS.open(SETTINGS_FILE, "r");
+    String settingsContents = file.readStringUntil(SETTINGS_TERMINATOR);
+    file.close();
+
+    deserialize(settingsContents, false);
+  }
 
   // Fire for all
   onConfigChange(SettingTypeSet().set());
+}
+
+void Settings::save() {
+  File file = SPIFFS.open(SETTINGS_FILE, "w");
+
+  if (!file) {
+    Logger.error.println(F("Opening settings file failed"));
+  } else {
+    serialize(file, false, true);
+    file.close();
+  }
 }
 
 Settings::~Settings() = default;
@@ -181,4 +199,8 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
   }
 }
 
-void Settings::reset() {}
+void Settings::reset() {
+  if (SPIFFS.exists(SETTINGS_FILE)) {
+    SPIFFS.remove(SETTINGS_FILE);
+  }
+}

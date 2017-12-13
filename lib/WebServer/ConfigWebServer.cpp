@@ -57,6 +57,7 @@ void ConfigWebServer::begin(Settings& settings) {
 
   server.on("/config", HTTP_PUT, [&]() {
     settings.deserialize(server.arg("plain"), true);
+    settings.save();
     server.send(200, APPLICATION_JSON, F("true"));
   });
 

@@ -30,6 +30,9 @@
 #ifndef MQTT433GATEWAY_SETTINGS_H
 #define MQTT433GATEWAY_SETTINGS_H
 
+#define SETTINGS_FILE "/settings.json"
+#define SETTINGS_TERMINATOR '\0'
+
 #define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
 #define TRANSMITTER_PIN 4
 
@@ -109,6 +112,7 @@ class Settings {
   String serialLogLevel;
 
   void load();
+  void save();
 
   void updateProtocols(const String &protocols);
   void updateOtaUrl(const String &otaUrl);

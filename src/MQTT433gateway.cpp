@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <ESP8266httpUpdate.h>
+#include <FS.h>
 
 #include <ArduinoSimpleLogging.h>
 #include <ConfigWebServer.h>
@@ -178,6 +179,7 @@ void setupWebServer(const Settings &s) {
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
   Logger.addHandler(Logger.DEBUG, Serial);
+  SPIFFS.begin();
 
   if (!connectWifi(mySSID, myWIFIPASSWD, []() { beatLED.loop(); })) {
     Logger.warning.println(F("Try connecting again after reboot"));
