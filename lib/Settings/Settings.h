@@ -113,7 +113,7 @@ class Settings {
   void updateProtocols(const String &protocols);
   void updateOtaUrl(const String &otaUrl);
 
-  void serialize(Print &stream, bool pretty, bool sensible = true);
+  void serialize(Print &stream, bool pretty, bool sensible = true) const;
   void deserialize(const String &json, bool fireCallbacks = true);
   void reset();
 

@@ -29,21 +29,31 @@
 
 #include <ArduinoJson.h>
 
+#include <StringStream.h>
+
 #include "ConfigWebServer.h"
 
 const char TEXT_PLAIN[] PROGMEM = "text/plain";
 const char APPLICATION_JSON[] = "application/json";
 
 void ConfigWebServer::begin(const Settings& settings) {
-  server.on("/",
-            [this]() { server.send(200, TEXT_PLAIN, F("Hello from rfESP")); });
+  server.on("/", [this]() {
+    server.send_P(200, TEXT_PLAIN, PSTR("Hello from rfESP"));
+  });
 
   server.on("/system", [this]() {
-    server.send(200, TEXT_PLAIN, F("POST your commands here"));
+    server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
   });
 
   server.on("/system", HTTP_POST,
             std::bind(&::ConfigWebServer::onSystemCommand, this));
+
+  server.on("/config", HTTP_GET, [&]() {
+    String buff;
+    StringStream stream(buff);
+    settings.serialize(stream, true, false);
+    server.send(200, APPLICATION_JSON, buff);
+  });
 
   server.begin();
 }
@@ -67,7 +77,7 @@ void ConfigWebServer::onSystemCommand() {
     return;
   }
 
-  for (const auto &systemCommandHandler : systemCommandHandlers) {
+  for (const auto& systemCommandHandler : systemCommandHandlers) {
     if (systemCommandHandler.command == request["command"]) {
       server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
       systemCommandHandler.cb();

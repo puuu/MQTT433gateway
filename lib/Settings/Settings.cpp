@@ -82,7 +82,7 @@ void Settings::updateProtocols(const String &protocols) {
 
 void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
 
-void Settings::serialize(Print &stream, bool pretty, bool sensible) {
+void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
 
