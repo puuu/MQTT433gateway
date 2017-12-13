@@ -166,7 +166,7 @@ void setupWebServer(const Settings &s) {
   webServer->registerSystemCommandHandler(F("reset_config"),
                                           []() { settings.reset(); });
 
-  webServer->begin(s);
+  webServer->begin(settings);
 }
 
 void setup() {

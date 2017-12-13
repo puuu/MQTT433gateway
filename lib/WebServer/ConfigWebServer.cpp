@@ -36,7 +36,7 @@
 const char TEXT_PLAIN[] PROGMEM = "text/plain";
 const char APPLICATION_JSON[] = "application/json";
 
-void ConfigWebServer::begin(const Settings& settings) {
+void ConfigWebServer::begin(Settings& settings) {
   server.on("/", [this]() {
     server.send_P(200, TEXT_PLAIN, PSTR("Hello from rfESP"));
   });
@@ -53,6 +53,11 @@ void ConfigWebServer::begin(const Settings& settings) {
     StringStream stream(buff);
     settings.serialize(stream, true, false);
     server.send(200, APPLICATION_JSON, buff);
+  });
+
+  server.on("/config", HTTP_PUT, [&]() {
+    settings.deserialize(server.arg("plain"), true);
+    server.send(200, APPLICATION_JSON, F("true"));
   });
 
   server.begin();

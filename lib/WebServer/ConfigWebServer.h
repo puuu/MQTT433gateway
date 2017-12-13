@@ -42,7 +42,7 @@ class ConfigWebServer {
 
   ConfigWebServer() : server(80) {}
 
-  void begin(const Settings& settings);
+  void begin(Settings& settings);
   void updateSettings(const Settings& settings);
 
   void handleClient();
