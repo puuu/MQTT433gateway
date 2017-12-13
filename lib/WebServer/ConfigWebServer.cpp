@@ -60,6 +60,14 @@ void ConfigWebServer::begin(Settings& settings) {
     server.send(200, APPLICATION_JSON, F("true"));
   });
 
+  server.on("/protocols", HTTP_GET, [this]() {
+    if (protocolProvider) {
+      server.send(200, APPLICATION_JSON, protocolProvider());
+    } else {
+      server.send(200, APPLICATION_JSON, F("[]"));
+    }
+  });
+
   server.begin();
 }
 

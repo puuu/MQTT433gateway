@@ -39,6 +39,7 @@
 class ConfigWebServer {
  public:
   using SystemCommandCb = std::function<void()>;
+  using ProtocolProviderCb = std::function<String()>;
 
   ConfigWebServer() : server(80) {}
 
@@ -49,6 +50,10 @@ class ConfigWebServer {
 
   void registerSystemCommandHandler(const String& command,
                                     const SystemCommandCb& cb);
+
+  void registerProtocolProvider(const ProtocolProviderCb& cb) {
+    protocolProvider = cb;
+  }
 
  private:
   struct SystemCommandHandler {
@@ -64,6 +69,7 @@ class ConfigWebServer {
 
   WebServer server;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
+  ProtocolProviderCb protocolProvider;
 };
 
 #endif  // CONFIGWEBSERVER_H
