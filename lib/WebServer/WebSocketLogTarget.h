@@ -27,55 +27,28 @@
   SOFTWARE.
 */
 
-#ifndef CONFIGWEBSERVER_H
-#define CONFIGWEBSERVER_H
+#ifndef WEBSOCKETLOGTARGET_H
+#define WEBSOCKETLOGTARGET_H
 
-#include <algorithm>
-#include <forward_list>
-
-#include <Settings.h>
+#include <Print.h>
 #include <WebSocketsServer.h>
 
-#include "WebServer.h"
-#include "WebSocketLogTarget.h"
-
-class ConfigWebServer {
+class WebSocketLogTarget : public Print {
  public:
-  using SystemCommandCb = std::function<void()>;
-  using ProtocolProviderCb = std::function<String()>;
+  explicit WebSocketLogTarget(const uint16_t port)
+      : server(WebSocketsServer(port)), clientCount(0) {}
 
-  ConfigWebServer() : server(80), wsLogTarget(81) {}
+  size_t write(uint8_t byte) override;
+  size_t write(const uint8_t* buffer, size_t size) override;
 
-  void begin(Settings& settings);
-  void updateSettings(const Settings& settings);
+  void loop() { server.loop(); }
+  void begin();
 
-  void handleClient();
-
-  void registerSystemCommandHandler(const String& command,
-                                    const SystemCommandCb& cb);
-
-  void registerProtocolProvider(const ProtocolProviderCb& cb) {
-    protocolProvider = cb;
-  }
-
-  Print& logTarget();
+  void handleEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
 
  private:
-  struct SystemCommandHandler {
-    const String command;
-    const ConfigWebServer::SystemCommandCb cb;
-
-    SystemCommandHandler(const String& command,
-                         const ConfigWebServer::SystemCommandCb& cb)
-        : command(command), cb(cb) {}
-  };
-
-  void onSystemCommand();
-
-  WebServer server;
-  WebSocketLogTarget wsLogTarget;
-  std::forward_list<SystemCommandHandler> systemCommandHandlers;
-  ProtocolProviderCb protocolProvider;
+  WebSocketsServer server;
+  size_t clientCount;
 };
 
-#endif  // CONFIGWEBSERVER_H
+#endif  // WEBSOCKETLOGTARGET_H

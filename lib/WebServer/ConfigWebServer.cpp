@@ -69,6 +69,7 @@ void ConfigWebServer::begin(Settings& settings) {
     }
   });
 
+  wsLogTarget.begin();
   server.begin();
 }
 
@@ -102,6 +103,11 @@ void ConfigWebServer::onSystemCommand() {
   server.send_P(400, TEXT_PLAIN, PSTR("Unknown command"));
 }
 
-void ConfigWebServer::handleClient() { server.handleClient(); }
+void ConfigWebServer::handleClient() {
+  wsLogTarget.loop();
+  server.handleClient();
+}
 
 void ConfigWebServer::updateSettings(const Settings& settings) {}
+
+Print& ConfigWebServer::logTarget() { return wsLogTarget; }

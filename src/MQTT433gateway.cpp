@@ -156,6 +156,17 @@ void setupRf(const Settings &) {
   rf->begin();
 }
 
+void setupWebLog() {
+  if (webServer) {
+    if (settings.webLogLevel.length() > 0) {
+      Logger.addHandler(Logger.stringToLevel(settings.webLogLevel),
+                        webServer->logTarget());
+    } else {
+      Logger.removeHandler(webServer->logTarget());
+    }
+  }
+}
+
 void setupWebServer(const Settings &s) {
   webServer = new ConfigWebServer();
 
@@ -174,6 +185,8 @@ void setupWebServer(const Settings &s) {
     return String(F("[]"));
   });
   webServer->begin(settings);
+
+  setupWebLog();
 }
 
 void setup() {
@@ -215,6 +228,7 @@ void setup() {
 
   settings.registerChangeHandler(LOGGING, [](const Settings &s) {
     Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
+    setupWebLog();
   });
 
   Logger.info.println(F("Load Settings..."));

@@ -133,6 +133,7 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("otaPassword")] = maskSensible(this->otaPassword, sensible);
   root[F("otaUrl")] = this->otaUrl;
   root[F("serialLogLevel")] = this->serialLogLevel;
+  root[F("webLogLevel")] = this->webLogLevel;
 
   if (pretty) {
     root.prettyPrintTo(stream);
@@ -193,6 +194,8 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
 
   changed.set(LOGGING, (setIfPresent(parsedSettings, F("serialLogLevel"),
                                      serialLogLevel)));
+  changed.set(LOGGING,
+              (setIfPresent(parsedSettings, F("webLogLevel"), webLogLevel)));
 
   if (fireCallbacks) {
     onConfigChange(changed);

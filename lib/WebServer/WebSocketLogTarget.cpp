@@ -27,55 +27,43 @@
   SOFTWARE.
 */
 
-#ifndef CONFIGWEBSERVER_H
-#define CONFIGWEBSERVER_H
-
-#include <algorithm>
-#include <forward_list>
-
-#include <Settings.h>
-#include <WebSocketsServer.h>
-
-#include "WebServer.h"
 #include "WebSocketLogTarget.h"
 
-class ConfigWebServer {
- public:
-  using SystemCommandCb = std::function<void()>;
-  using ProtocolProviderCb = std::function<String()>;
+void WebSocketLogTarget::begin() {
+  using namespace std::placeholders;
 
-  ConfigWebServer() : server(80), wsLogTarget(81) {}
+  server.onEvent(
+      std::bind(&WebSocketLogTarget::handleEvent, this, _1, _2, _3, _4));
+  server.begin();
+}
 
-  void begin(Settings& settings);
-  void updateSettings(const Settings& settings);
+void WebSocketLogTarget::handleEvent(uint8_t num, WStype_t type,
+                                     uint8_t *payload, size_t length) {
+  switch (type) {
+    case WStype_DISCONNECTED:
+      if (clientCount > 0) {
+        clientCount--;
+      }
+      break;
 
-  void handleClient();
-
-  void registerSystemCommandHandler(const String& command,
-                                    const SystemCommandCb& cb);
-
-  void registerProtocolProvider(const ProtocolProviderCb& cb) {
-    protocolProvider = cb;
+    case WStype_CONNECTED:
+      clientCount++;
+      break;
+    default:
+      break;
   }
+}
 
-  Print& logTarget();
+size_t WebSocketLogTarget::write(const uint8_t *buffer, size_t size) {
+  if (clientCount) {
+    server.broadcastTXT(buffer, size);
+  }
+  return size;
+}
 
- private:
-  struct SystemCommandHandler {
-    const String command;
-    const ConfigWebServer::SystemCommandCb cb;
-
-    SystemCommandHandler(const String& command,
-                         const ConfigWebServer::SystemCommandCb& cb)
-        : command(command), cb(cb) {}
-  };
-
-  void onSystemCommand();
-
-  WebServer server;
-  WebSocketLogTarget wsLogTarget;
-  std::forward_list<SystemCommandHandler> systemCommandHandlers;
-  ProtocolProviderCb protocolProvider;
-};
-
-#endif  // CONFIGWEBSERVER_H
+size_t WebSocketLogTarget::write(uint8_t byte) {
+  if (clientCount) {
+    server.broadcastTXT(&byte, 1);
+  }
+  return 1;
+}

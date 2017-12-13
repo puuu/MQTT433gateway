@@ -77,7 +77,8 @@ class Settings {
         rfEchoMessages(false),
         rfProtocols(("[]")),
         otaPassword(),
-        serialLogLevel("debug") {}
+        serialLogLevel("debug"),
+        webLogLevel() {}
 
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
@@ -110,6 +111,7 @@ class Settings {
   String otaUrl;
 
   String serialLogLevel;
+  String webLogLevel;
 
   void load();
   void save();
