@@ -1,4 +1,4 @@
-/* Example for a config file for the MQTT433gateway. Adapt as needed and copy to net-passwd.h
+/* Example for a config file for the MQTT433gateway. Adapt as needed and copy to config.h
 */
 
 // Debug on or off
