@@ -41,7 +41,7 @@ void ConfigWebServer::begin(Settings& settings) {
     server.send_P(200, TEXT_PLAIN, PSTR("Hello from rfESP"));
   });
 
-  server.on("/system", [this]() {
+  server.on("/system", HTTP_GET, [this]() {
     server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
   });
 
