@@ -32,6 +32,7 @@
 #include <ArduinoJson.h>
 
 #include <ArduinoSimpleLogging.h>
+#include <StringStream.h>
 
 static inline Settings::SettingTypeSet setFor(const SettingType type) {
   return Settings::SettingTypeSet().set(type);
@@ -101,7 +102,16 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("rfReceiverPin")] = this->rfReceiverPin;
   root[F("rfTransmitterPin")] = this->rfTransmitterPin;
   root[F("rfEchoMessages")] = this->rfEchoMessages;
-  root[F("rfProtocols")] = this->rfProtocols;
+
+  {
+    DynamicJsonBuffer protoBuffer;
+    JsonArray &parsedProtocols = protoBuffer.parseArray(this->rfProtocols);
+    JsonArray &protos = root.createNestedArray(F("rfProtocols"));
+    for (const auto proto : parsedProtocols) {
+      protos.add(proto.as<String>());
+    }
+  }
+
   root[F("otaPassword")] = maskSensible(this->otaPassword, sensible);
   root[F("otaUrl")] = this->otaUrl;
   root[F("serialLogLevel")] = this->serialLogLevel;
@@ -149,8 +159,15 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
   changed.set(RF_ECHO, (setIfPresent(parsedSettings, F("rfEchoMessages"),
                                      rfEchoMessages)));
 
-  changed.set(RF_PROTOCOL,
-              (setIfPresent(parsedSettings, F("rfProtocols"), rfProtocols)));
+  if (parsedSettings.containsKey(F("rfProtocols"))) {
+    String buff;
+    StringStream stream(buff);
+    parsedSettings[F("rfProtocols")].printTo(stream);
+    if (buff != rfProtocols) {
+      rfProtocols = buff;
+      changed.set(RF_PROTOCOL, true);
+    }
+  }
 
   changed.set(OTA,
               (setIfPresent(parsedSettings, F("otaPassword"), otaPassword) ||
