@@ -70,11 +70,9 @@ void ConfigWebServer::begin(Settings& settings) {
               server.send(200, APPLICATION_JSON, F("true"));
             }));
 
-  server.on(F("/protocols"), HTTP_GET, authenticated([this]() {
-              const RfHandler* handler(getRfHandler());
-              if (handler) {
-                server.send(200, APPLICATION_JSON,
-                            handler->availableProtocols());
+  server.on("/protocols", HTTP_GET, authenticated([this]() {
+              if (protocolProvider) {
+                server.send(200, APPLICATION_JSON, protocolProvider());
               } else {
                 server.send(200, APPLICATION_JSON, F("[]"));
               }

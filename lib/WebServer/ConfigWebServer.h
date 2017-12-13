@@ -46,6 +46,7 @@ class ConfigWebServer {
  public:
   using SystemCommandCb = std::function<void()>;
   using RfHandlerProviderCb = std::function<RfHandler*()>;
+  using ProtocolProviderCb = std::function<String()>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
 
@@ -59,6 +60,10 @@ class ConfigWebServer {
 
   void registerRfHandlerProvider(const RfHandlerProviderCb& cb) {
     rfHandlerProvider = cb;
+  }
+
+  void registerProtocolProvider(const ProtocolProviderCb& cb) {
+    protocolProvider = cb;
   }
 
   Print& logTarget();
@@ -87,6 +92,7 @@ class ConfigWebServer {
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   RfHandlerProviderCb rfHandlerProvider;
+  ProtocolProviderCb protocolProvider;
 
   String password;
 };

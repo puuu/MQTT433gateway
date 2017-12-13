@@ -130,6 +130,14 @@ void setupWebServer(const Settings &s) {
     delay(100);
     ESP.restart();
   });
+
+  webServer->registerProtocolProvider([]() {
+    if (rf) {
+      return rf->availableProtocols();
+    }
+    return String(F("[]"));
+  });
+
   webServer->registerRfHandlerProvider([]() { return rf; });
   webServer->begin(settings);
 
