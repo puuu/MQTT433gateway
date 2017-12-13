@@ -290,7 +290,7 @@ The parameters are:
 - `ESPid`: The MQTT client name of the MQTT433gateway
   (`rfESP_<ChipId>`)
 - `passwd`: OTA password as defined in `passwd-net.h`
-- `file`: binary file (Arduino IDE: Sketch -> Export compiled binary)
+- `file`: binary file (`<BUILD_DIR>/firmware.bin`, e.g. `.pioenvs/d1_mini/firmware.bin`)
 - `broker`: address of the MQTT broker
 - `thisip`: ip address of the computer running the script and that is
   access-able by the MQTT433gateway
