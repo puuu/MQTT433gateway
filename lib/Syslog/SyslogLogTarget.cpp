@@ -31,53 +31,11 @@
 
 #include "SyslogLogTarget.h"
 
-size_t SyslogLogTarget::write(uint8_t byte) {
-  buffer[position] = byte;
-  position++;
-
-  if (position >= SYSLOG_BUFFSIZE || byte == '\n') {
-    send();
-  }
-
-  return 1;
-}
-
-size_t SyslogLogTarget::write(const uint8_t *incomming, size_t size) {
-  size_t start = 0;
-
-  while (size > 0) {
-    size_t fit = std::min(size, SYSLOG_BUFFSIZE - position);
-
-    bool newline = false;
-    for (size_t i = 0; i < fit; ++i) {
-      if (incomming[i + start] == '\n') {
-        newline = true;
-        fit = i + 1;
-        break;
-      }
-    }
-
-    memcpy(buffer + position, incomming + start, fit);
-    position += fit;
-
-    if (position >= SYSLOG_BUFFSIZE || newline) {
-      send();
-    }
-
-    start += fit;
-    size -= fit;
-  }
-}
-
-void SyslogLogTarget::send() {
-  buffer[position] = '\0';
-  syslog.log(buffer);
-  position = 0;
-}
-
 void SyslogLogTarget::begin(const String &name, const String &server,
                             uint16_t port) {
   syslog.server(server.c_str(), port);
   syslog.deviceHostname(name.c_str());
   syslog.appName("rfESP");
 }
+
+void SyslogLogTarget::flush(const char *buff) { syslog.log(buff); }

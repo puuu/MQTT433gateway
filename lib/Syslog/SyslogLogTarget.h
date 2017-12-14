@@ -32,26 +32,23 @@
 
 #define SYSLOG_BUFFSIZE 100
 
-#include <Print.h>
 #include <Syslog.h>
 #include <WiFiUdp.h>
 
-class SyslogLogTarget : public Print {
+#include <LineBufferProxy.h>
+
+class SyslogLogTarget : public LineBufferProxy<SYSLOG_BUFFSIZE> {
  public:
-  SyslogLogTarget() : udp(), syslog(udp), position(0) {}
+  SyslogLogTarget() : udp(), syslog(udp) {}
 
   void begin(const String& name, const String& server, uint16_t port);
 
-  size_t write(uint8_t byte) override;
-  size_t write(const uint8_t* buffer, size_t size) override;
+ protected:
+  void flush(const char* buff) override;
 
  private:
-  void send();
-
   WiFiUDP udp;
   Syslog syslog;
-  char buffer[SYSLOG_BUFFSIZE + 1];
-  size_t position;
 };
 
 #endif  // SYSLOGLOGTARGET_H
