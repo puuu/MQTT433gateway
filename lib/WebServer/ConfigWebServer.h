@@ -36,7 +36,6 @@
 #include <ESP8266WebServer.h>
 
 #include <Settings.h>
-#include <WebSocketsServer.h>
 
 #include "WebSocketLogTarget.h"
 
