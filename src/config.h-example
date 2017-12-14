@@ -4,12 +4,6 @@
 // Debug on or off
 #define DEBUG
 
-// The locale Wifi SSID
-#define mySSID "wifissid"
-
-// The Wifi Passphrase
-#define myWIFIPASSWD "wifi_secret"
-
 // IP Address of the MQTT BROCKER
 #define myMQTT_BROCKER "192.168.1.1"
 
