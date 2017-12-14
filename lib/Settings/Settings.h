@@ -61,6 +61,7 @@ class Settings {
   Settings(const char *defaultBroker, const char *defaultUser,
            const char *defaultPasswd)
       : deviceName(String(("rfESP_")) + String(ESP.getChipId(), HEX)),
+        mdnsName("mqtt-433-gateway"),
         mqttReceiveTopic(deviceName + ("/recv/")),
         mqttLogTopic(deviceName + ("/log/")),
         mqttRawRopic(deviceName + ("/raw/")),
@@ -87,6 +88,7 @@ class Settings {
                              const SettingCallbackFn &callback);
 
   String deviceName;
+  String mdnsName;
 
   String mqttReceiveTopic;
   String mqttLogTopic;

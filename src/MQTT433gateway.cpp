@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <ESP8266httpUpdate.h>
+#include <ESP8266mDNS.h>
 #include <FS.h>
 
 #include <ArduinoSimpleLogging.h>
@@ -189,6 +190,17 @@ void setupWebServer(const Settings &s) {
   setupWebLog();
 }
 
+void setupMdns() {
+  if (0 == settings.mdnsName.length()) {
+    return;
+  }
+  if (!MDNS.begin(settings.mdnsName.c_str())) {
+    Logger.error.println(F("Error setting up MDNS responder"));
+  }
+
+  MDNS.addService("http", "tcp", 80);
+}
+
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
   Logger.addHandler(Logger.DEBUG, Serial);
@@ -236,6 +248,8 @@ void setup() {
 
   Logger.debug.println(F("Current configuration:"));
   settings.serialize(Logger.debug, true, false);
+
+  setupMdns();
 
   Logger.info.println("\n");
   Logger.info.print(F("Name: "));
