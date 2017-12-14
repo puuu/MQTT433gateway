@@ -33,10 +33,11 @@
 #include <algorithm>
 #include <forward_list>
 
+#include <ESP8266WebServer.h>
+
 #include <Settings.h>
 #include <WebSocketsServer.h>
 
-#include "WebServer.h"
 #include "WebSocketLogTarget.h"
 
 class ConfigWebServer {
@@ -74,7 +75,7 @@ class ConfigWebServer {
       const ESP8266WebServer::THandlerFunction& handler);
   void onSystemCommand();
 
-  WebServer server;
+  ESP8266WebServer server;
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   ProtocolProviderCb protocolProvider;
