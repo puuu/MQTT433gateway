@@ -26,6 +26,7 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+#include <algorithm>
 
 #include "Settings.h"
 
@@ -34,6 +35,11 @@
 
 #include <ArduinoSimpleLogging.h>
 #include <StringStream.h>
+
+static inline bool any(std::initializer_list<bool> items) {
+  return std::any_of(items.begin(), items.end(),
+                     [](bool item) { return item; });
+}
 
 static inline Settings::SettingTypeSet setFor(const SettingType type) {
   return Settings::SettingTypeSet().set(type);
@@ -162,27 +168,29 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
   SettingTypeSet changed;
 
   changed.set(BASE,
-              (setIfPresent(parsedSettings, F("deviceName"), deviceName) ||
-               setIfPresent(parsedSettings, F("mdnsName"), mdnsName)));
+              any({setIfPresent(parsedSettings, F("deviceName"), deviceName),
+                   setIfPresent(parsedSettings, F("mdnsName"), mdnsName)}));
 
   changed.set(
       MQTT,
-      (setIfPresent(parsedSettings, F("mqttReceiveTopic"), mqttReceiveTopic) ||
-       setIfPresent(parsedSettings, F("mqttLogTopic"), mqttLogTopic) ||
-       setIfPresent(parsedSettings, F("mqttRawRopic"), mqttRawRopic) ||
-       setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic) ||
-       setIfPresent(parsedSettings, F("mqttConfigTopic"), mqttConfigTopic) ||
-       setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic) ||
-       setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker) ||
-       setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort) ||
-       setIfPresent(parsedSettings, F("mqttUser"), mqttUser) ||
-       setIfPresent(parsedSettings, F("mqttPassword"), mqttPassword) ||
-       setIfPresent(parsedSettings, F("mqttRetain"), mqttRetain)));
+      any({setIfPresent(parsedSettings, F("mqttReceiveTopic"),
+                        mqttReceiveTopic),
+           setIfPresent(parsedSettings, F("mqttLogTopic"), mqttLogTopic),
+           setIfPresent(parsedSettings, F("mqttRawRopic"), mqttRawRopic),
+           setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic),
+           setIfPresent(parsedSettings, F("mqttConfigTopic"), mqttConfigTopic),
+           setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic),
+           setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker),
+           setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort),
+           setIfPresent(parsedSettings, F("mqttUser"), mqttUser),
+           setIfPresent(parsedSettings, F("mqttPassword"), mqttPassword),
+           setIfPresent(parsedSettings, F("mqttRetain"), mqttRetain)}));
 
   changed.set(
       RF_CONFIG,
-      (setIfPresent(parsedSettings, F("rfReceiverPin"), rfReceiverPin) ||
-       setIfPresent(parsedSettings, F("rfTransmitterPin"), rfTransmitterPin)));
+      any({setIfPresent(parsedSettings, F("rfReceiverPin"), rfReceiverPin),
+           setIfPresent(parsedSettings, F("rfTransmitterPin"),
+                        rfTransmitterPin)}));
 
   changed.set(RF_ECHO, (setIfPresent(parsedSettings, F("rfEchoMessages"),
                                      rfEchoMessages)));
@@ -198,23 +206,23 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
   }
 
   changed.set(OTA,
-              (setIfPresent(parsedSettings, F("otaPassword"), otaPassword) ||
-               setIfPresent(parsedSettings, F("otaUrl"), otaUrl)));
+              any({setIfPresent(parsedSettings, F("otaPassword"), otaPassword),
+                   setIfPresent(parsedSettings, F("otaUrl"), otaUrl)}));
 
   changed.set(
       LOGGING,
-      (setIfPresent(parsedSettings, F("serialLogLevel"), serialLogLevel)) ||
-          (setIfPresent(parsedSettings, F("webLogLevel"), webLogLevel)));
+      any({setIfPresent(parsedSettings, F("serialLogLevel"), serialLogLevel),
+           setIfPresent(parsedSettings, F("webLogLevel"), webLogLevel)}));
 
   changed.set(
       WEB_CONFIG,
-      (setIfPresent(parsedSettings, F("configUser"), configUser) ||
-       setIfPresent(parsedSettings, F("configPassword"), configPassword)));
+      any({setIfPresent(parsedSettings, F("configUser"), configUser),
+           setIfPresent(parsedSettings, F("configPassword"), configPassword)}));
 
   changed.set(SYSLOG,
-              (setIfPresent(parsedSettings, F("syslogLevel"), syslogLevel) ||
-               setIfPresent(parsedSettings, F("syslogHost"), syslogHost) ||
-               setIfPresent(parsedSettings, F("syslogPort"), syslogPort)));
+              any({setIfPresent(parsedSettings, F("syslogLevel"), syslogLevel),
+                   setIfPresent(parsedSettings, F("syslogHost"), syslogHost),
+                   setIfPresent(parsedSettings, F("syslogPort"), syslogPort)}));
 
   if (fireCallbacks) {
     onConfigChange(changed);
