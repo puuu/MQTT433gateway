@@ -197,8 +197,7 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
 
   if (parsedSettings.containsKey(F("rfProtocols"))) {
     String buff;
-    StringStream stream(buff);
-    parsedSettings[F("rfProtocols")].printTo(stream);
+    parsedSettings[F("rfProtocols")].printTo(buff);
     if (buff != rfProtocols) {
       rfProtocols = buff;
       changed.set(RF_PROTOCOL, true);
