@@ -70,12 +70,17 @@ class ConfigWebServer {
         : command(command), cb(cb) {}
   };
 
+  ESP8266WebServer::THandlerFunction authenticated(
+      const ESP8266WebServer::THandlerFunction& handler);
   void onSystemCommand();
 
   WebServer server;
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   ProtocolProviderCb protocolProvider;
+
+  String user;
+  String password;
 };
 
 #endif  // CONFIGWEBSERVER_H

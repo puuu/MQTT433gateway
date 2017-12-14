@@ -135,6 +135,8 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("otaUrl")] = this->otaUrl;
   root[F("serialLogLevel")] = this->serialLogLevel;
   root[F("webLogLevel")] = this->webLogLevel;
+  root[F("configUser")] = this->configUser;
+  root[F("configPassword")] = this->configPassword;
 
   if (pretty) {
     root.prettyPrintTo(stream);
@@ -194,10 +196,15 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
               (setIfPresent(parsedSettings, F("otaPassword"), otaPassword) ||
                setIfPresent(parsedSettings, F("otaUrl"), otaUrl)));
 
-  changed.set(LOGGING, (setIfPresent(parsedSettings, F("serialLogLevel"),
-                                     serialLogLevel)));
-  changed.set(LOGGING,
-              (setIfPresent(parsedSettings, F("webLogLevel"), webLogLevel)));
+  changed.set(
+      LOGGING,
+      (setIfPresent(parsedSettings, F("serialLogLevel"), serialLogLevel)) ||
+          (setIfPresent(parsedSettings, F("webLogLevel"), webLogLevel)));
+
+  changed.set(
+      WEB_CONFIG,
+      (setIfPresent(parsedSettings, F("configUser"), configUser) ||
+       setIfPresent(parsedSettings, F("configPassword"), configPassword)));
 
   if (fireCallbacks) {
     onConfigChange(changed);

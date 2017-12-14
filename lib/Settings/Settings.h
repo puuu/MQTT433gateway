@@ -79,7 +79,9 @@ class Settings {
         rfProtocols(("[]")),
         otaPassword(),
         serialLogLevel("debug"),
-        webLogLevel() {}
+        webLogLevel(),
+        configUser("admin"),
+        configPassword("rfESP_password") {}
 
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
@@ -114,6 +116,9 @@ class Settings {
 
   String serialLogLevel;
   String webLogLevel;
+
+  String configUser;
+  String configPassword;
 
   void load();
   void save();

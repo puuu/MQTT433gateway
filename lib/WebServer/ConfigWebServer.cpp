@@ -37,37 +37,40 @@ const char TEXT_PLAIN[] PROGMEM = "text/plain";
 const char APPLICATION_JSON[] = "application/json";
 
 void ConfigWebServer::begin(Settings& settings) {
-  server.on("/", [this]() {
-    server.send_P(200, TEXT_PLAIN, PSTR("Hello from rfESP"));
-  });
+  updateSettings(settings);
 
-  server.on("/system", HTTP_GET, [this]() {
-    server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
-  });
+  server.on("/", authenticated([this]() {
+              server.send_P(200, TEXT_PLAIN, PSTR("Hello from rfESP"));
+            }));
 
-  server.on("/system", HTTP_POST,
-            std::bind(&::ConfigWebServer::onSystemCommand, this));
+  server.on("/system", HTTP_GET, authenticated([this]() {
+              server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
+            }));
 
-  server.on("/config", HTTP_GET, [&]() {
-    String buff;
-    StringStream stream(buff);
-    settings.serialize(stream, true, false);
-    server.send(200, APPLICATION_JSON, buff);
-  });
+  server.on(
+      "/system", HTTP_POST,
+      authenticated(std::bind(&::ConfigWebServer::onSystemCommand, this)));
 
-  server.on("/config", HTTP_PUT, [&]() {
-    settings.deserialize(server.arg("plain"), true);
-    settings.save();
-    server.send(200, APPLICATION_JSON, F("true"));
-  });
+  server.on("/config", HTTP_GET, authenticated([&]() {
+              String buff;
+              StringStream stream(buff);
+              settings.serialize(stream, true, false);
+              server.send(200, APPLICATION_JSON, buff);
+            }));
 
-  server.on("/protocols", HTTP_GET, [this]() {
-    if (protocolProvider) {
-      server.send(200, APPLICATION_JSON, protocolProvider());
-    } else {
-      server.send(200, APPLICATION_JSON, F("[]"));
-    }
-  });
+  server.on("/config", HTTP_PUT, authenticated([&]() {
+              settings.deserialize(server.arg("plain"), true);
+              settings.save();
+              server.send(200, APPLICATION_JSON, F("true"));
+            }));
+
+  server.on("/protocols", HTTP_GET, authenticated([this]() {
+              if (protocolProvider) {
+                server.send(200, APPLICATION_JSON, protocolProvider());
+              } else {
+                server.send(200, APPLICATION_JSON, F("[]"));
+              }
+            }));
 
   wsLogTarget.begin();
   server.begin();
@@ -108,6 +111,20 @@ void ConfigWebServer::handleClient() {
   server.handleClient();
 }
 
-void ConfigWebServer::updateSettings(const Settings& settings) {}
+void ConfigWebServer::updateSettings(const Settings& settings) {
+  user = settings.configUser;
+  password = settings.configPassword;
+}
 
 Print& ConfigWebServer::logTarget() { return wsLogTarget; }
+
+ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
+    const ESP8266WebServer::THandlerFunction& handler) {
+  return [=]() {
+    if (!server.authenticate(this->user.c_str(), this->password.c_str())) {
+      server.requestAuthentication();
+    } else {
+      handler();
+    }
+  };
+}
