@@ -12,12 +12,16 @@ env:
   - PLATFORMIO_ENV=esp12e
   - PLATFORMIO_ENV=nodemcuv2
 
+before_install:
+  - nvm install 6
+
 install:
   # PlatformIO
   - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
   # copy password file
   - cp src/config.h-example src/config.h
   - platformio lib install
+  - cd web && npm install && cd ..
 
 script:
   - platformio run --environment=$PLATFORMIO_ENV
