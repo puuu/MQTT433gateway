@@ -29,7 +29,6 @@
 
 #include "config.h"
 
-#include <ESP8266WiFi.h>
 #include <ESP8266httpUpdate.h>
 
 #include <ESPiLight.h>
@@ -37,12 +36,17 @@
 
 #include <Heartbeat.h>
 #include <SHAauth.h>
+#include <WifiConnection.h>
 #include <debug_helper.h>
-
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
 #define myMQTT_PASSWORD nullptr
+#endif
+
+#ifndef mySSID
+#define mySSID nullptr
+#define myWIFIPASSWD nullptr
 #endif
 
 const char *ssid = mySSID;
@@ -56,6 +60,7 @@ const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
+
 PubSubClient mqtt(wifi);
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
 ESPiLight rf(TRANSMITTER_PIN);
@@ -66,32 +71,6 @@ const String globalTopic = "rf434";
 bool logMode = false;
 bool rawMode = false;
 String otaURL = "";
-
-void setupWifi() {
-  delay(10);
-  beatLED.on();
-  // We start by connecting to a WiFi network
-  DebugLn();
-  Debug(F("Connecting to "));
-  DebugLn(ssid);
-
-  WiFi.mode(WIFI_STA);  // Explicitly set station mode
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    beatLED.off();
-    delay(500);
-    beatLED.off();
-    delay(500);
-    beatLED.on();
-    Debug(F("."));
-  }
-
-  DebugLn();
-  DebugLn(F("WiFi connected"));
-  DebugLn(F("IP address: "));
-  DebugLn(WiFi.localIP());
-}
 
 void transmitt(const String &protocol, const char *message) {
   Debug(F("rf send "));
@@ -254,7 +233,12 @@ void reconnect() {
 
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
-  setupWifi();
+
+  if (!connectWifi(ssid, password, []() { beatLED.loop(); })) {
+    DebugLn(F("Try connectiing again after reboot"));
+    ESP.restart();
+  }
+
   mqtt.setServer(mqttBroker, 1883);
   mqtt.setCallback(mqttCallback);
   pinMode(RECEIVER_PIN,
