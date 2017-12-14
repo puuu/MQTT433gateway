@@ -35,10 +35,9 @@
 #include <ESPiLight.h>
 #include <PubSubClient.h>
 
-#include <Heartbeat.h>
+#include <HeartbeatFlashing.h>
 #include <SHAauth.h>
 #include <debug_helper.h>
-
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
@@ -57,7 +56,7 @@ const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
-Heartbeat beatLED(HEARTBEAD_LED_PIN);
+HeartbeatFlashing beatLED(HEARTBEAD_LED_PIN);
 ESPiLight rf(TRANSMITTER_PIN);
 SHAauth otaAuth(myADMIN_PASSWD);
 
