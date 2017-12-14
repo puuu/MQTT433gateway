@@ -73,6 +73,8 @@ void Settings::load() {
     File file = SPIFFS.open(SETTINGS_FILE, "r");
     String settingsContents = file.readStringUntil(SETTINGS_TERMINATOR);
     file.close();
+    Logger.debug.println("FILE CONTENTS:");
+    Logger.debug.println(settingsContents);
 
     deserialize(settingsContents, false);
   }
@@ -137,6 +139,9 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("webLogLevel")] = this->webLogLevel;
   root[F("configUser")] = this->configUser;
   root[F("configPassword")] = this->configPassword;
+  root[F("syslogLevel")] = this->syslogLevel;
+  root[F("syslogHost")] = this->syslogHost;
+  root[F("syslogPort")] = this->syslogPort;
 
   if (pretty) {
     root.prettyPrintTo(stream);
@@ -205,6 +210,11 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
       WEB_CONFIG,
       (setIfPresent(parsedSettings, F("configUser"), configUser) ||
        setIfPresent(parsedSettings, F("configPassword"), configPassword)));
+
+  changed.set(SYSLOG,
+              (setIfPresent(parsedSettings, F("syslogLevel"), syslogLevel) ||
+               setIfPresent(parsedSettings, F("syslogHost"), syslogHost) ||
+               setIfPresent(parsedSettings, F("syslogPort"), syslogPort)));
 
   if (fireCallbacks) {
     onConfigChange(changed);

@@ -53,6 +53,7 @@ enum SettingType {
   RF_CONFIG,
   WEB_CONFIG,
   LOGGING,
+  SYSLOG,
   _END
 };
 
@@ -81,7 +82,10 @@ class Settings {
         serialLogLevel("debug"),
         webLogLevel(),
         configUser("admin"),
-        configPassword("rfESP_password") {}
+        configPassword("rfESP_password"),
+        syslogLevel(),
+        syslogHost(),
+        syslogPort(514) {}
 
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
@@ -119,6 +123,10 @@ class Settings {
 
   String configUser;
   String configPassword;
+
+  String syslogLevel;
+  String syslogHost;
+  uint16_t syslogPort;
 
   void load();
   void save();

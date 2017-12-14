@@ -40,6 +40,7 @@
 #include <RfHandler.h>
 #include <SHAauth.h>
 #include <Settings.h>
+#include <SyslogLogTarget.h>
 #include <WifiConnection.h>
 
 #ifndef myMQTT_USERNAME
@@ -64,6 +65,8 @@ MqttClient *mqttClient = nullptr;
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
 
 SHAauth *otaAuth = nullptr;
+
+SyslogLogTarget *syslogLog = nullptr;
 
 bool logMode = false;
 bool rawMode = false;
@@ -233,6 +236,19 @@ void setup() {
       setupWebServer(s);
     } else {
       webServer->updateSettings(s);
+    }
+  });
+
+  settings.registerChangeHandler(SYSLOG, [](const Settings &s) {
+    if (syslogLog) {
+      Logger.removeHandler(*syslogLog);
+      delete syslogLog;
+    }
+    if (s.syslogLevel.length() != 0 && s.syslogHost.length() != 0 &&
+        s.syslogPort != 0) {
+      syslogLog = new SyslogLogTarget();
+      Logger.addHandler(Logger.stringToLevel(s.syslogLevel), *syslogLog);
+      syslogLog->begin(s.deviceName, s.syslogHost, s.syslogPort);
     }
   });
 
