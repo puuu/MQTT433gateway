@@ -4,12 +4,6 @@
 // Debug on or off
 #define DEBUG
 
-// The locale Wifi SSID
-#define mySSID "wifissid"
-
-// The Wifi Passphrase
-#define myWIFIPASSWD "wifi_secret"
-
 // IP Address of the MQTT BROCKER
 #define myMQTT_BROCKER "192.168.1.1"
 
@@ -17,6 +11,5 @@
 //#define myMQTT_USERNAME "user"
 //#define myMQTT_PASSWORD "pass"
 
-// Password for the OTA update
-#define myOTA_PASSWD "ota_secret"
-
+// Password for the WiFiManager and OTA update
+#define myADMIN_PASSWD "admin_secret"

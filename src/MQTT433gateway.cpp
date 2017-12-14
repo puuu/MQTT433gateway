@@ -34,19 +34,17 @@
 
 #include <ESPiLight.h>
 #include <PubSubClient.h>
+#include <WiFiManager.h>
 
-#include <Heartbeat.h>
+#include <HeartbeatFlashing.h>
 #include <SHAauth.h>
 #include <debug_helper.h>
-
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
 #define myMQTT_PASSWORD nullptr
 #endif
 
-const char *ssid = mySSID;
-const char *password = myWIFIPASSWD;
 const char *mqttBroker = myMQTT_BROCKER;
 const char *mqttUser = myMQTT_USERNAME;
 const char *mqttPassword = myMQTT_PASSWORD;
@@ -57,9 +55,9 @@ const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
-Heartbeat beatLED(HEARTBEAD_LED_PIN);
+HeartbeatFlashing beatLED(HEARTBEAD_LED_PIN);
 ESPiLight rf(TRANSMITTER_PIN);
-SHAauth otaAuth(myOTA_PASSWD);
+SHAauth otaAuth(myADMIN_PASSWD);
 
 const String mainTopic = String("rfESP_") + String(ESP.getChipId(), HEX);
 const String globalTopic = "rf434";
@@ -68,29 +66,20 @@ bool rawMode = false;
 String otaURL = "";
 
 void setupWifi() {
-  delay(10);
-  beatLED.on();
-  // We start by connecting to a WiFi network
-  DebugLn();
-  Debug(F("Connecting to "));
-  DebugLn(ssid);
-
-  WiFi.mode(WIFI_STA);  // Explicitly set station mode
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    beatLED.off();
-    delay(500);
-    beatLED.off();
-    delay(500);
-    beatLED.on();
-    Debug(F("."));
+  WiFiManager wifiManager;
+  beatLED.flash(500);
+  wifiManager.setConfigPortalTimeout(180);
+  wifiManager.setAPCallback([](WiFiManager *) {
+    beatLED.flash(100);
+    DebugLn(F("No wifi connection starting AP mode."));
+  });
+  DebugLn(F("Connecting to wifi"));
+  if (!wifiManager.autoConnect(mainTopic.c_str(), myADMIN_PASSWD)) {
+    DebugLn(F("Try connecting again after reboot"));
+    ESP.restart();
   }
-
-  DebugLn();
   DebugLn(F("WiFi connected"));
-  DebugLn(F("IP address: "));
-  DebugLn(WiFi.localIP());
+  beatLED.off();
 }
 
 void transmitt(const String &protocol, const char *message) {
