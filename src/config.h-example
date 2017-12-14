@@ -17,6 +17,5 @@
 //#define myMQTT_USERNAME "user"
 //#define myMQTT_PASSWORD "pass"
 
-// Password for the OTA update
-#define myOTA_PASSWD "ota_secret"
-
+// Password for the WiFiManager and OTA update
+#define myADMIN_PASSWD "admin_secret"

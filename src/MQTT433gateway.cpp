@@ -59,7 +59,7 @@ WiFiClient wifi;
 PubSubClient mqtt(wifi);
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
 ESPiLight rf(TRANSMITTER_PIN);
-SHAauth otaAuth(myOTA_PASSWD);
+SHAauth otaAuth(myADMIN_PASSWD);
 
 const String mainTopic = String("rfESP_") + String(ESP.getChipId(), HEX);
 const String globalTopic = "rf434";
