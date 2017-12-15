@@ -30,21 +30,22 @@
 #ifndef WEBSOCKETLOGTARGET_H
 #define WEBSOCKETLOGTARGET_H
 
+#include <LineBufferProxy.h>
 #include <Print.h>
 #include <WebSocketsServer.h>
 
-class WebSocketLogTarget : public Print {
+class WebSocketLogTarget : public LineBufferProxy<64> {
  public:
   explicit WebSocketLogTarget(const uint16_t port)
       : server(WebSocketsServer(port)), clientCount(0) {}
-
-  size_t write(uint8_t byte) override;
-  size_t write(const uint8_t* buffer, size_t size) override;
 
   void loop() { server.loop(); }
   void begin();
 
   void handleEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
+
+ protected:
+  void flush(const char* data) override;
 
  private:
   WebSocketsServer server;

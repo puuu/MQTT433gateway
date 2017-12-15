@@ -54,16 +54,6 @@ void WebSocketLogTarget::handleEvent(uint8_t num, WStype_t type,
   }
 }
 
-size_t WebSocketLogTarget::write(const uint8_t *buffer, size_t size) {
-  if (clientCount) {
-    server.broadcastTXT(buffer, size);
-  }
-  return size;
-}
-
-size_t WebSocketLogTarget::write(uint8_t byte) {
-  if (clientCount) {
-    server.broadcastTXT(&byte, 1);
-  }
-  return 1;
+void WebSocketLogTarget::flush(const char *data) {
+  server.broadcastTXT(data, size());
 }
