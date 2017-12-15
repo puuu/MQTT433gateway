@@ -31,6 +31,7 @@
 
 #include <StringStream.h>
 
+#include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
 
 const char TEXT_PLAIN[] PROGMEM = "text/plain";
@@ -40,7 +41,13 @@ void ConfigWebServer::begin(Settings& settings) {
   updateSettings(settings);
 
   server.on("/", authenticated([this]() {
-              server.send_P(200, TEXT_PLAIN, PSTR("Hello from rfESP"));
+              server.sendHeader(F("Content-Encoding"), "gzip");
+              server.sendHeader(F("Content-Length"), String(index_html_gz_len));
+              server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+              server.send(200, F("text/html"), "");
+              server.setContentLength(index_html_gz_len);
+              server.sendContent_P(index_html_gz, index_html_gz_len);
+              server.client().stop();
             }));
 
   server.on("/system", HTTP_GET, authenticated([this]() {
