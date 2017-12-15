@@ -1,0 +1,4 @@
+#log-container {
+    max-height: 40em;
+    overflow: auto;
+}
