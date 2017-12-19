@@ -15,7 +15,7 @@ var logLevelInputFactory = function (item) {
 var inputFieldFactory = function (item) {
     return '' +
         '<label for="' + item.name + '">' + item.name + '</label>' +
-        '<input type="text" class="config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
+        '<input type="text" class="pure-input-1 config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
         '<span class="pure-form-message">' + item.help + '</span>';
 };
 
