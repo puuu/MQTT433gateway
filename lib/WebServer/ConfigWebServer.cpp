@@ -28,6 +28,7 @@
 */
 
 #include <ArduinoJson.h>
+#include <WString.h>
 
 #include <StringStream.h>
 
@@ -72,10 +73,55 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on("/protocols", HTTP_GET, authenticated([this]() {
-              if (protocolProvider) {
-                server.send(200, APPLICATION_JSON, protocolProvider());
+              const RfHandler* handler(rfHandlerProvider());
+              if (handler) {
+                server.send(200, APPLICATION_JSON,
+                            handler->availableProtocols());
               } else {
                 server.send(200, APPLICATION_JSON, F("[]"));
+              }
+            }));
+
+  server.on("/debug", HTTP_GET, authenticated([this]() {
+              const RfHandler* handler(rfHandlerProvider());
+
+              if (!handler) {
+                server.send(200, APPLICATION_JSON, F("{}"));
+                return;
+              }
+
+              DynamicJsonBuffer buff;
+              JsonObject& root = buff.createObject();
+              root[F("protocolLog")] = handler->isLogModeEnabled();
+              root[F("protocolRaw")] = handler->isRawModeEnabled();
+
+              String result;
+              root.printTo(result);
+
+              server.send(200, APPLICATION_JSON, result);
+            }));
+
+  server.on("/debug", HTTP_PUT, authenticated([this]() {
+              RfHandler* handler(rfHandlerProvider());
+
+              if (!handler) {
+                server.send(500, APPLICATION_JSON, F("false"));
+                return;
+              }
+
+              DynamicJsonBuffer buff;
+              JsonObject& parsed = buff.parse(server.arg("plain"));
+
+              if (!parsed.success()) {
+                server.send(500, APPLICATION_JSON, "false");
+                return;
+              }
+
+              if (parsed.containsKey(F("protocolLog"))) {
+                handler->setLogMode(parsed.get<bool>(F("protocolLog")));
+              }
+              if (parsed.containsKey(F("protocolRaw"))) {
+                handler->setRawMode(parsed.get<bool>(F("protocolRaw")));
               }
             }));
 

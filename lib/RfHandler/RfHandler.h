@@ -51,13 +51,16 @@ class RfHandler {
   void setLogMode(bool mode) { logMode = mode; }
   void setRawMode(bool mode) { rawMode = mode; }
 
+  bool isLogModeEnabled() const { return logMode; }
+  bool isRawModeEnabled() const { return rawMode; }
+
   void enableReceiver();
   void disableReceiver();
 
   void setEchoEnabled(bool enabled);
 
   void filterProtocols(const String &protocols);
-  String availableProtocols();
+  String availableProtocols() const;
 
   void begin();
   void loop();

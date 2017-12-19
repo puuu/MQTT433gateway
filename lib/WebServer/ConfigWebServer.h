@@ -36,13 +36,14 @@
 #include <ESP8266WebServer.h>
 
 #include <Settings.h>
+#include <RfHandler.h>
 
 #include "WebSocketLogTarget.h"
 
 class ConfigWebServer {
  public:
   using SystemCommandCb = std::function<void()>;
-  using ProtocolProviderCb = std::function<String()>;
+  using RfHandlerProviderCb = std::function<RfHandler *()>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
 
@@ -54,11 +55,11 @@ class ConfigWebServer {
   void registerSystemCommandHandler(const String& command,
                                     const SystemCommandCb& cb);
 
-  void registerProtocolProvider(const ProtocolProviderCb& cb) {
-    protocolProvider = cb;
+  void registerRfHandlerProvider(const RfHandlerProviderCb& cb) {
+    rfHandlerProvider = cb;
   }
 
-  Print& logTarget();
+  Print &logTarget();
 
  private:
   struct SystemCommandHandler {
@@ -77,7 +78,7 @@ class ConfigWebServer {
   ESP8266WebServer server;
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
-  ProtocolProviderCb protocolProvider;
+  RfHandlerProviderCb rfHandlerProvider;
 
   String user;
   String password;

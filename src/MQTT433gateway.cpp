@@ -178,13 +178,7 @@ void setupWebServer(const Settings &s) {
   webServer->registerSystemCommandHandler(F("reset_wifi"), resetWifiConfig);
   webServer->registerSystemCommandHandler(F("reset_config"),
                                           []() { settings.reset(); });
-
-  webServer->registerProtocolProvider([]() {
-    if (rf) {
-      return rf->availableProtocols();
-    }
-    return String(F("[]"));
-  });
+  webServer->registerRfHandlerProvider([]() { return rf; });
   webServer->begin(settings);
 
   setupWebLog();
