@@ -1,11 +1,14 @@
-from shutil import copyfile
-from subprocess import check_output
-import sys
+#!/usr/bin/env python
+
+"""MQTT433gateway web interface builder
+
+Project home: https://github.com/puuu/MQTT433gateway/
+"""
+
 import os
 import platform
-import subprocess
-
-Import("env")
+from shutil import copyfile
+from subprocess import check_output, CalledProcessError
 
 
 def is_tool(name):
@@ -13,25 +16,20 @@ def is_tool(name):
     try:
         check_output([cmd, name])
         return True
-    except:
-        return False;
+    except CalledProcessError:
+        return False
 
 
 def build_web():
-    if is_tool("npm"):
-        os.chdir("web")
-        print("Attempting to build webpage...")
-        try:
-            print check_output(["npm", "install"])
-            print check_output(["node_modules/.bin/gulp"])
-            copyfile("build/index.html.gz.h", "../dist/index.html.gz.h")
-
-        except Exception as e:
-            print "Encountered error building webpage: ", e
-            print "WARNING: Failed to build web package. Using pre-built page."
-            pass
-        finally:
-            os.chdir("..");
+    if not is_tool("npm"):
+        print("WARNING: npm is not avaiable. web interface will not be build.")
+        return
+    os.chdir("web")
+    print("Attempting to build webpage...")
+    print(check_output(["npm", "install"]))
+    print(check_output(["node_modules/.bin/gulp"]))
+    copyfile("build/index.html.gz.h", "../dist/index.html.gz.h")
+    os.chdir("..")
 
 
 build_web()
