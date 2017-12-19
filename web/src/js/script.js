@@ -13,10 +13,17 @@ var logLevelInputFactory = function (item) {
 
 
 var inputFieldFactory = function (item) {
-    return '' +
-        '<label for="' + item.name + '">' + item.name + '</label>' +
+    return '<label for="' + item.name + '">' + item.name + '</label>' +
         '<input type="text" class="pure-input-1 config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
         '<span class="pure-form-message">' + item.help + '</span>';
+};
+
+var checkboxFactory = function (item) {
+    return '<label class="pure-checkbox">' +
+        '<input class=" config-item " type="checkbox" value="' + item.name + '" data-field="' + item.name + '" name="' + item.name + '">' +
+        item.name +
+        '<span class="pure-form-message">' + item.help + '</span>' +
+        '</label>';
 };
 
 var legendFactory = function (item) {
@@ -32,31 +39,39 @@ var inputApply = function (item_id, data) {
     $('.config-item[data-field="' + item_id + '"]').val(data);
 };
 
+var checkboxApply = function (item_id, data) {
+    $('.config-item[data-field="' + item_id + '"]').prop("checked", data);
+};
+
+
 var protocolApply = function (item_id, data) {
+
+    var fillProtocolData = function (protos) {
+        $("#rfProtocols").empty();
+        protos.forEach(function (value) {
+            var elem = '<label class="pure-checkbox">' +
+                '<input class=" config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
+                'Protocol ' + value +
+                '</label>';
+            $("#rfProtocols").append(elem);
+            registerConfigUi('#proto_check_' + value);
+        });
+        if (data.length > 0) {
+            data.forEach(function (value) {
+                $('#proto_check_' + value).prop('checked', true);
+            });
+        } else {
+            $(".protocols-item").each(function (_, value) {
+                $(value).prop("checked", true);
+            });
+        }
+    };
+
     $.ajax({
                url: "/protocols",
                type: "GET",
                contentType: 'application/json',
-               success: function (protos) {
-                   $("#rfProtocols").empty();
-                   protos.forEach(function (value) {
-                       var elem = '<label class="pure-checkbox">' +
-                           '<input class=" config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
-                           'Protocol ' + value +
-                           '</label>';
-                       $("#rfProtocols").append(elem);
-                       registerConfigUi('#proto_check_' + value);
-                   });
-                   if (data.length > 0) {
-                       data.forEach(function (value) {
-                           $('#proto_check_' + value).prop('checked', true);
-                       });
-                   } else {
-                       $(".protocols-item").each(function (_, value) {
-                           $(value).prop("checked", true);
-                       });
-                   }
-               }
+               success: fillProtocolData
            });
 };
 
@@ -68,12 +83,16 @@ var inputGetInt = function (item_id) {
     return parseInt(inputGet(item_id));
 };
 
+var checkboxGet = function (item_id) {
+    return $('.config-item[data-field="' + item_id + '"]').prop("checked");
+};
+
 var protocolGet = function (item_id) {
     var checked = $('.protocols-item:checked');
     if ($('.protocols-item').length === checked.length) {
         return [];
     }
-    return $.map($('.protocols-item:checked'), function (x) {
+    return $.map(checked, function (x) {
         return $(x).val()
     })
 };
@@ -105,7 +124,7 @@ var CONFIG_ITEMS = [
     new ConfigItem("mqttBrokerPort", inputFieldFactory, inputApply, inputGetInt, "MQTT Broker port"),
     new ConfigItem("mqttUser", inputFieldFactory, inputApply, inputGet, "MQTT username (optional)"),
     new ConfigItem("mqttPassword", inputFieldFactory, inputApply, inputGet, "MQTT password (optional)"),
-    new ConfigItem("mqttRetain", inputFieldFactory, inputApply, inputGet, "Retain MQTT messages"),
+    new ConfigItem("mqttRetain", checkboxFactory, checkboxApply, checkboxGet, "Retain MQTT messages"),
 
     new GroupItem("MQTT Topic Config", legendFactory),
     new ConfigItem("mqttReceiveTopic", inputFieldFactory, inputApply, inputGet, "Topic to publish received signal"),
@@ -116,7 +135,7 @@ var CONFIG_ITEMS = [
     new ConfigItem("mqttOtaTopic", inputFieldFactory, inputApply, inputGet, "Topic to get OTA update information from"),
 
     new GroupItem("433MHz RF Config", legendFactory),
-    new ConfigItem("rfEchoMessages", inputFieldFactory, inputApply, inputGet, "Echo sent rf messages back"),
+    new ConfigItem("rfEchoMessages", checkboxFactory, checkboxApply, checkboxGet, "Echo sent rf messages back"),
     new ConfigItem("rfReceiverPin", inputFieldFactory, inputApply, inputGetInt, "The pin used for the rf receiver"),
     new ConfigItem("rfTransmitterPin", inputFieldFactory, inputApply, inputGetInt, "The pin used for the RF transmitter"),
 
@@ -180,15 +199,18 @@ var registerConfigUi = function (item) {
 };
 
 var loadConfig = function () {
+    var applyConfig = function (data) {
+        $.each(data, function (key, value) {
+            ui_map[key].apply(key, value);
+        });
+        changes = {};
+    };
+
     $.ajax({
                url: '/config',
                type: 'GET',
                contentType: 'application/json',
-               success: function (data) {
-                   $.each(data, function (key, value) {
-                       ui_map[key].apply(key, value);
-                   });
-               }
+               success: applyConfig
            });
 };
 
@@ -234,10 +256,17 @@ $(function () {
                    type: 'PUT',
                    contentType: 'application/json',
                    data: JSON.stringify(changes),
-                   sucess: function () {
-                       loadConfig();
-                   }
+                   sucess: loadConfig
+
                });
+
+        return false;
+    });
+
+        $('#cfg-form-reset').click(function (e) {
+        e.preventDefault();
+
+        loadConfig();
 
         return false;
     });
