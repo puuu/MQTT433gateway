@@ -68,9 +68,6 @@ SHAauth *otaAuth = nullptr;
 
 SyslogLogTarget *syslogLog = nullptr;
 
-bool logMode = false;
-bool rawMode = false;
-
 void handleOta(const String &topic, const String &payload) {
   if (topic == F("url")) {
     settings.updateOtaUrl(payload);
