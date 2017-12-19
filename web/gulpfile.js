@@ -58,7 +58,7 @@ gulp.task('buildfs_inline', ['clean'], function() {
             minifyCSS: true,
             minifyJS: true
         }))
-        .pipe(gzip())
+        .pipe(gzip({ gzipOptions: { level: 9 } }))
         .pipe(gulp.dest(dataFolder));
 });
 

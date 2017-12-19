@@ -1,26 +1,30 @@
 var logLevelInputFactory = function (item) {
-    return '<div class="form-group">' +
-        '<label for="' + item.name + '">' + item.name + '</label>' +
-        '<select class="form-control config-item" data-field="' + item.name + '">' +
+    return '<label for="' + item.name + '">' + item.name + '</label>' +
+        '<select class="config-item" data-field="' + item.name + '">' +
         '<option value="">None</option>' +
         '<option value="error">Error</option>' +
         '<option value="warning">Warning</option>' +
         '<option value="info">Info</option>' +
         '<option value="debug">Debug</option>' +
         '</select>' +
-        '</div>';
+        '<span class="pure-form-message">' + item.help + '</span>';
+
 };
 
 
 var inputFieldFactory = function (item) {
-    return '<div class="form-group">' +
+    return '' +
         '<label for="' + item.name + '">' + item.name + '</label>' +
-        '<input type="text" class="form-control config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
-        '</div>';
+        '<input type="text" class="config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
+        '<span class="pure-form-message">' + item.help + '</span>';
+};
+
+var legendFactory = function (item) {
+    return '<legend>' + item.name + '</legend>'
 };
 
 var protocolInputField = function (item) {
-    return '<div id="rfProtocols"><h4>Enabled protocols</h4></div>';
+    return '<div id="rfProtocols"></div>';
 };
 
 
@@ -29,36 +33,39 @@ var inputApply = function (item_id, data) {
 };
 
 var protocolApply = function (item_id, data) {
-    $.ajax("/protocols",
-           {
-               method: "GET",
-               contentType: 'application/json'
-           }).done(function (protos) {
-        $("#rfProtocols").empty();
-        protos.forEach(function (value) {
-            var elem = '<div class="form-check">' +
-                '<label class="form-check-label">' +
-                '<input class="form-check-input config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
-                'Protocol ' + value +
-                '</label>' +
-                '</div>';
-            $("#rfProtocols").append(elem)
-            registerConfigUi('#proto_check_' + value);
-        });
-        if (data.length > 0) {
-            data.forEach(function (value) {
-                $('#proto_check_' + value).prop('checked', true);
-            });
-        } else {
-            $(".protocols-item").each(function (_, value) {
-                $(value).prop("checked", true);
-            });
-        }
-    })
+    $.ajax({
+               url: "/protocols",
+               type: "GET",
+               contentType: 'application/json',
+               success: function (protos) {
+                   $("#rfProtocols").empty();
+                   protos.forEach(function (value) {
+                       var elem = '<label class="pure-checkbox">' +
+                           '<input class=" config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
+                           'Protocol ' + value +
+                           '</label>';
+                       $("#rfProtocols").append(elem);
+                       registerConfigUi('#proto_check_' + value);
+                   });
+                   if (data.length > 0) {
+                       data.forEach(function (value) {
+                           $('#proto_check_' + value).prop('checked', true);
+                       });
+                   } else {
+                       $(".protocols-item").each(function (_, value) {
+                           $(value).prop("checked", true);
+                       });
+                   }
+               }
+           });
 };
 
 var inputGet = function (item_id) {
     return $('.config-item[data-field="' + item_id + '"]').val();
+};
+
+var inputGetInt = function (item_id) {
+    return parseInt(inputGet(item_id));
 };
 
 var protocolGet = function (item_id) {
@@ -79,38 +86,56 @@ function ConfigItem(name, factory, apply, fetch, help) {
     this.help = help;
 }
 
+function GroupItem(name, factory) {
+    this.name = name;
+    this.factory = factory;
+}
+
 var CONFIG_ITEMS = [
-    new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttReceiveTopic", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttLogTopic", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttRawRopic", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttSendTopic", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttConfigTopic", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttOtaTopic", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttBroker", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttBrokerPort", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttUser", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttPassword", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("mqttRetain", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("rfReceiverPin", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("rfTransmitterPin", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("rfEchoMessages", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("rfProtocols", protocolInputField, protocolApply, protocolGet, "HELP"),
-    new ConfigItem("otaPassword", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("otaUrl", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("serialLogLevel", logLevelInputFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("webLogLevel", logLevelInputFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("configUser", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("configPassword", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("syslogLevel", logLevelInputFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("syslogHost", inputFieldFactory, inputApply, inputGet, "HELP"),
-    new ConfigItem("syslogPort", inputFieldFactory, inputApply, inputGet, "HELP")
+    new GroupItem("General Config", legendFactory),
+    new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
+    new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "The name the device shall announce via mdns"),
+    new ConfigItem("configUser", inputFieldFactory, inputApply, inputGet, "The admin username for the web UI"),
+    new ConfigItem("configPassword", inputFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
+    new ConfigItem("otaPassword", inputFieldFactory, inputApply, inputGet, "The password for pull OTA"),
+    new ConfigItem("otaUrl", inputFieldFactory, inputApply, inputGet, "The OTA pull URL"),
+
+    new GroupItem("MQTT Config", legendFactory),
+    new ConfigItem("mqttBroker", inputFieldFactory, inputApply, inputGet, "MQTT Broker host"),
+    new ConfigItem("mqttBrokerPort", inputFieldFactory, inputApply, inputGetInt, "MQTT Broker port"),
+    new ConfigItem("mqttUser", inputFieldFactory, inputApply, inputGet, "MQTT username (optional)"),
+    new ConfigItem("mqttPassword", inputFieldFactory, inputApply, inputGet, "MQTT password (optional)"),
+    new ConfigItem("mqttRetain", inputFieldFactory, inputApply, inputGet, "Retain MQTT messages"),
+
+    new GroupItem("MQTT Topic Config", legendFactory),
+    new ConfigItem("mqttReceiveTopic", inputFieldFactory, inputApply, inputGet, "Topic to publish received signal"),
+    new ConfigItem("mqttLogTopic", inputFieldFactory, inputApply, inputGet, "Topic to publish log signals"),
+    new ConfigItem("mqttRawRopic", inputFieldFactory, inputApply, inputGet, "Topic to publish raw signals"),
+    new ConfigItem("mqttSendTopic", inputFieldFactory, inputApply, inputGet, "Topic to get signals to send from"),
+    new ConfigItem("mqttConfigTopic", inputFieldFactory, inputApply, inputGet, "Topic to get config values from"),
+    new ConfigItem("mqttOtaTopic", inputFieldFactory, inputApply, inputGet, "Topic to get OTA update information from"),
+
+    new GroupItem("433MHz RF Config", legendFactory),
+    new ConfigItem("rfEchoMessages", inputFieldFactory, inputApply, inputGet, "Echo sent rf messages back"),
+    new ConfigItem("rfReceiverPin", inputFieldFactory, inputApply, inputGetInt, "The pin used for the rf receiver"),
+    new ConfigItem("rfTransmitterPin", inputFieldFactory, inputApply, inputGetInt, "The pin used for the RF transmitter"),
+
+    new GroupItem("Enabled RF protocols", legendFactory),
+    new ConfigItem("rfProtocols", protocolInputField, protocolApply, protocolGet, ""),
+
+    new GroupItem("Log Config", legendFactory),
+    new ConfigItem("serialLogLevel", logLevelInputFactory, inputApply, inputGet, "Level for serial logging"),
+    new ConfigItem("webLogLevel", logLevelInputFactory, inputApply, inputGet, "Level for logging to the web UI"),
+    new ConfigItem("syslogLevel", logLevelInputFactory, inputApply, inputGet, "Level for syslog logging"),
+    new ConfigItem("syslogHost", inputFieldFactory, inputApply, inputGet, "Syslog server (optional)"),
+    new ConfigItem("syslogPort", inputFieldFactory, inputApply, inputGetInt, "Syslog port (optional)")
 ];
 
 var ui_map = {};
 CONFIG_ITEMS.forEach(function (value) {
-    ui_map[value.name] = value;
+    if (value.fetch !== undefined) {
+        ui_map[value.name] = value;
+    }
 });
 
 
@@ -118,10 +143,10 @@ var webSocket = new WebSocket("ws://" + location.hostname + ":81");
 webSocket.onmessage = function (e) {
     var message = e.data;
     var container = $('#log-container');
-    var pre = container.find('>pre');
+    var pre = container.find('pre');
     pre.append(message);
     if (message === '\n' || (typeof message === "string" && message.indexOf('\n') !== -1)) {
-        container.animate({scrollTop: pre.get(0).scrollHeight}, 10);
+        container.scrollTop(pre.get(0).scrollHeight);
     }
 };
 
@@ -129,8 +154,22 @@ webSocket.onmessage = function (e) {
 var last_cfg = {};
 var changes = {};
 
+function throttle(callback, limit) {
+    var wait = false;
+    return function (args) {
+        if (!wait) {
+            callback.apply(this, arguments);
+            wait = true;
+            setTimeout(function () {
+                wait = false;
+            }, limit);
+        }
+    }
+}
+
+
 var registerConfigUi = function (item) {
-    var _item = $(item)
+    var _item = $(item);
     _item.change(function () {
         var name = _item.data("field");
         var new_data = ui_map[name].fetch(name);
@@ -141,50 +180,31 @@ var registerConfigUi = function (item) {
 };
 
 var loadConfig = function () {
-    $.ajax(
-        '/config',
-        {
-            method: 'GET',
-            contentType: 'application/json'
-        }
-    ).done(function (data) {
-               $.each(data, function (key, value) {
-                   ui_map[key].apply(key, value);
-               });
-           }
-    );
+    $.ajax({
+               url: '/config',
+               type: 'GET',
+               contentType: 'application/json',
+               success: function (data) {
+                   $.each(data, function (key, value) {
+                       ui_map[key].apply(key, value);
+                   });
+               }
+           });
 };
 
 
-var sendCommand = _.throttle(
+var sendCommand = throttle(
     function (params) {
-        $.ajax(
-            '/system',
-            {
-                method: 'POST',
-                data: JSON.stringify(params),
-                contentType: 'application/json'
-            }
+        $.ajax({
+                   url: '/system',
+                   type: 'POST',
+                   data: JSON.stringify(params),
+                   contentType: 'application/json'
+               }
         );
     },
     1000
 );
-
-
-var sendConfig = function (config) {
-    $.ajax(
-        '/config',
-        {
-            method: 'PUT',
-            data: JSON.stringify(config),
-            contentType: 'application/json'
-        }
-    ).done(function (result) {
-        if (result) {
-            loadConfig();
-        }
-    });
-};
 
 
 var initUi = function () {
@@ -205,23 +225,19 @@ $(function () {
         sendCommand({command: $(this).data('command')});
     });
 
-    $('#web-log-level').change(function () {
-        sendConfig({webLogLevel: $('#web-log-level').val()});
-    });
 
-    $('#settings').submit(function (e) {
+    $('#settings-form').submit(function (e) {
         e.preventDefault();
 
-        $.ajax(
-            "/config",
-            {
-                method: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify(changes)
-            }
-        ).done(function () {
-            loadConfig();
-        });
+        $.ajax({
+                   url: "/config",
+                   type: 'PUT',
+                   contentType: 'application/json',
+                   data: JSON.stringify(changes),
+                   sucess: function () {
+                       loadConfig();
+                   }
+               });
 
         return false;
     });
