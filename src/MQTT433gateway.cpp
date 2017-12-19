@@ -207,7 +207,9 @@ void setupMdns() {
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
   Logger.addHandler(Logger.DEBUG, Serial);
-  SPIFFS.begin();
+  if (!SPIFFS.begin()) {
+    Logger.error.println(F("Initializing of SPIFFS failed!"));
+  }
 
   if (!connectWifi(mySSID, myWIFIPASSWD, []() { beatLED.loop(); })) {
     Logger.warning.println(F("Try connecting again after reboot"));
