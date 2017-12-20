@@ -239,8 +239,41 @@ var initUi = function () {
         registerConfigUi('.config-item[data-field="' + item.name + '"]')
     });
     loadConfig();
+    loadDebug();
 };
 
+
+var loadDebug = function () {
+    var applyDebug = function (data) {
+        $.each(data, function (key, value) {
+            $('.debug-item[data-dbg-field="' + key + '"]').prop("checked", value);
+        });
+    };
+
+    $.ajax({
+               url: "/debug",
+               type: "GET",
+               contentType: 'application/json',
+               success: applyDebug
+           });
+};
+
+
+var saveDebug = function () {
+    var data = {};
+    $(".debug-item").each(function (_, item) {
+        var _item = $(item);
+        data[_item.attr("name")] = _item.prop("checked");
+    });
+
+    $.ajax({
+               url: '/debug',
+               type: "PUT",
+               data: JSON.stringify(data),
+               contentType: 'application/json',
+               success: loadConfig
+           });
+};
 
 $(function () {
     $('.system-btn').click(function () {
@@ -263,11 +296,22 @@ $(function () {
         return false;
     });
 
-        $('#cfg-form-reset').click(function (e) {
+    $('#cfg-form-reset').click(function (e) {
+        e.preventDefault();
+        loadConfig();
+        return false;
+    });
+
+    $("#debugging-form").submit(function (e) {
         e.preventDefault();
 
-        loadConfig();
+        saveDebug();
+        return false;
+    });
 
+    $('#dbg-form-reset').click(function (e) {
+        e.preventDefault();
+        loadDebug();
         return false;
     });
 

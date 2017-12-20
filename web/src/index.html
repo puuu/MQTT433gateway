@@ -35,6 +35,37 @@
         </div>
     </div>
 
+    <div class=pure-g>
+        <div class="pure-u-1">
+            <h1>Protocol debugging</h1>
+        </div>
+    </div>
+
+    <div class=pure-g>
+        <div class="pure-u-1">
+            <div>You need to have the webLogLevel set to Debug to get the protocol debug messages delivered to the Log
+                output area below.</div>
+
+            <form action="#" id="debugging-form" class="pure-form pure-form-stacked">
+                <fieldset>
+                    <label class="pure-checkbox">
+                        <input class="debug-item" type="checkbox" value="protocolLog" data-dbg-field="protocolLog"
+                               name="protocolLog">
+                        protocolLog
+                        <span class="pure-form-message">Enable verbose RF message logging</span>
+                    </label>
+                    <label class="pure-checkbox">
+                        <input class="debug-item" type="checkbox" value="protocolRaw" data-dbg-field="protocolRaw"
+                               name="protocolRaw">
+                        protocolRaw
+                        <span class="pure-form-message">Enable Raw RF message logging</span>
+                    </label>
+                </fieldset>
+                <input type="submit" class="pure-button pure-button-primary" value="Submit"/>
+                <input type="reset" class="pure-button" value="Reset" id="dbg-form-reset"/>
+            </form>
+        </div>
+    </div>
 
     <div class=pure-g>
         <div class="pure-u-1">
@@ -42,13 +73,11 @@
         </div>
     </div>
 
-    <div>&nbsp;</div>
 
     <div class=pure-g>
         <div class="pure-u-1">
             <div>You need to set the "webLogLevel above to see things here!</div>
 
-            <div> &nbsp;</div>
 
             <div id="log-container">
                 <pre></pre>
@@ -62,7 +91,6 @@
         </div>
     </div>
 
-    <div>&nbsp;</div>
 
     <div class=pure-g>
         <div class="pure-u-1">
