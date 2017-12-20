@@ -59,9 +59,7 @@ class MqttClient {
   void loop();
 
   void publishCode(const String &protocol, const String &payload);
-  void publishOta(const String &topic, const String payload);
 
-  void registerOtaHandler(const HandlerCallback &cb);
   void registerRfDataHandler(const HandlerCallback &cb);
 
   ~MqttClient();
@@ -73,7 +71,6 @@ class MqttClient {
   PubSubClient *mqttClient = nullptr;
 
   HandlerCallback codeCallback;
-  HandlerCallback otaCallback;
   unsigned long lastConnectAttempt;
 };
 

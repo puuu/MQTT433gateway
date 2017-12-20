@@ -49,7 +49,6 @@ enum SettingType {
   MQTT,
   RF_PROTOCOL,
   RF_ECHO,
-  OTA,
   RF_CONFIG,
   WEB_CONFIG,
   LOGGING,
@@ -65,7 +64,6 @@ class Settings {
         mdnsName("mqtt-433-gateway"),
         mqttReceiveTopic(deviceName + ("/recv/")),
         mqttSendTopic(deviceName + ("/send/")),
-        mqttOtaTopic(deviceName + ("/ota/")),
         mqttBroker(defaultBroker),
         mqttBrokerPort(1883),
         mqttUser(defaultUser),
@@ -94,7 +92,6 @@ class Settings {
   String mqttReceiveTopic;
 
   String mqttSendTopic;
-  String mqttOtaTopic;
 
   String mqttBroker;
   uint16_t mqttBrokerPort;
@@ -107,8 +104,6 @@ class Settings {
   bool rfEchoMessages;
   String rfProtocols;
 
-  String otaUrl;
-
   String serialLogLevel;
   String webLogLevel;
 
@@ -120,8 +115,6 @@ class Settings {
 
   void load();
   void save();
-
-  void updateOtaUrl(const String &otaUrl);
 
   void serialize(Print &stream, bool pretty, bool sensible = true) const;
   void deserialize(const String &json, bool fireCallbacks = true);

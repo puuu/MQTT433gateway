@@ -64,47 +64,7 @@ MqttClient *mqttClient = nullptr;
 
 Heartbeat beatLED(HEARTBEAD_LED_PIN);
 
-SHAauth *otaAuth = nullptr;
-
 SyslogLogTarget *syslogLog = nullptr;
-
-void handleOta(const String &topic, const String &payload) {
-  if (topic == F("url")) {
-    settings.updateOtaUrl(payload);
-    mqttClient->publishOta(F("nonce"), otaAuth->nonce());
-    return;
-  }
-
-  if ((topic == F("passwd")) && (settings.otaUrl.length() > 7)) {
-    if (otaAuth->verify(payload)) {
-      beatLED.on();
-      Logger.info.print(F("Start OTA update from: "));
-      Logger.info.println(settings.otaUrl);
-      rf->disableReceiver();
-      t_httpUpdate_return ret = ESPhttpUpdate.update(settings.otaUrl);
-      switch (ret) {
-        case HTTP_UPDATE_FAILED:
-          Logger.error.print(F("HTTP_UPDATE_FAILD Error ("));
-          Logger.error.print(ESPhttpUpdate.getLastError());
-          Logger.error.print(F("): "));
-          Logger.error.println(ESPhttpUpdate.getLastErrorString());
-          break;
-        case HTTP_UPDATE_NO_UPDATES:
-          Logger.info.println(F("HTTP_UPDATE_NO_UPDATES"));
-          break;
-        case HTTP_UPDATE_OK:
-          Logger.info.println(
-              F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
-          // reboot the ESP?
-          ESP.restart();
-          break;
-      }
-      rf->enableReceiver();
-    } else {
-      Logger.warning.println(F("OTA authentication failed!"));
-    }
-  }
-}
 
 void reconnectMqtt(const Settings &) {
   if (mqttClient != nullptr) {
@@ -119,7 +79,6 @@ void reconnectMqtt(const Settings &) {
       [](const String &protocol, const String &data) {
         if (rf) rf->transmitCode(protocol, data);
       });
-  mqttClient->registerOtaHandler(handleOta);
 }
 
 void setupRf(const Settings &) {
@@ -193,13 +152,6 @@ void setup() {
 
   settings.registerChangeHandler(RF_PROTOCOL, [](const Settings &s) {
     if (rf) rf->filterProtocols(s.rfProtocols);
-  });
-
-  settings.registerChangeHandler(OTA, [](const Settings &s) {
-    if (otaAuth) {
-      delete (otaAuth);
-    }
-    otaAuth = new SHAauth(s.configPassword);
   });
 
   settings.registerChangeHandler(WEB_CONFIG, [](const Settings &s) {

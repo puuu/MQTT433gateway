@@ -102,11 +102,9 @@ void MqttClient::reconnect() {
 
 bool MqttClient::subsrcibe() {
   Logger.debug.println(F("...Subscribe to: "));
-  Logger.debug.println((settings.mqttOtaTopic + "+").c_str());
   Logger.debug.println((settings.mqttSendTopic + "+").c_str());
 
-  return mqttClient->subscribe((settings.mqttOtaTopic + "+").c_str()) &&
-         mqttClient->subscribe((settings.mqttSendTopic + "+").c_str());
+  return mqttClient->subscribe((settings.mqttSendTopic + "+").c_str());
 }
 
 void MqttClient::loop() {
@@ -128,17 +126,6 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
       codeCallback(String(topic + settings.mqttSendTopic.length()), strPayload);
     }
   }
-
-  if (strTopic.startsWith(settings.mqttOtaTopic)) {
-    String topicPart(topic + settings.mqttOtaTopic.length());
-    if (otaCallback) {
-      otaCallback(topicPart, strPayload);
-    }
-  }
-}
-
-void MqttClient::registerOtaHandler(const MqttClient::HandlerCallback &cb) {
-  otaCallback = cb;
 }
 
 void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
@@ -148,8 +135,4 @@ void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
 void MqttClient::publishCode(const String &protocol, const String &payload) {
   mqttClient->publish((settings.mqttReceiveTopic + protocol).c_str(),
                       payload.c_str(), settings.mqttRetain);
-}
-
-void MqttClient::publishOta(const String &topic, const String payload) {
-  mqttClient->publish((settings.mqttOtaTopic + topic).c_str(), payload.c_str());
 }

@@ -104,8 +104,6 @@ void Settings::save() {
 
 Settings::~Settings() = default;
 
-void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
-
 void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
@@ -114,7 +112,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("mdnsName")] = this->mdnsName;
   root[F("mqttReceiveTopic")] = this->mqttReceiveTopic;
   root[F("mqttSendTopic")] = this->mqttSendTopic;
-  root[F("mqttOtaTopic")] = this->mqttOtaTopic;
   root[F("mqttBroker")] = this->mqttBroker;
   root[F("mqttBrokerPort")] = this->mqttBrokerPort;
   root[F("mqttUser")] = this->mqttUser;
@@ -132,7 +129,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
     }
   }
 
-  root[F("otaUrl")] = this->otaUrl;
   root[F("serialLogLevel")] = this->serialLogLevel;
   root[F("webLogLevel")] = this->webLogLevel;
   root[F("syslogLevel")] = this->syslogLevel;
@@ -173,7 +169,6 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
       any({setIfPresent(parsedSettings, F("mqttReceiveTopic"),
                         mqttReceiveTopic),
            setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic),
-           setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic),
            setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker,
                         notEmpty()),
            setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort,
@@ -200,8 +195,6 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
       changed.set(RF_PROTOCOL, true);
     }
   }
-
-  changed.set(OTA, setIfPresent(parsedSettings, F("otaUrl"), otaUrl));
 
   changed.set(
       LOGGING,
