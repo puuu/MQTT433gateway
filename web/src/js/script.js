@@ -114,7 +114,6 @@ var CONFIG_ITEMS = [
     new GroupItem("General Config", legendFactory),
     new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
     new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "The name the device shall announce via mdns"),
-    new ConfigItem("configUser", inputFieldFactory, inputApply, inputGet, "The admin username for the web UI"),
     new ConfigItem("configPassword", inputFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
     new ConfigItem("otaPassword", inputFieldFactory, inputApply, inputGet, "The password for pull OTA"),
     new ConfigItem("otaUrl", inputFieldFactory, inputApply, inputGet, "The OTA pull URL"),
