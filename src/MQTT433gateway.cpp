@@ -38,7 +38,6 @@
 #include <HeartbeatFlashing.h>
 #include <MqttClient.h>
 #include <RfHandler.h>
-#include <SHAauth.h>
 #include <Settings.h>
 #include <SyslogLogTarget.h>
 #include <WiFiManager.h>
