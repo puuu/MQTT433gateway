@@ -127,7 +127,6 @@ class Settings {
   void load();
   void save();
 
-  void updateProtocols(const String &protocols);
   void updateOtaUrl(const String &otaUrl);
 
   void serialize(Print &stream, bool pretty, bool sensible = true) const;

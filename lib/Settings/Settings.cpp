@@ -44,10 +44,6 @@ static inline Settings::SettingTypeSet setFor(const SettingType type) {
   return Settings::SettingTypeSet().set(type);
 }
 
-static inline String maskSensible(const String &val, const bool sensible) {
-  return (sensible ? val : F("xxx"));
-}
-
 std::function<bool(const String &)> notEmpty() {
   return [](const String &str) { return str.length() > 0; };
 }
@@ -111,11 +107,6 @@ void Settings::save() {
 }
 
 Settings::~Settings() = default;
-
-void Settings::updateProtocols(const String &protocols) {
-  this->rfProtocols = protocols;
-  onConfigChange(setFor(RF_PROTOCOL));
-}
 
 void Settings::updateOtaUrl(const String &otaUrl) { this->otaUrl = otaUrl; }
 
