@@ -122,7 +122,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("mqttBroker")] = this->mqttBroker;
   root[F("mqttBrokerPort")] = this->mqttBrokerPort;
   root[F("mqttUser")] = this->mqttUser;
-  root[F("mqttPassword")] = maskSensible(this->mqttPassword, sensible);
   root[F("mqttRetain")] = this->mqttRetain;
   root[F("rfReceiverPin")] = this->rfReceiverPin;
   root[F("rfTransmitterPin")] = this->rfTransmitterPin;
@@ -137,14 +136,18 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
     }
   }
 
-  root[F("otaPassword")] = maskSensible(this->otaPassword, sensible);
   root[F("otaUrl")] = this->otaUrl;
   root[F("serialLogLevel")] = this->serialLogLevel;
   root[F("webLogLevel")] = this->webLogLevel;
-  root[F("configPassword")] = this->configPassword;
   root[F("syslogLevel")] = this->syslogLevel;
   root[F("syslogHost")] = this->syslogHost;
   root[F("syslogPort")] = this->syslogPort;
+
+  if (sensible) {
+    root[F("mqttPassword")] = this->mqttPassword;
+    root[F("configPassword")] = this->configPassword;
+    root[F("otaPassword")] = this->otaPassword;
+  }
 
   if (pretty) {
     root.prettyPrintTo(stream);
