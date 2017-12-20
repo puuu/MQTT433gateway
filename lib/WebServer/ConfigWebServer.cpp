@@ -122,6 +122,8 @@ void ConfigWebServer::begin(Settings& settings) {
               if (parsed.containsKey(F("protocolRaw"))) {
                 handler->setRawMode(parsed.get<bool>(F("protocolRaw")));
               }
+
+              server.send(200, APPLICATION_JSON, F("true"));
             }));
 
   wsLogTarget.begin();
