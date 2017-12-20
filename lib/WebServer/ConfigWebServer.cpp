@@ -34,6 +34,8 @@
 // clang-format on
 
 #include <StringStream.h>
+#include <ArduinoSimpleLogging.h>
+#include <WiFiUdp.h>
 
 #include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
@@ -125,6 +127,62 @@ void ConfigWebServer::begin(Settings& settings) {
 
               server.send(200, APPLICATION_JSON, F("true"));
             }));
+
+  server.on("/firmware", HTTP_GET, authenticated([this]() {
+              server.send(200, APPLICATION_JSON, F("{\"version\": \"TODO\"}"));
+            }));
+
+  server.on(
+      "/firmware", HTTP_POST, authenticated([this]() {
+        server.sendHeader("Connection", "close");
+
+        Logger.info.println(F("Got an update. Reboot."));
+        if (Update.hasError()) {
+          server.send_P(
+              200, TEXT_PLAIN,
+              PSTR("Update failed. You may need to reflash the device."));
+        } else {
+          server.sendHeader("Refresh", F("20; URL=/"));
+          server.send_P(200, TEXT_PLAIN,
+                        PSTR("Update successful.\n\nDevice will reboot any try "
+                             "to reconnect in 20 seconds."));
+        }
+        delay(500);
+        ESP.restart();
+      }),
+      authenticated([this]() {
+        HTTPUpload& upload = server.upload();
+        if (upload.status == UPLOAD_FILE_START) {
+          Serial.setDebugOutput(true);
+          WiFiUDP::stopAll();
+
+          if (otaBeginCb) {
+            otaBeginCb();
+          }
+
+          Serial.printf("Update: %s\n", upload.filename.c_str());
+          uint32_t maxSketchSpace =
+              (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+          if (!Update.begin(maxSketchSpace)) {  // start with max available size
+            Update.printError(Serial);
+          }
+        } else if (upload.status == UPLOAD_FILE_WRITE) {
+          if (Update.write(upload.buf, upload.currentSize) !=
+              upload.currentSize) {
+            Update.printError(Serial);
+          }
+        } else if (upload.status == UPLOAD_FILE_END) {
+          if (Update.end(
+                  true)) {  // true to set the size to the current progress
+            Serial.printf("Update Success: %u\nRebooting...\n",
+                          upload.totalSize);
+          } else {
+            Update.printError(Serial);
+          }
+          Serial.setDebugOutput(false);
+        }
+        yield();
+      }));
 
   wsLogTarget.begin();
   server.begin();
