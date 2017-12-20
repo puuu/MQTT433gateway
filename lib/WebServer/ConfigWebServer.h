@@ -76,6 +76,12 @@ class ConfigWebServer {
   ESP8266WebServer::THandlerFunction authenticated(
       const ESP8266WebServer::THandlerFunction& handler);
   void onSystemCommand();
+  RfHandler* getRfHandler() {
+    if (rfHandlerProvider) {
+      return rfHandlerProvider();
+    }
+    return nullptr;
+  }
 
   ESP8266WebServer server;
   WebSocketLogTarget wsLogTarget;

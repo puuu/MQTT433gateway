@@ -76,7 +76,7 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on("/protocols", HTTP_GET, authenticated([this]() {
-              const RfHandler* handler(rfHandlerProvider());
+              const RfHandler* handler(getRfHandler());
               if (handler) {
                 server.send(200, APPLICATION_JSON,
                             handler->availableProtocols());
@@ -86,7 +86,7 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on("/debug", HTTP_GET, authenticated([this]() {
-              const RfHandler* handler(rfHandlerProvider());
+              const RfHandler* handler(getRfHandler());
 
               if (!handler) {
                 server.send(200, APPLICATION_JSON, F("{}"));
