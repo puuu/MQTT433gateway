@@ -58,16 +58,15 @@ enum SettingType {
 
 class Settings {
  public:
-  Settings(const char *defaultBroker, const char *defaultUser,
-           const char *defaultPasswd)
+  Settings()
       : deviceName(String(("rfESP_")) + String(ESP.getChipId(), HEX)),
         mdnsName("mqtt-433-gateway"),
         mqttReceiveTopic(deviceName + ("/recv/")),
         mqttSendTopic(deviceName + ("/send/")),
-        mqttBroker(defaultBroker),
+        mqttBroker(),
         mqttBrokerPort(1883),
-        mqttUser(defaultUser),
-        mqttPassword(defaultPasswd),
+        mqttUser(),
+        mqttPassword(),
         mqttRetain(true),
         rfReceiverPin(RECEIVER_PIN),
         rfTransmitterPin(TRANSMITTER_PIN),

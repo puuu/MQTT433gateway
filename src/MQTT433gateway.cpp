@@ -27,8 +27,6 @@
   SOFTWARE.
 */
 
-#include "config.h"
-
 #include <ESP8266httpUpdate.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
@@ -42,16 +40,11 @@
 #include <SyslogLogTarget.h>
 #include <WiFiManager.h>
 
-#ifndef myMQTT_USERNAME
-#define myMQTT_USERNAME nullptr
-#define myMQTT_PASSWORD nullptr
-#endif
-
 const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 
-Settings settings(myMQTT_BROCKER, myMQTT_USERNAME, myMQTT_PASSWORD);
+Settings settings;
 RfHandler *rf = nullptr;
 ConfigWebServer *webServer;
 MqttClient *mqttClient = nullptr;
@@ -64,6 +57,11 @@ void reconnectMqtt(const Settings &) {
   if (mqttClient != nullptr) {
     delete mqttClient;
     mqttClient = nullptr;
+  }
+
+  if (settings.mqttBroker.length() <= 0) {
+    Logger.warning.println(F("No MQTT broker configured yet"));
+    return;
   }
 
   mqttClient = new MqttClient(settings, wifi);
