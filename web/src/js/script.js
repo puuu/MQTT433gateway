@@ -121,7 +121,6 @@ var CONFIG_ITEMS = [
     new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
     new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "The name the device shall announce via mdns"),
     new ConfigItem("configPassword", passwordFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
-    new ConfigItem("otaUrl", inputFieldFactory, inputApply, inputGet, "The OTA pull URL"),
 
     new GroupItem("MQTT Config", legendFactory),
     new ConfigItem("mqttBroker", inputFieldFactory, inputApply, inputGet, "MQTT Broker host"),
@@ -133,7 +132,6 @@ var CONFIG_ITEMS = [
     new GroupItem("MQTT Topic Config", legendFactory),
     new ConfigItem("mqttReceiveTopic", inputFieldFactory, inputApply, inputGet, "Topic to publish received signal"),
     new ConfigItem("mqttSendTopic", inputFieldFactory, inputApply, inputGet, "Topic to get signals to send from"),
-    new ConfigItem("mqttOtaTopic", inputFieldFactory, inputApply, inputGet, "Topic to get OTA update information from"),
 
     new GroupItem("433MHz RF Config", legendFactory),
     new ConfigItem("rfEchoMessages", checkboxFactory, checkboxApply, checkboxGet, "Echo sent rf messages back"),
