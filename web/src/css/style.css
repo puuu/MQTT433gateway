@@ -6,6 +6,10 @@ h1 {
     margin-bottom: 0.3em;
 }
 
+legend {
+    margin-top: 1em;
+}
+
 .container {
     margin: 1em;
 }
