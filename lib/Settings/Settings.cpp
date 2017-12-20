@@ -48,11 +48,22 @@ static inline String maskSensible(const String &val, const bool sensible) {
   return (sensible ? val : F("xxx"));
 }
 
+std::function<bool(const String &)> notEmpty() {
+  return [](const String &str) { return str.length() > 0; };
+}
+
+template <typename T>
+std::function<bool(const T &)> notZero() {
+  return [](const T &val) { return val != 0; };
+}
+
 template <typename TVal, typename TKey>
-bool setIfPresent(JsonObject &obj, TKey key, TVal &var) {
+bool setIfPresent(JsonObject &obj, TKey key, TVal &var,
+                  const std::function<bool(const TVal &)> &validator =
+                      std::function<bool(const TVal &)>()) {
   if (obj.containsKey(key)) {
     TVal tmp = obj.get<TVal>(key);
-    if (tmp != var) {
+    if (tmp != var && (!validator || validator(tmp))) {
       var = tmp;
       return true;
     }
@@ -167,9 +178,11 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
 
   SettingTypeSet changed;
 
-  changed.set(BASE,
-              any({setIfPresent(parsedSettings, F("deviceName"), deviceName),
-                   setIfPresent(parsedSettings, F("mdnsName"), mdnsName)}));
+  changed.set(
+      BASE,
+      any({setIfPresent(parsedSettings, F("deviceName"), deviceName,
+                        notEmpty()),
+           setIfPresent(parsedSettings, F("mdnsName"), mdnsName, notEmpty())}));
 
   changed.set(
       MQTT,
@@ -179,10 +192,13 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
            setIfPresent(parsedSettings, F("mqttRawRopic"), mqttRawRopic),
            setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic),
            setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic),
-           setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker),
-           setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort),
+           setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker,
+                        notEmpty()),
+           setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort,
+                        notZero<uint16_t>()),
            setIfPresent(parsedSettings, F("mqttUser"), mqttUser),
-           setIfPresent(parsedSettings, F("mqttPassword"), mqttPassword),
+           setIfPresent(parsedSettings, F("mqttPassword"), mqttPassword,
+                        notEmpty()),
            setIfPresent(parsedSettings, F("mqttRetain"), mqttRetain)}));
 
   changed.set(
@@ -203,9 +219,9 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
     }
   }
 
-  changed.set(OTA,
-              any({setIfPresent(parsedSettings, F("otaPassword"), otaPassword),
-                   setIfPresent(parsedSettings, F("otaUrl"), otaUrl)}));
+  changed.set(OTA, any({setIfPresent(parsedSettings, F("otaPassword"),
+                                     otaPassword, notEmpty()),
+                        setIfPresent(parsedSettings, F("otaUrl"), otaUrl)}));
 
   changed.set(
       LOGGING,
@@ -213,7 +229,7 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
            setIfPresent(parsedSettings, F("webLogLevel"), webLogLevel)}));
 
   changed.set(WEB_CONFIG, setIfPresent(parsedSettings, F("configPassword"),
-                                       configPassword));
+                                       configPassword, notEmpty()));
 
   changed.set(SYSLOG,
               any({setIfPresent(parsedSettings, F("syslogLevel"), syslogLevel),
