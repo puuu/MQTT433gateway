@@ -35,13 +35,13 @@
 
 #include <ArduinoSimpleLogging.h>
 #include <ConfigWebServer.h>
-#include <Heartbeat.h>
+#include <HeartbeatFlashing.h>
 #include <MqttClient.h>
 #include <RfHandler.h>
 #include <SHAauth.h>
 #include <Settings.h>
 #include <SyslogLogTarget.h>
-#include <WifiConnection.h>
+#include <WiFiManager.h>
 
 #ifndef myMQTT_USERNAME
 #define myMQTT_USERNAME nullptr
@@ -57,7 +57,7 @@ RfHandler *rf = nullptr;
 ConfigWebServer *webServer;
 MqttClient *mqttClient = nullptr;
 
-Heartbeat beatLED(HEARTBEAD_LED_PIN);
+HeartbeatFlashing beatLED(HEARTBEAD_LED_PIN);
 
 SyslogLogTarget *syslogLog = nullptr;
 
@@ -108,7 +108,7 @@ void setupWebServer(const Settings &s) {
     ESP.restart();
   });
   webServer->registerSystemCommandHandler(F("reset_wifi"), []() {
-    resetWifiConfig();
+    WiFi.disconnect(true);
     delay(100);
     ESP.restart();
   });
@@ -131,16 +131,35 @@ void setupMdns() {
   MDNS.addService("http", "tcp", 80);
 }
 
+void setupWifi() {
+  beatLED.flash(500);
+  WiFiManager wifiManager;
+  wifiManager.setConfigPortalTimeout(180);
+  wifiManager.setAPCallback([](WiFiManager *) {
+    Logger.info.println(F("Start wifimanager config portal."));
+    beatLED.flash(100);
+  });
+
+  // Restart after we had the portal running
+  wifiManager.setSaveConfigCallback([]() {
+    Logger.info.println(F("Wifi config changed. Restart."));
+    delay(100);
+    ESP.restart();
+  });
+
+  if (!wifiManager.autoConnect(settings.deviceName.c_str(),
+                               settings.configPassword.c_str())) {
+    Logger.warning.println(F("Try connecting again after reboot"));
+    ESP.restart();
+  }
+  beatLED.off();
+}
+
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
   Logger.addHandler(Logger.DEBUG, Serial);
   if (!SPIFFS.begin()) {
     Logger.error.println(F("Initializing of SPIFFS failed!"));
-  }
-
-  if (!connectWifi([]() { beatLED.loop(); })) {
-    Logger.warning.println(F("Try connecting again after reboot"));
-    ESP.restart();
   }
 
   settings.registerChangeHandler(MQTT, reconnectMqtt);
@@ -183,6 +202,11 @@ void setup() {
 
   Logger.info.println(F("Load Settings..."));
   settings.load();
+
+  setupWifi();
+
+  // Notify all setting listeners
+  settings.notifyAll();
 
   Logger.debug.println(F("Current configuration:"));
   settings.serialize(Logger.debug, true, false);

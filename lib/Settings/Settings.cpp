@@ -86,7 +86,9 @@ void Settings::load() {
 
     deserialize(settingsContents, false);
   }
+}
 
+void Settings::notifyAll() {
   // Fire for all
   onConfigChange(SettingTypeSet().set());
 }

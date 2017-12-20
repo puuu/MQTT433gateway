@@ -116,6 +116,8 @@ class Settings {
   void load();
   void save();
 
+  void notifyAll();
+
   void serialize(Print &stream, bool pretty, bool sensible = true) const;
   void deserialize(const String &json, bool fireCallbacks = true);
   void reset();

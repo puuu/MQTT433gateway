@@ -27,30 +27,17 @@
   SOFTWARE.
 */
 
-// This is commented out for now as platformIO finds
-// the CPP file and tries to build an object file, but
-// because the header was not included anywhere the
-// "Ticker" lib will not added to the dependency tree
-// and the buid will hail because Ticker.h was not
-// found.
-// To enable this code, just remove the "#if 0" and
-// include the header HeartbeatFlashing.h somewhere
-// where the PlatformIO Buildsystem can see it.
-#if 0
-
 #include "HeartbeatFlashing.h"
 
-void _flash_tick(LED* led) {
-  led->toggle();
-}
+void _flash_tick(LED* led) { led->toggle(); }
 
 HeartbeatFlashing::HeartbeatFlashing(LED& led, int interval)
-  : Heartbeat(led, interval) {
+    : Heartbeat(led, interval) {
   _flashing = false;
 }
 
 HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
-  : Heartbeat(pin, interval) {
+    : Heartbeat(pin, interval) {
   _flashing = false;
 }
 
@@ -67,5 +54,3 @@ void HeartbeatFlashing::flash(unsigned int onMilliseconds) {
   _flashing = true;
   _ticker.attach_ms(onMilliseconds, _flash_tick, &_led);
 }
-
-#endif
