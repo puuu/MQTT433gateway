@@ -1,3 +1,11 @@
+h2 {
+    margin-top: 2em;
+}
+
+h1 {
+    margin-bottom: 0.3em;
+}
+
 .container {
     margin: 1em;
 }
@@ -8,9 +16,12 @@
     background: #cfcfcf;
 }
 
-.system-btn {
-    color: white;
+.pure-button {
     border-radius: 4px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.system-btn {
+    color: white;
     background: rgb(202, 60, 60);
 }
