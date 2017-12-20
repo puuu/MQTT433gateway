@@ -18,9 +18,15 @@ var inputFieldFactory = function (item) {
         '<span class="pure-form-message">' + item.help + '</span>';
 };
 
+var passwordFieldFactory = function (item) {
+    return '<label for="' + item.name + '">' + item.name + '</label>' +
+        '<input type="password" class="pure-input-1 config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
+        '<span class="pure-form-message">' + item.help + '</span>';
+};
+
 var checkboxFactory = function (item) {
     return '<label class="pure-checkbox">' +
-        '<input class=" config-item " type="checkbox" value="' + item.name + '" data-field="' + item.name + '" name="' + item.name + '">' +
+        '<input class=" config-item " type="checkbox" value="' + item.name + '" data-field="' + item.name + '" name="' + item.name + '"> ' +
         item.name +
         '<span class="pure-form-message">' + item.help + '</span>' +
         '</label>';
@@ -51,7 +57,7 @@ var protocolApply = function (item_id, data) {
         protos.forEach(function (value) {
             var elem = '<label class="pure-checkbox">' +
                 '<input class=" config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
-                'Protocol ' + value +
+                ' Protocol ' + value +
                 '</label>';
             $("#rfProtocols").append(elem);
             registerConfigUi('#proto_check_' + value);
@@ -114,15 +120,15 @@ var CONFIG_ITEMS = [
     new GroupItem("General Config", legendFactory),
     new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
     new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "The name the device shall announce via mdns"),
-    new ConfigItem("configPassword", inputFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
-    new ConfigItem("otaPassword", inputFieldFactory, inputApply, inputGet, "The password for pull OTA"),
+    new ConfigItem("configPassword", passwordFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
+    new ConfigItem("otaPassword", passwordFieldFactory, inputApply, inputGet, "The password for pull OTA"),
     new ConfigItem("otaUrl", inputFieldFactory, inputApply, inputGet, "The OTA pull URL"),
 
     new GroupItem("MQTT Config", legendFactory),
     new ConfigItem("mqttBroker", inputFieldFactory, inputApply, inputGet, "MQTT Broker host"),
     new ConfigItem("mqttBrokerPort", inputFieldFactory, inputApply, inputGetInt, "MQTT Broker port"),
     new ConfigItem("mqttUser", inputFieldFactory, inputApply, inputGet, "MQTT username (optional)"),
-    new ConfigItem("mqttPassword", inputFieldFactory, inputApply, inputGet, "MQTT password (optional)"),
+    new ConfigItem("mqttPassword", passwordFieldFactory, inputApply, inputGet, "MQTT password (optional)"),
     new ConfigItem("mqttRetain", checkboxFactory, checkboxApply, checkboxGet, "Retain MQTT messages"),
 
     new GroupItem("MQTT Topic Config", legendFactory),
