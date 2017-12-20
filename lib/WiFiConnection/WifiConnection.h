@@ -47,8 +47,7 @@
  * device is alive.
  * @return true if connected successful.
  */
-bool connectWifi(const char *ssid, const char *passwd,
-                 const std::function<void()> &waitCb);
+bool connectWifi(const std::function<void()> &waitCb);
 
 void resetWifiConfig();
 

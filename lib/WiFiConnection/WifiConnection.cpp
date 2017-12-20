@@ -38,52 +38,10 @@
 
 WiFiManager wifiManager;
 
-bool setupWifiStatic(const char *ssid, const char *passwd,
-                     std::function<void()> const &waitCb) {
-  delay(10);
-  waitCb();
-  // We start by connecting to a WiFi network
-  Logger.info.println();
-  Logger.info.print(F("Connecting to "));
-  Logger.info.println(ssid);
-
-  WiFi.mode(WIFI_STA);  // Explicitly set station mode
-  WiFi.begin(ssid, passwd);
-
-  uint16_t counter = 0;
-
-  while (WiFi.status() != WL_CONNECTED) {
-    waitCb();
-    delay(500);
-    waitCb();
-    delay(500);
-    waitCb();
-    Logger.info.print(F("."));
-    if (counter > 180) {
-      Logger.error.println();
-      Logger.error.println(F("Could not connect to wifi in 180 seconds!"));
-      return false;
-    }
-    ++counter;
-  }
-
-  Logger.info.println();
-  Logger.info.println(F("WiFi connected"));
-  Logger.info.println(F("IP address: "));
-  Logger.info.println(WiFi.localIP());
-  waitCb();
-  return true;
-}
-
-bool connectWifi(const char *ssid, const char *passwd,
-                 const std::function<void()> &waitCb) {
-  if (ssid != nullptr) {
-    return setupWifiStatic(ssid, passwd, waitCb);
-  } else {
-    String portal_ssid("RfEsp_" + String(ESP.getChipId(), HEX));
-    wifiManager.setConfigPortalTimeout(180);
-    return wifiManager.autoConnect(portal_ssid.c_str(), CAPTIVE_PW);
-  }
+bool connectWifi(const std::function<void()> &waitCb) {
+  String portal_ssid("RfEsp_" + String(ESP.getChipId(), HEX));
+  wifiManager.setConfigPortalTimeout(180);
+  return wifiManager.autoConnect(portal_ssid.c_str(), CAPTIVE_PW);
 }
 
 void resetWifiConfig() { wifiManager.resetSettings(); }

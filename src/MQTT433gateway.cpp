@@ -48,11 +48,6 @@
 #define myMQTT_PASSWORD nullptr
 #endif
 
-#ifndef mySSID
-#define mySSID nullptr
-#define myWIFIPASSWD nullptr
-#endif
-
 const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
@@ -143,7 +138,7 @@ void setup() {
     Logger.error.println(F("Initializing of SPIFFS failed!"));
   }
 
-  if (!connectWifi(mySSID, myWIFIPASSWD, []() { beatLED.loop(); })) {
+  if (!connectWifi([]() { beatLED.loop(); })) {
     Logger.warning.println(F("Try connecting again after reboot"));
     ESP.restart();
   }
