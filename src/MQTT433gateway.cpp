@@ -127,23 +127,11 @@ void setupRf(const Settings &) {
   if (rf) {
     return;
   }
-  rf =
-      new RfHandler(settings,
-                    [](const String &protocol, const String &data) {
-                      if (mqttClient) {
-                        mqttClient->publishCode(protocol, data);
-                      }
-                    },
-                    [](int statuc, const String &protocol, const String &data) {
-                      if (mqttClient) {
-                        mqttClient->publishLog(statuc, protocol, data);
-                      }
-                    },
-                    [](const String &data) {
-                      if (mqttClient) {
-                        mqttClient->publishRaw(data);
-                      }
-                    });
+  rf = new RfHandler(settings, [](const String &protocol, const String &data) {
+    if (mqttClient) {
+      mqttClient->publishCode(protocol, data);
+    }
+  });
   rf->begin();
 }
 

@@ -40,18 +40,13 @@ class ESPiLight;
 class RfHandler {
  public:
   using SendCallback = std::function<void(const String &, const String &)>;
-  using LogCallback = std::function<void(int, const String &, const String &)>;
-  using RawCallback = std::function<void(const String &)>;
 
-  RfHandler(const Settings &settings, const SendCallback &sendCb,
-            const LogCallback &logCb, const RawCallback &rawCb);
+  RfHandler(const Settings &settings, const SendCallback &sendCb);
 
   void transmitCode(const String &protocol, const String &message);
 
-  void setLogMode(bool mode) { logMode = mode; }
   void setRawMode(bool mode) { rawMode = mode; }
 
-  bool isLogModeEnabled() const { return logMode; }
   bool isRawModeEnabled() const { return rawMode; }
 
   void enableReceiver();
@@ -75,11 +70,8 @@ class RfHandler {
   int8_t recieverPin;
 
   SendCallback sendCb;
-  LogCallback logCb;
-  RawCallback rawCb;
 
   bool rawMode = false;
-  bool logMode = false;
 };
 
 #endif  // RFHANDLER_H

@@ -40,10 +40,6 @@ static inline bool any(std::initializer_list<bool> items) {
                      [](bool item) { return item; });
 }
 
-static inline Settings::SettingTypeSet setFor(const SettingType type) {
-  return Settings::SettingTypeSet().set(type);
-}
-
 std::function<bool(const String &)> notEmpty() {
   return [](const String &str) { return str.length() > 0; };
 }
@@ -117,8 +113,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("deviceName")] = this->deviceName;
   root[F("mdnsName")] = this->mdnsName;
   root[F("mqttReceiveTopic")] = this->mqttReceiveTopic;
-  root[F("mqttLogTopic")] = this->mqttLogTopic;
-  root[F("mqttRawRopic")] = this->mqttRawRopic;
   root[F("mqttSendTopic")] = this->mqttSendTopic;
   root[F("mqttOtaTopic")] = this->mqttOtaTopic;
   root[F("mqttBroker")] = this->mqttBroker;
@@ -178,8 +172,6 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
       MQTT,
       any({setIfPresent(parsedSettings, F("mqttReceiveTopic"),
                         mqttReceiveTopic),
-           setIfPresent(parsedSettings, F("mqttLogTopic"), mqttLogTopic),
-           setIfPresent(parsedSettings, F("mqttRawRopic"), mqttRawRopic),
            setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic),
            setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic),
            setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker,

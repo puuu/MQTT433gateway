@@ -150,17 +150,6 @@ void MqttClient::publishCode(const String &protocol, const String &payload) {
                       payload.c_str(), settings.mqttRetain);
 }
 
-void MqttClient::publishLog(int status, const String &protocol,
-                            const String &message) {
-  mqttClient->publish(
-      (settings.mqttLogTopic + String(status) + "/" + protocol).c_str(),
-      message.c_str());
-}
-
-void MqttClient::publishRaw(const String &data) {
-  mqttClient->publish(settings.mqttRawRopic.c_str(), data.c_str());
-}
-
 void MqttClient::publishOta(const String &topic, const String payload) {
   mqttClient->publish((settings.mqttOtaTopic + topic).c_str(), payload.c_str());
 }

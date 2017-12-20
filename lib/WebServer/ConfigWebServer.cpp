@@ -95,7 +95,6 @@ void ConfigWebServer::begin(Settings& settings) {
 
               DynamicJsonBuffer buff;
               JsonObject& root = buff.createObject();
-              root[F("protocolLog")] = handler->isLogModeEnabled();
               root[F("protocolRaw")] = handler->isRawModeEnabled();
 
               String result;
@@ -120,9 +119,6 @@ void ConfigWebServer::begin(Settings& settings) {
                 return;
               }
 
-              if (parsed.containsKey(F("protocolLog"))) {
-                handler->setLogMode(parsed.get<bool>(F("protocolLog")));
-              }
               if (parsed.containsKey(F("protocolRaw"))) {
                 handler->setRawMode(parsed.get<bool>(F("protocolRaw")));
               }

@@ -34,14 +34,10 @@
 #include "RfHandler.h"
 
 RfHandler::RfHandler(const Settings &settings,
-                     const RfHandler::SendCallback &sendCb,
-                     const RfHandler::LogCallback &logCb,
-                     const RfHandler::RawCallback &rawCb)
+                     const RfHandler::SendCallback &sendCb)
     : rf(new ESPiLight(settings.rfTransmitterPin)),
       recieverPin(settings.rfReceiverPin),
-      sendCb(sendCb),
-      logCb(logCb),
-      rawCb(rawCb) {
+      sendCb(sendCb) {
   rf->setEchoEnabled(settings.rfEchoMessages);
 }
 
@@ -83,9 +79,6 @@ void RfHandler::rfCallback(const String &protocol, const String &message,
     }
     sendCb(protocol, message);
   }
-  if (logMode) {
-    logCb(status, protocol, message);
-  }
 }
 
 void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
@@ -97,7 +90,6 @@ void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
       Logger.debug.print(F("): "));
       Logger.debug.print(data);
       Logger.debug.println();
-      rawCb(data);
     }
   }
 }

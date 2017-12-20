@@ -59,8 +59,6 @@ class MqttClient {
   void loop();
 
   void publishCode(const String &protocol, const String &payload);
-  void publishLog(int status, const String &protocol, const String &message);
-  void publishRaw(const String &data);
   void publishOta(const String &topic, const String payload);
 
   void registerOtaHandler(const HandlerCallback &cb);
