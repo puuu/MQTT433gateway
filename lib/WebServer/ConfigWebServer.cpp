@@ -156,8 +156,9 @@ void ConfigWebServer::begin(Settings& settings) {
           Serial.setDebugOutput(true);
           WiFiUDP::stopAll();
 
-          if (otaBeginCb) {
-            otaBeginCb();
+          RfHandler* handler = getRfHandler();
+          if (handler) {
+            handler->disableReceiver();
           }
 
           Serial.printf("Update: %s\n", upload.filename.c_str());

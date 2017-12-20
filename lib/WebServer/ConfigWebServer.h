@@ -46,7 +46,6 @@ class ConfigWebServer {
  public:
   using SystemCommandCb = std::function<void()>;
   using RfHandlerProviderCb = std::function<RfHandler*()>;
-  using OtaControlCb = std::function<void()>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
 
@@ -61,8 +60,6 @@ class ConfigWebServer {
   void registerRfHandlerProvider(const RfHandlerProviderCb& cb) {
     rfHandlerProvider = cb;
   }
-
-  void registerOtaBeginCb(const OtaControlCb& cb) { otaBeginCb = cb; }
 
   Print& logTarget();
 
@@ -90,7 +87,6 @@ class ConfigWebServer {
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   RfHandlerProviderCb rfHandlerProvider;
-  OtaControlCb otaBeginCb;
 
   String password;
 };
