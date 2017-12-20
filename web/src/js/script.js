@@ -214,13 +214,40 @@ var loadConfig = function () {
 };
 
 
+var SystemCommandActions = {
+    restart: function () {
+        var _body = $("body");
+        _body.empty();
+        _body.append("<p>Device will reboot!</p><p>Try to reconnect in 15 seconds.</p>");
+        setTimeout(function () {
+            window.location.reload(true);
+        }, 15000);
+    },
+    reset_wifi: function () {
+        var _body = $("body");
+        _body.empty();
+        _body.append("<p>Devices WIFI settings where cleared!</p><p>Please reconfigure it.</p>");
+    },
+    reset_config: function () {
+        var _body = $("body");
+        _body.empty();
+        _body.append("<p>Devices Config was reset!</p><p>Reload page ...</p>");
+        setTimeout(function () {
+            window.location.reload(true);
+        }, 2000);
+    }
+};
+
 var sendCommand = throttle(
     function (params) {
         $.ajax({
                    url: '/system',
                    type: 'POST',
                    data: JSON.stringify(params),
-                   contentType: 'application/json'
+                   contentType: 'application/json',
+                   success: function () {
+                       SystemCommandActions[params["command"]]();
+                   }
                }
         );
     },
