@@ -288,7 +288,7 @@ $(function () {
                    type: 'PUT',
                    contentType: 'application/json',
                    data: JSON.stringify(changes),
-                   sucess: loadConfig
+                   success: loadConfig
 
                });
 
