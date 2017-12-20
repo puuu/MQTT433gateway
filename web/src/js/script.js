@@ -121,7 +121,6 @@ var CONFIG_ITEMS = [
     new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
     new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "The name the device shall announce via mdns"),
     new ConfigItem("configPassword", passwordFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
-    new ConfigItem("otaPassword", passwordFieldFactory, inputApply, inputGet, "The password for pull OTA"),
     new ConfigItem("otaUrl", inputFieldFactory, inputApply, inputGet, "The OTA pull URL"),
 
     new GroupItem("MQTT Config", legendFactory),
