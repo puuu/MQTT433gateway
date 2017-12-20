@@ -112,7 +112,11 @@ void setupWebServer(const Settings &s) {
     delay(100);
     ESP.restart();
   });
-  webServer->registerSystemCommandHandler(F("reset_wifi"), resetWifiConfig);
+  webServer->registerSystemCommandHandler(F("reset_wifi"), []() {
+    resetWifiConfig();
+    delay(100);
+    ESP.restart();
+  });
   webServer->registerSystemCommandHandler(F("reset_config"),
                                           []() { settings.reset(); });
   webServer->registerRfHandlerProvider([]() { return rf; });
