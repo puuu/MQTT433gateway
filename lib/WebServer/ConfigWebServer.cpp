@@ -144,7 +144,7 @@ void ConfigWebServer::begin(Settings& settings) {
         } else {
           server.sendHeader("Refresh", F("20; URL=/"));
           server.send_P(200, TEXT_PLAIN,
-                        PSTR("Update successful.\n\nDevice will reboot any try "
+                        PSTR("Update successful.\n\nDevice will reboot and try "
                              "to reconnect in 20 seconds."));
         }
         delay(500);
