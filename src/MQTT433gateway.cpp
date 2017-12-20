@@ -211,7 +211,7 @@ void setup() {
     if (otaAuth) {
       delete (otaAuth);
     }
-    otaAuth = new SHAauth(s.otaPassword);
+    otaAuth = new SHAauth(s.configPassword);
   });
 
   settings.registerChangeHandler(WEB_CONFIG, [](const Settings &s) {

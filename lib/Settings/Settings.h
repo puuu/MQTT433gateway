@@ -77,7 +77,6 @@ class Settings {
         rfTransmitterPin(TRANSMITTER_PIN),
         rfEchoMessages(false),
         rfProtocols(("[]")),
-        otaPassword(),
         serialLogLevel("debug"),
         webLogLevel(),
         configPassword("rfESP_password"),
@@ -112,7 +111,6 @@ class Settings {
   bool rfEchoMessages;
   String rfProtocols;
 
-  String otaPassword;
   String otaUrl;
 
   String serialLogLevel;

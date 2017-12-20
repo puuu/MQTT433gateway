@@ -148,7 +148,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   if (sensible) {
     root[F("mqttPassword")] = this->mqttPassword;
     root[F("configPassword")] = this->configPassword;
-    root[F("otaPassword")] = this->otaPassword;
   }
 
   if (pretty) {
@@ -210,9 +209,7 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
     }
   }
 
-  changed.set(OTA, any({setIfPresent(parsedSettings, F("otaPassword"),
-                                     otaPassword, notEmpty()),
-                        setIfPresent(parsedSettings, F("otaUrl"), otaUrl)}));
+  changed.set(OTA, setIfPresent(parsedSettings, F("otaUrl"), otaUrl));
 
   changed.set(
       LOGGING,
