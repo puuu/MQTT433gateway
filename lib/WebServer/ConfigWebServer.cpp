@@ -27,8 +27,11 @@
   SOFTWARE.
 */
 
-#include <ArduinoJson.h>
+// It won't compile if clang-format reorders these includes.
+// clang-format off
 #include <WString.h>
+#include <ArduinoJson.h>
+// clang-format on
 
 #include <StringStream.h>
 

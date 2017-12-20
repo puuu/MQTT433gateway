@@ -35,15 +35,15 @@
 
 #include <ESP8266WebServer.h>
 
-#include <Settings.h>
 #include <RfHandler.h>
+#include <Settings.h>
 
 #include "WebSocketLogTarget.h"
 
 class ConfigWebServer {
  public:
   using SystemCommandCb = std::function<void()>;
-  using RfHandlerProviderCb = std::function<RfHandler *()>;
+  using RfHandlerProviderCb = std::function<RfHandler*()>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
 
@@ -59,7 +59,7 @@ class ConfigWebServer {
     rfHandlerProvider = cb;
   }
 
-  Print &logTarget();
+  Print& logTarget();
 
  private:
   struct SystemCommandHandler {
