@@ -131,7 +131,6 @@ var CONFIG_ITEMS = [
     new ConfigItem("mqttLogTopic", inputFieldFactory, inputApply, inputGet, "Topic to publish log signals"),
     new ConfigItem("mqttRawRopic", inputFieldFactory, inputApply, inputGet, "Topic to publish raw signals"),
     new ConfigItem("mqttSendTopic", inputFieldFactory, inputApply, inputGet, "Topic to get signals to send from"),
-    new ConfigItem("mqttConfigTopic", inputFieldFactory, inputApply, inputGet, "Topic to get config values from"),
     new ConfigItem("mqttOtaTopic", inputFieldFactory, inputApply, inputGet, "Topic to get OTA update information from"),
 
     new GroupItem("433MHz RF Config", legendFactory),
