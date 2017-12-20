@@ -30,6 +30,8 @@
 #ifndef CONFIGWEBSERVER_H
 #define CONFIGWEBSERVER_H
 
+#define ADMIN_USERNAME "admin"
+
 #include <algorithm>
 #include <forward_list>
 
@@ -80,7 +82,6 @@ class ConfigWebServer {
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   RfHandlerProviderCb rfHandlerProvider;
 
-  String user;
   String password;
 };
 

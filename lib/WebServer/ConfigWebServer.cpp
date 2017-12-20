@@ -168,7 +168,6 @@ void ConfigWebServer::handleClient() {
 }
 
 void ConfigWebServer::updateSettings(const Settings& settings) {
-  user = settings.configUser;
   password = settings.configPassword;
 }
 
@@ -177,7 +176,7 @@ Print& ConfigWebServer::logTarget() { return wsLogTarget; }
 ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
     const ESP8266WebServer::THandlerFunction& handler) {
   return [=]() {
-    if (!server.authenticate(this->user.c_str(), this->password.c_str())) {
+    if (!server.authenticate(ADMIN_USERNAME, this->password.c_str())) {
       server.requestAuthentication();
     } else {
       handler();

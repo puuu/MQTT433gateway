@@ -80,7 +80,6 @@ class Settings {
         otaPassword(),
         serialLogLevel("debug"),
         webLogLevel(),
-        configUser("admin"),
         configPassword("rfESP_password"),
         syslogLevel(),
         syslogHost(),
@@ -119,7 +118,6 @@ class Settings {
   String serialLogLevel;
   String webLogLevel;
 
-  String configUser;
   String configPassword;
 
   String syslogLevel;
