@@ -115,16 +115,6 @@ void reconnectMqtt(const Settings &) {
   mqttClient = new MqttClient(settings, wifi);
   mqttClient->begin();
 
-  mqttClient->registerSetHandler(F("log"), [](const String &payload) {
-    if (rf) rf->setLogMode(payload[0] == '1');
-  });
-  mqttClient->registerSetHandler(F("raw"), [](const String &payload) {
-    if (rf) rf->setRawMode(payload[0] == '1');
-  });
-  mqttClient->registerSetHandler(F("protocols"), [](const String &payload) {
-    settings.updateProtocols(payload);
-  });
-
   mqttClient->registerRfDataHandler(
       [](const String &protocol, const String &data) {
         if (rf) rf->transmitCode(protocol, data);

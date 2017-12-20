@@ -34,7 +34,6 @@
 #include <FS.h>
 
 #include <ArduinoSimpleLogging.h>
-#include <StringStream.h>
 
 static inline bool any(std::initializer_list<bool> items) {
   return std::any_of(items.begin(), items.end(),
@@ -119,7 +118,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   root[F("mqttLogTopic")] = this->mqttLogTopic;
   root[F("mqttRawRopic")] = this->mqttRawRopic;
   root[F("mqttSendTopic")] = this->mqttSendTopic;
-  root[F("mqttConfigTopic")] = this->mqttConfigTopic;
   root[F("mqttOtaTopic")] = this->mqttOtaTopic;
   root[F("mqttBroker")] = this->mqttBroker;
   root[F("mqttBrokerPort")] = this->mqttBrokerPort;
@@ -178,7 +176,6 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
            setIfPresent(parsedSettings, F("mqttLogTopic"), mqttLogTopic),
            setIfPresent(parsedSettings, F("mqttRawRopic"), mqttRawRopic),
            setIfPresent(parsedSettings, F("mqttSendTopic"), mqttSendTopic),
-           setIfPresent(parsedSettings, F("mqttConfigTopic"), mqttConfigTopic),
            setIfPresent(parsedSettings, F("mqttOtaTopic"), mqttOtaTopic),
            setIfPresent(parsedSettings, F("mqttBroker"), mqttBroker),
            setIfPresent(parsedSettings, F("mqttBrokerPort"), mqttBrokerPort),

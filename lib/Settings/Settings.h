@@ -67,7 +67,6 @@ class Settings {
         mqttLogTopic(deviceName + ("/log/")),
         mqttRawRopic(deviceName + ("/raw/")),
         mqttSendTopic(deviceName + ("/send/")),
-        mqttConfigTopic(deviceName + ("/set/")),
         mqttOtaTopic(deviceName + ("/ota/")),
         mqttBroker(defaultBroker),
         mqttBrokerPort(1883),
@@ -101,7 +100,6 @@ class Settings {
   String mqttRawRopic;
 
   String mqttSendTopic;
-  String mqttConfigTopic;
   String mqttOtaTopic;
 
   String mqttBroker;

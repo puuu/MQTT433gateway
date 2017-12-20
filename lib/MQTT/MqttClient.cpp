@@ -103,11 +103,9 @@ void MqttClient::reconnect() {
 bool MqttClient::subsrcibe() {
   Logger.debug.println(F("...Subscribe to: "));
   Logger.debug.println((settings.mqttOtaTopic + "+").c_str());
-  Logger.debug.println((settings.mqttConfigTopic + "+").c_str());
   Logger.debug.println((settings.mqttSendTopic + "+").c_str());
 
   return mqttClient->subscribe((settings.mqttOtaTopic + "+").c_str()) &&
-         mqttClient->subscribe((settings.mqttConfigTopic + "+").c_str()) &&
          mqttClient->subscribe((settings.mqttSendTopic + "+").c_str());
 }
 
@@ -131,31 +129,12 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
     }
   }
 
-  if (strTopic.startsWith(settings.mqttConfigTopic)) {
-    String topicPart(topic + settings.mqttConfigTopic.length());
-
-    Logger.debug.print(F("Config: "));
-    Logger.debug.println(topicPart);
-
-    for (const auto &setHandler : setHandlers) {
-      if (topicPart == setHandler.path) {
-        setHandler.cb(strPayload);
-        return;
-      }
-    }
-  }
-
   if (strTopic.startsWith(settings.mqttOtaTopic)) {
     String topicPart(topic + settings.mqttOtaTopic.length());
     if (otaCallback) {
       otaCallback(topicPart, strPayload);
     }
   }
-}
-
-void MqttClient::registerSetHandler(
-    const String &url_part, const MqttClient::SettingHandlerCallback &cb) {
-  setHandlers.emplace_front(url_part, cb);
 }
 
 void MqttClient::registerOtaHandler(const MqttClient::HandlerCallback &cb) {

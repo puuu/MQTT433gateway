@@ -30,8 +30,6 @@
 #ifndef MQTTCLIENT_H
 #define MQTTCLIENT_H
 
-#include <forward_list>
-
 #include <WString.h>
 #include <WiFiClient.h>
 
@@ -47,7 +45,6 @@ class MqttClient {
  public:
   using HandlerCallback =
       std::function<void(const String &topic_part, const String &payload)>;
-  using SettingHandlerCallback = std::function<void(const String &payload)>;
 
   MqttClient(const Settings &settings, WiFiClient &client);
 
@@ -66,29 +63,18 @@ class MqttClient {
   void publishRaw(const String &data);
   void publishOta(const String &topic, const String payload);
 
-  void registerSetHandler(const String &url_part,
-                          const SettingHandlerCallback &cb);
   void registerOtaHandler(const HandlerCallback &cb);
   void registerRfDataHandler(const HandlerCallback &cb);
 
   ~MqttClient();
 
  private:
-  struct SetHandler {
-    const String path;
-    const MqttClient::SettingHandlerCallback cb;
-
-    SetHandler(const String &path, const MqttClient::SettingHandlerCallback &cb)
-        : path(path), cb(cb) {}
-  };
-
   void onMessage(char *topic, uint8_t *payload, unsigned int length);
 
   const Settings &settings;
   PubSubClient *mqttClient = nullptr;
 
   HandlerCallback codeCallback;
-  std::forward_list<SetHandler> setHandlers;
   HandlerCallback otaCallback;
   unsigned long lastConnectAttempt;
 };
