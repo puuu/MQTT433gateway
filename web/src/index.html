@@ -50,7 +50,8 @@
     <div class=pure-g>
         <div class="pure-u-1">
             <div>You need to have the webLogLevel set to Debug to get the protocol debug messages delivered to the Log
-                output area below.</div>
+                output area below.
+            </div>
 
             <form action="#" id="debugging-form" class="pure-form pure-form-stacked">
                 <fieldset>
@@ -82,6 +83,22 @@
             <div id="log-container">
                 <pre></pre>
             </div>
+        </div>
+    </div>
+
+    <div class=pure-g>
+        <div class="pure-u-1">
+            <h2>System update</h2>
+        </div>
+    </div>
+
+
+    <div class=pure-g>
+        <div class="pure-u-1">
+            <form action="/firmware" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".bin"/>
+                <input type="submit" name="submit" class="pure-button pure-button-primary"/>
+            </form>
         </div>
     </div>
 
