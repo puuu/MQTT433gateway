@@ -221,8 +221,12 @@ void setup() {
 void loop() {
   webServer->handleClient();
 
-  mqttClient->loop();
+  if (mqttClient) {
+    mqttClient->loop();
+  }
 
-  rf->loop();
+  if (rf) {
+    rf->loop();
+  }
   beatLED.loop();
 }
