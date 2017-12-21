@@ -48,12 +48,17 @@ void WebSocketLogTarget::handleEvent(uint8_t num, WStype_t type,
 
     case WStype_CONNECTED:
       clientCount++;
+      {
+        String reply(F("*** Connection established ***\n"));
+        server.sendTXT(num, reply);
+      }
       break;
     case WStype_TEXT:
       // We do not expect any data except the __PING__ requests from the
       // frontend. So we can save the cycles to check the message and just send
       // the response.
       server.sendTXT(num, "__PONG__");
+      break;
     default:
       break;
   }
