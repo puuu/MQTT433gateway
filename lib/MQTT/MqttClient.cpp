@@ -35,10 +35,12 @@
 
 class PayloadString : public String {
  public:
-  PayloadString(const uint8_t *data, unsigned int len) : String() {
-    reserve(len + 1);
-    copy(reinterpret_cast<const char *>(data), len);
-    buffer[len] = '\0';
+  PayloadString(const uint8_t *data, unsigned int length) : String() {
+    if (reserve(length + 1)) {
+      memcpy(buffer, data, length);
+      buffer[length] = '\0';
+      len = length + 1;
+    }
   }
 };
 
