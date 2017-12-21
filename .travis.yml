@@ -19,7 +19,6 @@ install:
   # PlatformIO
   - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
   # copy password file
-  - cp src/config.h-example src/config.h
   - platformio lib install
   - cd web && npm install && cd ..
 
