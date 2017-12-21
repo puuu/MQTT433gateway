@@ -157,14 +157,48 @@ CONFIG_ITEMS.forEach(function (value) {
 });
 
 
-var webSocket = new WebSocket("ws://" + location.hostname + ":81");
-webSocket.onmessage = function (e) {
-    var message = e.data;
+var openWebSocket = function () {
+    var webSocket = new WebSocket("ws://" + location.hostname + ":81");
+    var tm;
+
     var container = $('#log-container');
     var pre = container.find('pre');
-    pre.append(message);
-    if (message === '\n' || (typeof message === "string" && message.indexOf('\n') !== -1)) {
-        container.scrollTop(pre.get(0).scrollHeight);
+
+    var ping = function () {
+        setTimeout(function () {
+            webSocket.send("__PING__");
+
+            tm = setTimeout(function () {
+                webSocket.close();
+                openWebSocket();
+            }, 2000);
+        }, 5000);
+    };
+
+    webSocket.onmessage = function (e) {
+        var message = e.data;
+
+        if (message === "__PONG__") {
+            clearTimeout(tm);
+            ping();
+            return;
+        }
+
+        pre.append(message);
+        if (message === '\n' || (typeof message === "string" && message.indexOf('\n') !== -1)) {
+            container.scrollTop(pre.get(0).scrollHeight);
+        }
+    };
+
+    webSocket.onerror = function (ev) {
+        webSocket.close();
+        setTimeout(function () {
+            openWebSocket();
+        });
+    };
+
+    webSocket.onopen = function (ev) {
+        ping();
     }
 };
 
@@ -347,4 +381,5 @@ $(function () {
     });
 
     initUi();
+    openWebSocket();
 });
