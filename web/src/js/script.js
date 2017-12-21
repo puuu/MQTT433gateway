@@ -341,5 +341,10 @@ $(function () {
         return false;
     });
 
+    // Clear log
+    $('#btn-clear-log').click(function (e) {
+        $('#log-container').find('pre').empty();
+    });
+
     initUi();
 });
