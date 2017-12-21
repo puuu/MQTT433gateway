@@ -76,8 +76,9 @@ void RfHandler::rfCallback(const String &protocol, const String &message,
   if (status == VALID) {
     if (deviceID != nullptr) {
       sendCb(protocol + "/" + deviceID, message);
+    } else {
+      sendCb(protocol, message);
     }
-    sendCb(protocol, message);
   }
 }
 
