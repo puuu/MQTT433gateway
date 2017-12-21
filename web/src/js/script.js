@@ -8,7 +8,6 @@ var logLevelInputFactory = function (item) {
         '<option value="debug">Debug</option>' +
         '</select>' +
         '<span class="pure-form-message">' + item.help + '</span>';
-
 };
 
 
@@ -33,7 +32,7 @@ var checkboxFactory = function (item) {
 };
 
 var legendFactory = function (item) {
-    return '<legend>' + item.name + '</legend>'
+    return '<legend>' + item.name + '</legend>';
 };
 
 var protocolInputField = function (item) {
@@ -99,8 +98,8 @@ var protocolGet = function (item_id) {
         return [];
     }
     return $.map(checked, function (x) {
-        return $(x).val()
-    })
+        return $(x).val();
+    });
 };
 
 function ConfigItem(name, factory, apply, fetch, help) {
@@ -199,7 +198,7 @@ var openWebSocket = function () {
 
     webSocket.onopen = function (ev) {
         ping();
-    }
+    };
 };
 
 
@@ -216,7 +215,7 @@ function throttle(callback, limit) {
                 wait = false;
             }, limit);
         }
-    }
+    };
 }
 
 
@@ -280,7 +279,7 @@ var sendCommand = throttle(
                    data: JSON.stringify(params),
                    contentType: 'application/json',
                    success: function () {
-                       SystemCommandActions[params["command"]]();
+                       SystemCommandActions[params.command]();
                    }
                }
         );
@@ -296,7 +295,7 @@ var initUi = function () {
     });
     $("#settings").prepend(settings);
     CONFIG_ITEMS.forEach(function (item) {
-        registerConfigUi('.config-item[data-field="' + item.name + '"]')
+        registerConfigUi('.config-item[data-field="' + item.name + '"]');
     });
     loadConfig();
     loadDebug();
