@@ -15,9 +15,9 @@ legend {
 }
 
 #log-container {
+    background: #cfcfcf;
     max-height: 40em;
     overflow: auto;
-    background: #cfcfcf;
 }
 
 .pure-button {
@@ -26,6 +26,6 @@ legend {
 }
 
 .system-btn {
-    color: white;
     background: rgb(202, 60, 60);
+    color: white;
 }
