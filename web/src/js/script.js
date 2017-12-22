@@ -134,8 +134,8 @@ $(function () {
 
         new GroupItem("433MHz RF Config", legendFactory),
         new ConfigItem("rfEchoMessages", checkboxFactory, checkboxApply, checkboxGet, "Echo sent rf messages back"),
-        new ConfigItem("rfReceiverPin", inputFieldFactory, inputApply, inputGetInt, "The pin used for the rf receiver"),
-        new ConfigItem("rfTransmitterPin", inputFieldFactory, inputApply, inputGetInt, "The pin used for the RF transmitter"),
+        new ConfigItem("rfReceiverPin", inputFieldFactory, inputApply, inputGetInt, "The GPIO pin used for the rf receiver"),
+        new ConfigItem("rfTransmitterPin", inputFieldFactory, inputApply, inputGetInt, "The GPIO pin used for the RF transmitter"),
 
         new GroupItem("Enabled RF protocols", legendFactory),
         new ConfigItem("rfProtocols", protocolInputField, protocolApply, protocolGet, ""),
