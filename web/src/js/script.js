@@ -341,6 +341,17 @@ $(function () {
                });
     };
 
+    var loadFwVersion = function () {
+        $.ajax({
+                   url: "/firmware",
+                   type: "GET",
+                   contentType: 'application/json',
+                   success: function (data) {
+                       $('#current-fw-version').append('Current version: ' + data["version"]);
+                   }
+               })
+    };
+
     $('.system-btn').click(function () {
         sendCommand({command: $(this).data('command')});
     });
@@ -390,5 +401,6 @@ $(function () {
     });
 
     initUi();
+    loadFwVersion();
     openWebSocket();
 });

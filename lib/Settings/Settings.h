@@ -36,6 +36,13 @@
 #define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
 #define TRANSMITTER_PIN 4
 
+#ifndef FIRMWARE_VERSION
+#define FIRMWARE_VERSION unknown
+#endif
+
+#define X_QUOTE(x) #x
+#define QUOTE(x) X_QUOTE(x)
+
 #include <bitset>
 #include <forward_list>
 #include <functional>

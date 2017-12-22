@@ -66,15 +66,27 @@ void MqttClient::begin() {
   reconnect();
 }
 
+static String stateMessage(const bool online) {
+  return String(F("{\"chipId\":\"")) + String(ESP.getChipId(), HEX) +
+         String(F("\",\"firmware\":\"")) + String(QUOTE(FIRMWARE_VERSION)) +
+         String(F("\",\"state\":\"")) +
+         String(online ? F("online") : F("offline")) + String(F("\"}"));
+}
+
+static String stateTopic(const String &devName) {
+  return devName + F("/state");
+}
+
 bool MqttClient::connect() {
   if (0 == settings.mqttUser.length()) {
     return mqttClient->connect(settings.deviceName.c_str(),
-                               settings.deviceName.c_str(), 0, true, "offline");
+                               stateTopic(settings.deviceName).c_str(), 0, true,
+                               stateMessage(false).c_str());
   } else {
-    return mqttClient->connect(settings.deviceName.c_str(),
-                               settings.mqttUser.c_str(),
-                               settings.mqttPassword.c_str(),
-                               settings.deviceName.c_str(), 0, true, "offline");
+    return mqttClient->connect(
+        settings.deviceName.c_str(), settings.mqttUser.c_str(),
+        settings.mqttPassword.c_str(), stateTopic(settings.deviceName).c_str(),
+        0, true, stateMessage(false).c_str());
   }
 }
 
@@ -88,7 +100,8 @@ void MqttClient::reconnect() {
     if (connect()) {
       Logger.info.println(F("MQTT connected"));
       if (subsrcibe()) {
-        mqttClient->publish(settings.deviceName.c_str(), "online", true);
+        mqttClient->publish(stateTopic(settings.deviceName).c_str(),
+                            stateMessage(true).c_str(), true);
         Logger.info.println(F("Subscribed!"));
       } else {
         Logger.error.println(F("Cannot subsrcibe!"));

@@ -126,7 +126,10 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on("/firmware", HTTP_GET, authenticated([this]() {
-              server.send(200, APPLICATION_JSON, F("{\"version\": \"TODO\"}"));
+              server.send(200, APPLICATION_JSON,
+                          String(F("{\"version\": \"")) +
+                              String(QUOTE(FIRMWARE_VERSION)) +
+                              String(F("\"}")));
             }));
 
   server.on(
