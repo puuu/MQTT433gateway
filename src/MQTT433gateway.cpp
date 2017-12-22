@@ -46,7 +46,7 @@ WiFiClient wifi;
 
 Settings settings;
 RfHandler *rf = nullptr;
-ConfigWebServer *webServer;
+ConfigWebServer *webServer = nullptr;
 MqttClient *mqttClient = nullptr;
 
 HeartbeatFlashing beatLED(HEARTBEAD_LED_PIN);
