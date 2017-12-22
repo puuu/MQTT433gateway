@@ -210,11 +210,7 @@ void setup() {
 
   setupMdns();
 
-  Logger.info.println("\n");
-  Logger.info.print(F("Name: "));
-  Logger.info.println(String(ESP.getChipId(), HEX));
-
-  Logger.info.print(F("Listen on IP: "));
+  Logger.info.print(F("\nListen on IP: "));
   Logger.info.println(WiFi.localIP());
 }
 
