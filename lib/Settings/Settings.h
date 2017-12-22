@@ -59,7 +59,7 @@ enum SettingType {
 class Settings {
  public:
   Settings()
-      : deviceName(String(("rfESP_")) + String(ESP.getChipId(), HEX)),
+      : deviceName("mqtt-433-gateway"),
         mqttReceiveTopic(deviceName + ("/recv/")),
         mqttSendTopic(deviceName + ("/send/")),
         mqttBroker(""),
