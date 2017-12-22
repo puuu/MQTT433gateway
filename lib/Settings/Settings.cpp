@@ -111,7 +111,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   JsonObject &root = jsonBuffer.createObject();
 
   root[F("deviceName")] = this->deviceName;
-  root[F("mdnsName")] = this->mdnsName;
   root[F("mqttReceiveTopic")] = this->mqttReceiveTopic;
   root[F("mqttSendTopic")] = this->mqttSendTopic;
   root[F("mqttBroker")] = this->mqttBroker;
@@ -160,11 +159,8 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
 
   SettingTypeSet changed;
 
-  changed.set(
-      BASE,
-      any({setIfPresent(parsedSettings, F("deviceName"), deviceName,
-                        notEmpty()),
-           setIfPresent(parsedSettings, F("mdnsName"), mdnsName, notEmpty())}));
+  changed.set(BASE, setIfPresent(parsedSettings, F("deviceName"), deviceName,
+                                 notEmpty()));
 
   changed.set(
       MQTT,

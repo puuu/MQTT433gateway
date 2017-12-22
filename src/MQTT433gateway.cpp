@@ -118,10 +118,10 @@ void setupWebServer(const Settings &s) {
 }
 
 void setupMdns() {
-  if (0 == settings.mdnsName.length()) {
+  if (0 == settings.deviceName.length()) {
     return;
   }
-  if (!MDNS.begin(settings.mdnsName.c_str())) {
+  if (!MDNS.begin(settings.deviceName.c_str())) {
     Logger.error.println(F("Error setting up MDNS responder"));
   }
 

@@ -60,7 +60,6 @@ class Settings {
  public:
   Settings()
       : deviceName(String(("rfESP_")) + String(ESP.getChipId(), HEX)),
-        mdnsName("mqtt-433-gateway"),
         mqttReceiveTopic(deviceName + ("/recv/")),
         mqttSendTopic(deviceName + ("/send/")),
         mqttBroker(""),
@@ -86,7 +85,6 @@ class Settings {
                              const SettingCallbackFn &callback);
 
   String deviceName;
-  String mdnsName;
 
   String mqttReceiveTopic;
 
