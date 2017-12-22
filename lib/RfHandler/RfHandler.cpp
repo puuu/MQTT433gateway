@@ -99,13 +99,13 @@ void RfHandler::begin() {
   if (0 < recieverPin) {
     using namespace std::placeholders;
 
-    pinMode(RECEIVER_PIN,
+    pinMode(recieverPin,
             INPUT_PULLUP);  // 5V protection with reverse diode needs pullup
     rf->setCallback(
         std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
     rf->setPulseTrainCallBack(
         std::bind(&RfHandler::rfRawCallback, this, _1, _2));
-    rf->initReceiver(RECEIVER_PIN);
+    rf->initReceiver(recieverPin);
   }
 }
 
