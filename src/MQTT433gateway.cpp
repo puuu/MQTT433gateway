@@ -185,8 +185,8 @@ void setup() {
     if (s.syslogLevel.length() != 0 && s.syslogHost.length() != 0 &&
         s.syslogPort != 0) {
       syslogLog = new SyslogLogTarget();
-      Logger.addHandler(Logger.stringToLevel(s.syslogLevel), *syslogLog);
       syslogLog->begin(s.deviceName, s.syslogHost, s.syslogPort);
+      Logger.addHandler(Logger.stringToLevel(s.syslogLevel), *syslogLog);
     }
   });
 
