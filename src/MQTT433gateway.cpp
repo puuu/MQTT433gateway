@@ -74,9 +74,9 @@ void reconnectMqtt(const Settings &) {
 }
 
 void setupRf(const Settings &) {
-  // Init only on first load. We need to reboot else.
   if (rf) {
-    return;
+    delete rf;
+    rf = nullptr;
   }
   rf = new RfHandler(settings, [](const String &protocol, const String &data) {
     if (mqttClient) {
