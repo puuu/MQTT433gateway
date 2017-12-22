@@ -48,12 +48,9 @@ void ConfigWebServer::begin(Settings& settings) {
 
   server.on("/", authenticated([this]() {
               server.sendHeader(F("Content-Encoding"), "gzip");
-              server.sendHeader(F("Content-Length"), String(index_html_gz_len));
-              server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-              server.send(200, F("text/html"), "");
               server.setContentLength(index_html_gz_len);
+              server.send(200, F("text/html"), "");
               server.sendContent_P(index_html_gz, index_html_gz_len);
-              server.client().stop();
             }));
 
   server.on("/system", HTTP_GET, authenticated([this]() {
