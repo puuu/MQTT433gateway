@@ -119,7 +119,6 @@ $(function () {
     var CONFIG_ITEMS = [
         new GroupItem("General Config", legendFactory),
         new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
-        new ConfigItem("mdnsName", inputFieldFactory, inputApply, inputGet, "The name the device shall announce via mdns"),
         new ConfigItem("configPassword", passwordFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
 
         new GroupItem("MQTT Config", legendFactory),
