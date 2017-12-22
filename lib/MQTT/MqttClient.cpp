@@ -36,10 +36,9 @@
 class PayloadString : public String {
  public:
   PayloadString(const uint8_t *data, unsigned int length) : String() {
-    if (reserve(length + 1)) {
+    if (reserve(length)) {
       memcpy(buffer, data, length);
-      buffer[length] = '\0';
-      len = length + 1;
+      len = length;
     }
   }
 };
