@@ -41,6 +41,13 @@ RfHandler::RfHandler(const Settings &settings,
   rf->setEchoEnabled(settings.rfEchoMessages);
 }
 
+RfHandler::~RfHandler() {
+  if (rf) {
+    rf->initReceiver(-1);
+    delete rf;
+  }
+}
+
 void RfHandler::transmitCode(const String &protocol, const String &message) {
   Logger.debug.print(F("rf send "));
   Logger.debug.print(message);

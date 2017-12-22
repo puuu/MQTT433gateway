@@ -43,6 +43,8 @@ class RfHandler {
 
   RfHandler(const Settings &settings, const SendCallback &sendCb);
 
+  ~RfHandler();
+
   void transmitCode(const String &protocol, const String &message);
 
   void setRawMode(bool mode) { rawMode = mode; }
