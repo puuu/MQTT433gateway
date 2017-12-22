@@ -182,7 +182,7 @@ void setup() {
       Logger.removeHandler(*syslogLog);
       delete syslogLog;
     }
-    if (s.syslogLevel.length() != 0 && s.syslogHost.length() != 0 &&
+    if (s.syslogLevel.length() > 0 && s.syslogHost.length() > 0 &&
         s.syslogPort != 0) {
       syslogLog = new SyslogLogTarget();
       syslogLog->begin(s.deviceName, s.syslogHost, s.syslogPort);
