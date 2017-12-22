@@ -193,7 +193,11 @@ void setup() {
   settings.registerChangeHandler(RF_CONFIG, setupRf);
 
   settings.registerChangeHandler(LOGGING, [](const Settings &s) {
-    Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
+    if (s.serialLogLevel.length() > 0) {
+      Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
+    } else {
+      Logger.removeHandler(Serial);
+    }
     setupWebLog();
   });
 
