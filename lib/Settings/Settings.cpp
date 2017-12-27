@@ -81,7 +81,7 @@ void Settings::load() {
     File file = SPIFFS.open(SETTINGS_FILE, "r");
     String settingsContents = file.readStringUntil(SETTINGS_TERMINATOR);
     file.close();
-    Logger.debug.println("FILE CONTENTS:");
+    Logger.debug.println(F("FILE CONTENTS:"));
     Logger.debug.println(settingsContents);
 
     deserialize(settingsContents, false);
