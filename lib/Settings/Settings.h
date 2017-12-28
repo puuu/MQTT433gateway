@@ -50,6 +50,7 @@
 #include <Esp.h>
 #include <Stream.h>
 #include <WString.h>
+#include <ArduinoJson.h>
 
 enum SettingType {
   BASE,
@@ -123,7 +124,7 @@ class Settings {
   void notifyAll();
 
   void serialize(Print &stream, bool pretty, bool sensible = true) const;
-  void deserialize(const String &json, bool fireCallbacks = true);
+  void deserialize(const String &json);
   void reset();
 
   ~Settings();
@@ -139,6 +140,7 @@ class Settings {
   };
 
   void onConfigChange(SettingTypeSet typeSet) const;
+  SettingTypeSet applyJson(JsonObject &parsedSettings);
 
   std::forward_list<SettingListener> listeners;
 };

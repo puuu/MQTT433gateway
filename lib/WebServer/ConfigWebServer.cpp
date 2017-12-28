@@ -69,7 +69,7 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on("/config", HTTP_PUT, authenticated([&]() {
-              settings.deserialize(server.arg("plain"), true);
+      settings.deserialize(server.arg("plain"));
               settings.save();
               server.send(200, APPLICATION_JSON, F("true"));
             }));

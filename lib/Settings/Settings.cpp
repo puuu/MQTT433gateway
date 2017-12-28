@@ -30,7 +30,6 @@
 
 #include "Settings.h"
 
-#include <ArduinoJson.h>
 #include <FS.h>
 
 #include <ArduinoSimpleLogging.h>
@@ -105,12 +104,13 @@ void Settings::load() {
       Logger.error.println(F("Cannot open setings file!"));
       return;
     }
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &parsedSettings = jsonBuffer.parseObject(file);
     String settingsContents = file.readStringUntil(SETTINGS_TERMINATOR);
-    file.close();
-    Logger.debug.println(F("FILE CONTENTS:"));
-    Logger.debug.println(settingsContents);
 
-    deserialize(settingsContents, false);
+    file.close();
+
+    applyJson(parsedSettings);
   }
 }
 
@@ -174,16 +174,21 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
   }
 }
 
-void Settings::deserialize(const String &json, const bool fireCallbacks) {
+void Settings::deserialize(const String &json) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &parsedSettings = jsonBuffer.parseObject(json);
 
+  onConfigChange(applyJson(parsedSettings));
+}
+
+Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
+  SettingTypeSet changed;
+
   if (!parsedSettings.success()) {
     Logger.warning.println(F("Config parse failed!"));
-    return;
+    return changed;
   }
 
-  SettingTypeSet changed;
 
   changed.set(BASE, setIfPresent(parsedSettings, JsonKey::deviceName, deviceName,
                                  notEmpty()));
@@ -233,9 +238,7 @@ void Settings::deserialize(const String &json, const bool fireCallbacks) {
                    setIfPresent(parsedSettings, JsonKey::syslogHost, syslogHost),
                    setIfPresent(parsedSettings, JsonKey::syslogPort, syslogPort)}));
 
-  if (fireCallbacks) {
-    onConfigChange(changed);
-  }
+    return changed;
 }
 
 void Settings::reset() {
@@ -243,3 +246,4 @@ void Settings::reset() {
     SPIFFS.remove(SETTINGS_FILE);
   }
 }
+
