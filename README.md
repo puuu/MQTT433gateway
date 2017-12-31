@@ -37,7 +37,8 @@ software. More information can be found in their [documentation](http://docs.pla
    The available boards are defined in `platformio.ini`. Currently, this are
    + `esp12e` for ESP8266-12e/f models,
    + `esp12e_160` for ESP8266-12e/f models with cpu clock set to 160MHz,
-   + `nodemcuv2` for NodeMCU boards,
+   + `nodemcu` for NodeMCU 0.9 boards,
+   + `nodemcuv2` for NodeMCU 1.0 boards,
    + `d1_mini`for D1 Mini boards,
    + `huzzah` for the Huzzah boards.
 
