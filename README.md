@@ -47,7 +47,8 @@ platformio run --environment <board>
 ```
 The available boards are defined in `platformio.ini`. Currently, this are
 + `esp12e` for ESP8266-12e/f models,
-+ `nodemcuv2` for NodeMCU boards,
++ `nodemcu` for NodeMCU 0.9 boards,
++ `nodemcuv2` for NodeMCU 1.0 boards,
 + `d1_mini`for D1 Mini boards,
 + `huzzah` for the Huzzah boards.
 
@@ -272,8 +273,8 @@ Updates of the MQTT433gateway can be preformed by OTA (Over-the-air
 programming).  To do this, the binary file must be provided by HTTP.
 The URL and the authentication information are handled via MQTT.
 
-All this is implemented in the `ota_update.py` Python script.  It will
-start a HTTP server and handle the MQTT communication.  It requires
+All this is implemented in the `ota_update.py` Python 3 script. It will
+start a HTTP server and handle the MQTT communication. It requires
 the Python paho-mqtt module:
 
 ```console
