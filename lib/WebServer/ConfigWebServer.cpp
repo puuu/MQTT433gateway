@@ -33,7 +33,6 @@
 #include <ArduinoJson.h>
 // clang-format on
 
-#include <StringStream.h>
 #include <ArduinoSimpleLogging.h>
 #include <WiFiUdp.h>
 
@@ -63,8 +62,7 @@ void ConfigWebServer::begin(Settings& settings) {
 
   server.on("/config", HTTP_GET, authenticated([&]() {
               String buff;
-              StringStream stream(buff);
-              settings.serialize(stream, true, false);
+              settings.serialize(buff, true, false);
               server.send(200, APPLICATION_JSON, buff);
             }));
 

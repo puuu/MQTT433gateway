@@ -55,7 +55,6 @@ const char PROGMEM mqttPassword[] = "mqttPassword";
 const char PROGMEM configPassword[] = "configPassword";
 }
 
-
 static inline bool any(std::initializer_list<bool> items) {
   return std::any_of(items.begin(), items.end(),
                      [](bool item) { return item; });
@@ -132,10 +131,7 @@ void Settings::save() {
 
 Settings::~Settings() = default;
 
-void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
-
+void Settings::doSerialize(JsonObject &root, bool sensible) const {
   root[JsonKey::deviceName] = this->deviceName;
   root[JsonKey::mqttReceiveTopic] = this->mqttReceiveTopic;
   root[JsonKey::mqttSendTopic] = this->mqttSendTopic;
@@ -166,12 +162,6 @@ void Settings::serialize(Print &stream, bool pretty, bool sensible) const {
     root[JsonKey::mqttPassword] = this->mqttPassword;
     root[JsonKey::configPassword] = this->configPassword;
   }
-
-  if (pretty) {
-    root.prettyPrintTo(stream);
-  } else {
-    root.printTo(stream);
-  }
 }
 
 void Settings::deserialize(const String &json) {
@@ -189,9 +179,8 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
     return changed;
   }
 
-
-  changed.set(BASE, setIfPresent(parsedSettings, JsonKey::deviceName, deviceName,
-                                 notEmpty()));
+  changed.set(BASE, setIfPresent(parsedSettings, JsonKey::deviceName,
+                                 deviceName, notEmpty()));
 
   changed.set(
       MQTT,
@@ -227,18 +216,20 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
 
   changed.set(
       LOGGING,
-      any({setIfPresent(parsedSettings, JsonKey::serialLogLevel, serialLogLevel),
+      any({setIfPresent(parsedSettings, JsonKey::serialLogLevel,
+                        serialLogLevel),
            setIfPresent(parsedSettings, JsonKey::webLogLevel, webLogLevel)}));
 
   changed.set(WEB_CONFIG, setIfPresent(parsedSettings, JsonKey::configPassword,
                                        configPassword, notEmpty()));
 
-  changed.set(SYSLOG,
-              any({setIfPresent(parsedSettings, JsonKey::syslogLevel, syslogLevel),
-                   setIfPresent(parsedSettings, JsonKey::syslogHost, syslogHost),
-                   setIfPresent(parsedSettings, JsonKey::syslogPort, syslogPort)}));
+  changed.set(
+      SYSLOG,
+      any({setIfPresent(parsedSettings, JsonKey::syslogLevel, syslogLevel),
+           setIfPresent(parsedSettings, JsonKey::syslogHost, syslogHost),
+           setIfPresent(parsedSettings, JsonKey::syslogPort, syslogPort)}));
 
-    return changed;
+  return changed;
 }
 
 void Settings::reset() {
@@ -246,4 +237,3 @@ void Settings::reset() {
     SPIFFS.remove(SETTINGS_FILE);
   }
 }
-

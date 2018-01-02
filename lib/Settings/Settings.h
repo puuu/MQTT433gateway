@@ -47,10 +47,10 @@
 #include <forward_list>
 #include <functional>
 
+#include <ArduinoJson.h>
 #include <Esp.h>
 #include <Stream.h>
 #include <WString.h>
-#include <ArduinoJson.h>
 
 enum SettingType {
   BASE,
@@ -123,7 +123,17 @@ class Settings {
 
   void notifyAll();
 
-  void serialize(Print &stream, bool pretty, bool sensible = true) const;
+  template <typename T>
+  void serialize(T &target, bool pretty, bool sensible = true) const {
+    DynamicJsonBuffer buffer;
+    JsonObject &root = buffer.createObject();
+    doSerialize(root, sensible);
+    if (pretty) {
+      root.prettyPrintTo(target);
+    } else {
+      root.printTo(target);
+    }
+  }
   void deserialize(const String &json);
   void reset();
 
@@ -141,6 +151,7 @@ class Settings {
 
   void onConfigChange(SettingTypeSet typeSet) const;
   SettingTypeSet applyJson(JsonObject &parsedSettings);
+  void doSerialize(JsonObject &obj, bool sensible = true) const;
 
   std::forward_list<SettingListener> listeners;
 };
