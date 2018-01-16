@@ -107,7 +107,6 @@ void Settings::load() {
     }
     DynamicJsonBuffer jsonBuffer;
     JsonObject &parsedSettings = jsonBuffer.parseObject(file);
-    String settingsContents = file.readStringUntil(SETTINGS_TERMINATOR);
 
     file.close();
 
