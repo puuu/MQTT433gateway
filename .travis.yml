@@ -26,3 +26,4 @@ install:
 script:
   - platformio run --environment=$PLATFORMIO_ENV
   - scripts/stylecheck
+  - git diff --exit-code
