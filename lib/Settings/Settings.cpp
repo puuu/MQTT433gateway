@@ -26,13 +26,15 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+
+#include <WString.h>
+
 #include <algorithm>
 
-#include "Settings.h"
-
+#include <ArduinoSimpleLogging.h>
 #include <FS.h>
 
-#include <ArduinoSimpleLogging.h>
+#include "Settings.h"
 
 namespace JsonKey {
 const char PROGMEM deviceName[] = "deviceName";
@@ -132,35 +134,35 @@ void Settings::save() {
 Settings::~Settings() = default;
 
 void Settings::doSerialize(JsonObject &root, bool sensible) const {
-  root[JsonKey::deviceName] = this->deviceName;
-  root[JsonKey::mqttReceiveTopic] = this->mqttReceiveTopic;
-  root[JsonKey::mqttSendTopic] = this->mqttSendTopic;
-  root[JsonKey::mqttBroker] = this->mqttBroker;
-  root[JsonKey::mqttBrokerPort] = this->mqttBrokerPort;
-  root[JsonKey::mqttUser] = this->mqttUser;
-  root[JsonKey::mqttRetain] = this->mqttRetain;
-  root[JsonKey::rfReceiverPin] = this->rfReceiverPin;
-  root[JsonKey::rfTransmitterPin] = this->rfTransmitterPin;
-  root[JsonKey::rfEchoMessages] = this->rfEchoMessages;
+  root[FPSTR(JsonKey::deviceName)] = this->deviceName;
+  root[FPSTR(JsonKey::mqttReceiveTopic)] = this->mqttReceiveTopic;
+  root[FPSTR(JsonKey::mqttSendTopic)] = this->mqttSendTopic;
+  root[FPSTR(JsonKey::mqttBroker)] = this->mqttBroker;
+  root[FPSTR(JsonKey::mqttBrokerPort)] = this->mqttBrokerPort;
+  root[FPSTR(JsonKey::mqttUser)] = this->mqttUser;
+  root[FPSTR(JsonKey::mqttRetain)] = this->mqttRetain;
+  root[FPSTR(JsonKey::rfReceiverPin)] = this->rfReceiverPin;
+  root[FPSTR(JsonKey::rfTransmitterPin)] = this->rfTransmitterPin;
+  root[FPSTR(JsonKey::rfEchoMessages)] = this->rfEchoMessages;
 
   {
     DynamicJsonBuffer protoBuffer;
     JsonArray &parsedProtocols = protoBuffer.parseArray(this->rfProtocols);
-    JsonArray &protos = root.createNestedArray(JsonKey::rfProtocols);
+    JsonArray &protos = root.createNestedArray(FPSTR(JsonKey::rfProtocols));
     for (const auto proto : parsedProtocols) {
       protos.add(proto.as<String>());
     }
   }
 
-  root[JsonKey::serialLogLevel] = this->serialLogLevel;
-  root[JsonKey::webLogLevel] = this->webLogLevel;
-  root[JsonKey::syslogLevel] = this->syslogLevel;
-  root[JsonKey::syslogHost] = this->syslogHost;
-  root[JsonKey::syslogPort] = this->syslogPort;
+  root[FPSTR(JsonKey::serialLogLevel)] = this->serialLogLevel;
+  root[FPSTR(JsonKey::webLogLevel)] = this->webLogLevel;
+  root[FPSTR(JsonKey::syslogLevel)] = this->syslogLevel;
+  root[FPSTR(JsonKey::syslogHost)] = this->syslogHost;
+  root[FPSTR(JsonKey::syslogPort)] = this->syslogPort;
 
   if (sensible) {
-    root[JsonKey::mqttPassword] = this->mqttPassword;
-    root[JsonKey::configPassword] = this->configPassword;
+    root[FPSTR(JsonKey::mqttPassword)] = this->mqttPassword;
+    root[FPSTR(JsonKey::configPassword)] = this->configPassword;
   }
 }
 
@@ -179,55 +181,62 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
     return changed;
   }
 
-  changed.set(BASE, setIfPresent(parsedSettings, JsonKey::deviceName,
+  changed.set(BASE, setIfPresent(parsedSettings, FPSTR(JsonKey::deviceName),
                                  deviceName, notEmpty()));
 
   changed.set(
       MQTT,
-      any({setIfPresent(parsedSettings, JsonKey::mqttReceiveTopic,
+      any({setIfPresent(parsedSettings, FPSTR(JsonKey::mqttReceiveTopic),
                         mqttReceiveTopic),
-           setIfPresent(parsedSettings, JsonKey::mqttSendTopic, mqttSendTopic),
-           setIfPresent(parsedSettings, JsonKey::mqttBroker, mqttBroker,
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttSendTopic),
+                        mqttSendTopic),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBroker), mqttBroker,
                         notEmpty()),
-           setIfPresent(parsedSettings, JsonKey::mqttBrokerPort, mqttBrokerPort,
-                        notZero<uint16_t>()),
-           setIfPresent(parsedSettings, JsonKey::mqttUser, mqttUser),
-           setIfPresent(parsedSettings, JsonKey::mqttPassword, mqttPassword,
-                        notEmpty()),
-           setIfPresent(parsedSettings, JsonKey::mqttRetain, mqttRetain)}));
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBrokerPort),
+                        mqttBrokerPort, notZero<uint16_t>()),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttUser), mqttUser),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttPassword),
+                        mqttPassword, notEmpty()),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttRetain),
+                        mqttRetain)}));
 
   changed.set(
       RF_CONFIG,
-      any({setIfPresent(parsedSettings, JsonKey::rfReceiverPin, rfReceiverPin),
-           setIfPresent(parsedSettings, JsonKey::rfTransmitterPin,
+      any({setIfPresent(parsedSettings, FPSTR(JsonKey::rfReceiverPin),
+                        rfReceiverPin),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::rfTransmitterPin),
                         rfTransmitterPin)}));
 
-  changed.set(RF_ECHO, (setIfPresent(parsedSettings, JsonKey::rfEchoMessages,
-                                     rfEchoMessages)));
+  changed.set(RF_ECHO,
+              (setIfPresent(parsedSettings, FPSTR(JsonKey::rfEchoMessages),
+                            rfEchoMessages)));
 
-  if (parsedSettings.containsKey(JsonKey::rfProtocols)) {
+  if (parsedSettings.containsKey(FPSTR(JsonKey::rfProtocols))) {
     String buff;
-    parsedSettings[JsonKey::rfProtocols].printTo(buff);
+    parsedSettings[FPSTR(JsonKey::rfProtocols)].printTo(buff);
     if (buff != rfProtocols) {
       rfProtocols = buff;
       changed.set(RF_PROTOCOL, true);
     }
   }
 
-  changed.set(
-      LOGGING,
-      any({setIfPresent(parsedSettings, JsonKey::serialLogLevel,
-                        serialLogLevel),
-           setIfPresent(parsedSettings, JsonKey::webLogLevel, webLogLevel)}));
+  changed.set(LOGGING,
+              any({setIfPresent(parsedSettings, FPSTR(JsonKey::serialLogLevel),
+                                serialLogLevel),
+                   setIfPresent(parsedSettings, FPSTR(JsonKey::webLogLevel),
+                                webLogLevel)}));
 
-  changed.set(WEB_CONFIG, setIfPresent(parsedSettings, JsonKey::configPassword,
-                                       configPassword, notEmpty()));
+  changed.set(WEB_CONFIG,
+              setIfPresent(parsedSettings, FPSTR(JsonKey::configPassword),
+                           configPassword, notEmpty()));
 
   changed.set(
       SYSLOG,
-      any({setIfPresent(parsedSettings, JsonKey::syslogLevel, syslogLevel),
-           setIfPresent(parsedSettings, JsonKey::syslogHost, syslogHost),
-           setIfPresent(parsedSettings, JsonKey::syslogPort, syslogPort)}));
+      any({setIfPresent(parsedSettings, FPSTR(JsonKey::syslogLevel),
+                        syslogLevel),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::syslogHost), syslogHost),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::syslogPort),
+                        syslogPort)}));
 
   return changed;
 }
