@@ -34,7 +34,7 @@
 #include "RfHandler.h"
 
 RfHandler::RfHandler(const Settings &settings,
-                     const RfHandler::SendCallback &sendCb)
+                     const RfHandler::ReceiveCallback &sendCb)
     : rf(new ESPiLight(settings.rfTransmitterPin)),
       recieverPin(settings.rfReceiverPin),
       sendCb(sendCb) {

@@ -39,9 +39,9 @@ class ESPiLight;
 
 class RfHandler {
  public:
-  using SendCallback = std::function<void(const String &, const String &)>;
+  using ReceiveCallback = std::function<void(const String &, const String &)>;
 
-  RfHandler(const Settings &settings, const SendCallback &sendCb);
+  RfHandler(const Settings &settings, const ReceiveCallback &sendCb);
 
   ~RfHandler();
 
@@ -71,7 +71,7 @@ class RfHandler {
   ESPiLight *rf;
   int8_t recieverPin;
 
-  SendCallback sendCb;
+  ReceiveCallback sendCb;
 
   bool rawMode = false;
 };
