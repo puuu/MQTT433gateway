@@ -33,7 +33,7 @@
 #define SETTINGS_FILE "/settings.json"
 #define SETTINGS_TERMINATOR '\0'
 
-#define DEFAULT_PASSWORD "rfESP_password"
+#define DEFAULT_PASSWORD "MQTT433gateway"
 
 #define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
 #define TRANSMITTER_PIN 4
