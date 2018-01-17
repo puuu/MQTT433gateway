@@ -71,7 +71,7 @@ class RfHandler {
   ESPiLight *rf;
   int8_t recieverPin;
 
-  ReceiveCallback sendCb;
+  ReceiveCallback onReceiveCallback;
 
   bool rawMode = false;
 };

@@ -37,7 +37,7 @@ RfHandler::RfHandler(const Settings &settings,
                      const RfHandler::ReceiveCallback &sendCb)
     : rf(new ESPiLight(settings.rfTransmitterPin)),
       recieverPin(settings.rfReceiverPin),
-      sendCb(sendCb) {
+      onReceiveCallback(sendCb) {
   rf->setEchoEnabled(settings.rfEchoMessages);
 }
 
@@ -82,9 +82,9 @@ void RfHandler::rfCallback(const String &protocol, const String &message,
 
   if (status == VALID) {
     if (deviceID != nullptr) {
-      sendCb(protocol + "/" + deviceID, message);
+      onReceiveCallback(protocol + "/" + deviceID, message);
     } else {
-      sendCb(protocol, message);
+      onReceiveCallback(protocol, message);
     }
   }
 }
