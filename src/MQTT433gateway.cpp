@@ -146,6 +146,12 @@ void setupWebServer(const Settings &s) {
     WiFiUDP::stopAll();
   });
 
+  webServer->registerDebugFlagHandler(
+      F("protocolRaw"), []() { return rf && rf->isRawModeEnabled(); },
+      [](bool state) {
+        if (rf) rf->setRawMode(state);
+      });
+
   webServer->registerRfHandlerProvider([]() { return rf; });
   webServer->begin(settings);
 

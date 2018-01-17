@@ -48,6 +48,8 @@ class ConfigWebServer {
   using RfHandlerProviderCb = std::function<RfHandler*()>;
   using ProtocolProviderCb = std::function<String()>;
   using OtaHookCb = std::function<void()>;
+  using DebugFlagGetCb = std::function<bool()>;
+  using DebugFlagSetCb = std::function<void(bool)>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
 
@@ -69,6 +71,10 @@ class ConfigWebServer {
 
   void registerOtaHook(const OtaHookCb& cb) { otaHook = cb; }
 
+  void registerDebugFlagHandler(const String& state,
+                                const DebugFlagGetCb& getState,
+                                const DebugFlagSetCb& setState);
+
   Print& logTarget();
 
  private:
@@ -80,10 +86,21 @@ class ConfigWebServer {
                          const ConfigWebServer::SystemCommandCb& cb)
         : command(command), cb(cb) {}
   };
+  struct DebugFlagHandler {
+    const String name;
+    const ConfigWebServer::DebugFlagGetCb getState;
+    const ConfigWebServer::DebugFlagSetCb setState;
+
+    DebugFlagHandler(const String& state, const DebugFlagGetCb& getState,
+                     const DebugFlagSetCb& setState)
+        : name(state), getState(getState), setState(setState) {}
+  };
 
   ESP8266WebServer::THandlerFunction authenticated(
       const ESP8266WebServer::THandlerFunction& handler);
   void onSystemCommand();
+  void onDebugFlagGet();
+  void onDebugFlagSet();
   RfHandler* getRfHandler() {
     if (rfHandlerProvider) {
       return rfHandlerProvider();
@@ -97,6 +114,7 @@ class ConfigWebServer {
   RfHandlerProviderCb rfHandlerProvider;
   ProtocolProviderCb protocolProvider;
   OtaHookCb otaHook;
+  std::forward_list<DebugFlagHandler> debugFlagHandlers;
 
   String password;
 };

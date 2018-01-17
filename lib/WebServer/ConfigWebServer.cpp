@@ -77,46 +77,11 @@ void ConfigWebServer::begin(Settings& settings) {
               }
             }));
 
-  server.on(F("/debug"), HTTP_GET, authenticated([this]() {
-              const RfHandler* handler(getRfHandler());
+  server.on("/debug", HTTP_GET,
+            authenticated(std::bind(&::ConfigWebServer::onDebugFlagGet, this)));
 
-              if (!handler) {
-                server.send(200, APPLICATION_JSON, F("{}"));
-                return;
-              }
-
-              DynamicJsonBuffer buff;
-              JsonObject& root = buff.createObject();
-              root[F("protocolRaw")] = handler->isRawModeEnabled();
-
-              String result;
-              root.printTo(result);
-
-              server.send(200, APPLICATION_JSON, result);
-            }));
-
-  server.on(F("/debug"), HTTP_PUT, authenticated([this]() {
-              RfHandler* handler(rfHandlerProvider());
-
-              if (!handler) {
-                server.send(500, APPLICATION_JSON, F("false"));
-                return;
-              }
-
-              DynamicJsonBuffer buff;
-              JsonObject& parsed = buff.parse(server.arg(F("plain")));
-
-              if (!parsed.success()) {
-                server.send(500, APPLICATION_JSON, F("false"));
-                return;
-              }
-
-              if (parsed.containsKey(F("protocolRaw"))) {
-                handler->setRawMode(parsed.get<bool>(F("protocolRaw")));
-              }
-
-              server.send(200, APPLICATION_JSON, F("true"));
-            }));
+  server.on("/debug", HTTP_PUT,
+            authenticated(std::bind(&::ConfigWebServer::onDebugFlagSet, this)));
 
   server.on(F("/firmware"), HTTP_GET, authenticated([this]() {
               server.send_P(
@@ -186,6 +151,12 @@ void ConfigWebServer::registerSystemCommandHandler(
   systemCommandHandlers.emplace_front(command, cb);
 }
 
+void ConfigWebServer::registerDebugFlagHandler(
+    const String& state, const ConfigWebServer::DebugFlagGetCb& getState,
+    const ConfigWebServer::DebugFlagSetCb& setState) {
+  debugFlagHandlers.emplace_front(state, getState, setState);
+}
+
 void ConfigWebServer::onSystemCommand() {
   DynamicJsonBuffer buffer;
   JsonObject& request = buffer.parse(server.arg(F("plain")));
@@ -209,6 +180,39 @@ void ConfigWebServer::onSystemCommand() {
   }
 
   server.send_P(400, TEXT_PLAIN, PSTR("Unknown command"));
+}
+
+void ConfigWebServer::onDebugFlagSet() {
+  DynamicJsonBuffer buffer;
+  JsonObject& request = buffer.parse(server.arg(F("plain")));
+
+  if (!request.success()) {
+    server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse json object!"));
+    return;
+  }
+
+  for (const auto& debugFlagHandler : debugFlagHandlers) {
+    if (request.containsKey(debugFlagHandler.name)) {
+      debugFlagHandler.setState(request[debugFlagHandler.name].as<bool>());
+      Logger.debug.print(F("Set debug flag "));
+      Logger.debug.print(debugFlagHandler.name);
+      Logger.debug.print(F(": "));
+      Logger.debug.println(request[debugFlagHandler.name].as<bool>());
+    }
+  }
+  onDebugFlagGet();
+}
+
+void ConfigWebServer::onDebugFlagGet() {
+  DynamicJsonBuffer buffer;
+  JsonObject& root = buffer.createObject();
+
+  for (const auto& debugFlagHandler : debugFlagHandlers) {
+    root[debugFlagHandler.name] = debugFlagHandler.getState();
+  }
+  String result;
+  root.printTo(result);
+  server.send(200, APPLICATION_JSON, result);
 }
 
 void ConfigWebServer::handleClient() {
