@@ -34,6 +34,7 @@
 #define SETTINGS_TERMINATOR '\0'
 
 #define DEFAULT_PASSWORD "MQTT433gateway"
+#define DEFAULT_NAME "rf434"
 
 #define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
 #define TRANSMITTER_PIN 4
@@ -69,7 +70,7 @@ enum SettingType {
 class Settings {
  public:
   Settings()
-      : deviceName("mqtt-433-gateway"),
+      : deviceName(DEFAULT_NAME),
         mqttReceiveTopic(deviceName + ("/recv/")),
         mqttSendTopic(deviceName + ("/send/")),
         mqttBroker(""),
