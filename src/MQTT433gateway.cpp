@@ -124,8 +124,11 @@ void setupWebServer(const Settings &s) {
     delay(100);
     ESP.restart();
   });
-  webServer->registerSystemCommandHandler(F("reset_config"),
-                                          []() { settings.reset(); });
+  webServer->registerSystemCommandHandler(F("reset_config"), []() {
+    settings.reset();
+    delay(100);
+    ESP.restart();
+  });
   webServer->registerRfHandlerProvider([]() { return rf; });
   webServer->begin(settings);
 
