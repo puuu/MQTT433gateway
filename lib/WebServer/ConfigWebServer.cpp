@@ -35,6 +35,7 @@
 
 #include <ArduinoSimpleLogging.h>
 #include <WiFiUdp.h>
+#include <ESP8266WebServer.h>
 
 #include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
@@ -45,34 +46,34 @@ const char APPLICATION_JSON[] = "application/json";
 void ConfigWebServer::begin(Settings& settings) {
   updateSettings(settings);
 
-  server.on("/", authenticated([this]() {
+  server.on(F("/"), authenticated([this]() {
               server.sendHeader(F("Content-Encoding"), "gzip");
               server.setContentLength(index_html_gz_len);
               server.send(200, F("text/html"), "");
               server.sendContent_P(index_html_gz, index_html_gz_len);
             }));
 
-  server.on("/system", HTTP_GET, authenticated([this]() {
+  server.on(F("/system"), HTTP_GET, authenticated([this]() {
               server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
             }));
 
   server.on(
-      "/system", HTTP_POST,
+      F("/system"), HTTP_POST,
       authenticated(std::bind(&::ConfigWebServer::onSystemCommand, this)));
 
-  server.on("/config", HTTP_GET, authenticated([&]() {
+  server.on(F("/config"), HTTP_GET, authenticated([&]() {
               String buff;
               settings.serialize(buff, true, false);
               server.send(200, APPLICATION_JSON, buff);
             }));
 
-  server.on("/config", HTTP_PUT, authenticated([&]() {
-      settings.deserialize(server.arg("plain"));
+  server.on(F("/config"), HTTP_PUT, authenticated([&]() {
+              settings.deserialize(server.arg("plain"));
               settings.save();
               server.send(200, APPLICATION_JSON, F("true"));
             }));
 
-  server.on("/protocols", HTTP_GET, authenticated([this]() {
+  server.on(F("/protocols"), HTTP_GET, authenticated([this]() {
               const RfHandler* handler(getRfHandler());
               if (handler) {
                 server.send(200, APPLICATION_JSON,
@@ -82,7 +83,7 @@ void ConfigWebServer::begin(Settings& settings) {
               }
             }));
 
-  server.on("/debug", HTTP_GET, authenticated([this]() {
+  server.on(F("/debug"), HTTP_GET, authenticated([this]() {
               const RfHandler* handler(getRfHandler());
 
               if (!handler) {
@@ -100,7 +101,7 @@ void ConfigWebServer::begin(Settings& settings) {
               server.send(200, APPLICATION_JSON, result);
             }));
 
-  server.on("/debug", HTTP_PUT, authenticated([this]() {
+  server.on(F("/debug"), HTTP_PUT, authenticated([this]() {
               RfHandler* handler(rfHandlerProvider());
 
               if (!handler) {
@@ -109,10 +110,10 @@ void ConfigWebServer::begin(Settings& settings) {
               }
 
               DynamicJsonBuffer buff;
-              JsonObject& parsed = buff.parse(server.arg("plain"));
+              JsonObject& parsed = buff.parse(server.arg(F("plain")));
 
               if (!parsed.success()) {
-                server.send(500, APPLICATION_JSON, "false");
+                server.send(500, APPLICATION_JSON, F("false"));
                 return;
               }
 
@@ -123,7 +124,7 @@ void ConfigWebServer::begin(Settings& settings) {
               server.send(200, APPLICATION_JSON, F("true"));
             }));
 
-  server.on("/firmware", HTTP_GET, authenticated([this]() {
+  server.on(F("/firmware"), HTTP_GET, authenticated([this]() {
               server.send(200, APPLICATION_JSON,
                           String(F("{\"version\": \"")) +
                               String(QUOTE(FIRMWARE_VERSION)) +
@@ -131,8 +132,8 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on(
-      "/firmware", HTTP_POST, authenticated([this]() {
-        server.sendHeader("Connection", "close");
+      F("/firmware"), HTTP_POST, authenticated([this]() {
+        server.sendHeader(F("Connection"), F("close"));
 
         Logger.info.println(F("Got an update. Reboot."));
         if (Update.hasError()) {
@@ -140,7 +141,7 @@ void ConfigWebServer::begin(Settings& settings) {
               200, TEXT_PLAIN,
               PSTR("Update failed. You may need to reflash the device."));
         } else {
-          server.sendHeader("Refresh", F("20; URL=/"));
+          server.sendHeader(F("Refresh"), F("20; URL=/"));
           server.send_P(200, TEXT_PLAIN,
                         PSTR("Update successful.\n\nDevice will reboot and try "
                              "to reconnect in 20 seconds."));
@@ -159,7 +160,8 @@ void ConfigWebServer::begin(Settings& settings) {
             handler->disableReceiver();
           }
 
-          Serial.printf("Update: %s\n", upload.filename.c_str());
+          Serial.print(F("Update: "));
+          Serial.println(upload.filename.c_str());
           uint32_t maxSketchSpace =
               (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
           if (!Update.begin(maxSketchSpace)) {  // start with max available size
@@ -173,8 +175,9 @@ void ConfigWebServer::begin(Settings& settings) {
         } else if (upload.status == UPLOAD_FILE_END) {
           if (Update.end(
                   true)) {  // true to set the size to the current progress
-            Serial.printf("Update Success: %u\nRebooting...\n",
-                          upload.totalSize);
+            Serial.print(F("Update Success: "));
+            Serial.print(upload.totalSize);
+            Serial.print(F("\nRebooting...\n"));
           } else {
             Update.printError(Serial);
           }
@@ -194,20 +197,20 @@ void ConfigWebServer::registerSystemCommandHandler(
 
 void ConfigWebServer::onSystemCommand() {
   DynamicJsonBuffer buffer;
-  JsonObject& request = buffer.parse(server.arg("plain"));
+  JsonObject& request = buffer.parse(server.arg(F("plain")));
 
   if (!request.success()) {
     server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse command!"));
     return;
   }
 
-  if (!request.containsKey("command")) {
+  if (!request.containsKey(PSTR("command"))) {
     server.send_P(400, TEXT_PLAIN, PSTR("No command found!"));
     return;
   }
 
   for (const auto& systemCommandHandler : systemCommandHandlers) {
-    if (systemCommandHandler.command == request["command"]) {
+    if (systemCommandHandler.command == request[PSTR("command")]) {
       server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
       systemCommandHandler.cb();
       return;
@@ -232,7 +235,8 @@ ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
     const ESP8266WebServer::THandlerFunction& handler) {
   return [=]() {
     if (!server.authenticate(ADMIN_USERNAME, this->password.c_str())) {
-      server.sendHeader("WWW-Authenticate", "Basic realm=\"Login Required\"");
+      server.sendHeader(F("WWW-Authenticate"),
+                        F("Basic realm=\"Login Required\""));
       server.send_P(401, TEXT_PLAIN, PSTR("Authentication required!"));
     } else {
       handler();
