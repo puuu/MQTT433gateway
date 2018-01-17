@@ -29,7 +29,6 @@
 
 #include <ESP8266WebServer.h>
 #include <WString.h>
-#include <WiFiUdp.h>
 
 #include <ArduinoJson.h>
 #include <ArduinoSimpleLogging.h>
@@ -147,11 +146,9 @@ void ConfigWebServer::begin(Settings& settings) {
         HTTPUpload& upload = server.upload();
         if (upload.status == UPLOAD_FILE_START) {
           Serial.setDebugOutput(true);
-          WiFiUDP::stopAll();
 
-          RfHandler* handler = getRfHandler();
-          if (handler) {
-            handler->disableReceiver();
+          if (otaHook) {
+            otaHook();
           }
 
           Serial.print(F("Update: "));

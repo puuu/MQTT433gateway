@@ -138,6 +138,14 @@ void setupWebServer(const Settings &s) {
     return String(F("[]"));
   });
 
+  webServer->registerOtaHook([]() {
+    if (rf) {
+      delete rf;
+      rf = nullptr;
+    }
+    WiFiUDP::stopAll();
+  });
+
   webServer->registerRfHandlerProvider([]() { return rf; });
   webServer->begin(settings);
 

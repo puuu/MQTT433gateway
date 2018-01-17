@@ -47,6 +47,7 @@ class ConfigWebServer {
   using SystemCommandCb = std::function<void()>;
   using RfHandlerProviderCb = std::function<RfHandler*()>;
   using ProtocolProviderCb = std::function<String()>;
+  using OtaHookCb = std::function<void()>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
 
@@ -65,6 +66,8 @@ class ConfigWebServer {
   void registerProtocolProvider(const ProtocolProviderCb& cb) {
     protocolProvider = cb;
   }
+
+  void registerOtaHook(const OtaHookCb& cb) { otaHook = cb; }
 
   Print& logTarget();
 
@@ -93,6 +96,7 @@ class ConfigWebServer {
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   RfHandlerProviderCb rfHandlerProvider;
   ProtocolProviderCb protocolProvider;
+  OtaHookCb otaHook;
 
   String password;
 };
