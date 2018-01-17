@@ -37,7 +37,6 @@
 
 #include <ESP8266WebServer.h>
 
-#include <RfHandler.h>
 #include <Settings.h>
 
 #include "WebSocketLogTarget.h"
@@ -45,7 +44,6 @@
 class ConfigWebServer {
  public:
   using SystemCommandCb = std::function<void()>;
-  using RfHandlerProviderCb = std::function<RfHandler*()>;
   using ProtocolProviderCb = std::function<String()>;
   using OtaHookCb = std::function<void()>;
   using DebugFlagGetCb = std::function<bool()>;
@@ -60,10 +58,6 @@ class ConfigWebServer {
 
   void registerSystemCommandHandler(const String& command,
                                     const SystemCommandCb& cb);
-
-  void registerRfHandlerProvider(const RfHandlerProviderCb& cb) {
-    rfHandlerProvider = cb;
-  }
 
   void registerProtocolProvider(const ProtocolProviderCb& cb) {
     protocolProvider = cb;
@@ -101,17 +95,10 @@ class ConfigWebServer {
   void onSystemCommand();
   void onDebugFlagGet();
   void onDebugFlagSet();
-  RfHandler* getRfHandler() {
-    if (rfHandlerProvider) {
-      return rfHandlerProvider();
-    }
-    return nullptr;
-  }
 
   ESP8266WebServer server;
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
-  RfHandlerProviderCb rfHandlerProvider;
   ProtocolProviderCb protocolProvider;
   OtaHookCb otaHook;
   std::forward_list<DebugFlagHandler> debugFlagHandlers;

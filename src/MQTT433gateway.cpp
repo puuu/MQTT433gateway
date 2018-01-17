@@ -152,7 +152,6 @@ void setupWebServer(const Settings &s) {
         if (rf) rf->setRawMode(state);
       });
 
-  webServer->registerRfHandlerProvider([]() { return rf; });
   webServer->begin(settings);
 
   setupWebLog();
