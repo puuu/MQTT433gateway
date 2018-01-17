@@ -136,14 +136,15 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
   Logger.debug.println(strPayload);
 
   if (strTopic.startsWith(settings.mqttSendTopic)) {
-    if (codeCallback) {
-      codeCallback(String(topic + settings.mqttSendTopic.length()), strPayload);
+    if (onSendCallback) {
+      onSendCallback(String(topic + settings.mqttSendTopic.length()),
+                     strPayload);
     }
   }
 }
 
 void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
-  codeCallback = cb;
+  onSendCallback = cb;
 }
 
 void MqttClient::publishCode(const String &protocol, const String &payload) {

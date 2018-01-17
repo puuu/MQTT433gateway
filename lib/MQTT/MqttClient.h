@@ -70,7 +70,7 @@ class MqttClient {
   const Settings &settings;
   PubSubClient *mqttClient = nullptr;
 
-  HandlerCallback codeCallback;
+  HandlerCallback onSendCallback;
   unsigned long lastConnectAttempt;
 };
 
