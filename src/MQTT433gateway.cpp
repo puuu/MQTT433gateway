@@ -59,6 +59,12 @@ void reconnectMqtt(const Settings &) {
     mqttClient = nullptr;
   }
 
+  if (!settings.hasValidPassword()) {
+    Logger.warning.println(
+        F("No valid config password set - do not connect to MQTT!"));
+    return;
+  }
+
   if (settings.mqttBroker.length() <= 0) {
     Logger.warning.println(F("No MQTT broker configured yet"));
     return;
@@ -66,6 +72,7 @@ void reconnectMqtt(const Settings &) {
 
   mqttClient = new MqttClient(settings, wifi);
   mqttClient->begin();
+  Logger.info.println(F("MQTT instance created."));
 
   mqttClient->registerRfDataHandler(
       [](const String &protocol, const String &data) {
@@ -78,12 +85,20 @@ void setupRf(const Settings &) {
     delete rf;
     rf = nullptr;
   }
+
+  if (!settings.hasValidPassword()) {
+    Logger.warning.println(
+        F("No valid config password set - do not start RF handler!"));
+    return;
+  }
+
   rf = new RfHandler(settings, [](const String &protocol, const String &data) {
     if (mqttClient) {
       mqttClient->publishCode(protocol, data);
     }
   });
   rf->begin();
+  Logger.info.println(F("RfHandler Instance created."));
 }
 
 void setupWebLog() {
