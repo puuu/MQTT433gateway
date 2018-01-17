@@ -35,7 +35,7 @@ void SyslogLogTarget::begin(const String &name, const String &server,
                             uint16_t port) {
   syslog.server(server.c_str(), port);
   syslog.deviceHostname(name.c_str());
-  syslog.appName("rfESP");
+  syslog.appName("MQTT433gateway");
 }
 
 void SyslogLogTarget::flush(const char *buff) { syslog.log(buff); }
