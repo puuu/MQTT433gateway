@@ -39,8 +39,6 @@ gulp.task('buildfs_embeded', ['buildfs_inline'], function() {
     wstream.write('};')
     wstream.end();
 
-    del();
-
 });
 
 gulp.task('buildfs_inline', ['clean'], function() {
