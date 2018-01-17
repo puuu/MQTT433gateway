@@ -85,6 +85,15 @@ $(function () {
         return $('.config-item[data-field="' + item_id + '"]').val();
     };
 
+    var passwordGet = function (item_id) {
+        var pwd = $('.config-item[data-field="' + item_id + '"]').val();
+        if (pwd.length < 8) {
+            alert("Password must have at least 8 characters");
+            return undefined;
+        }
+        return pwd;
+    };
+
     var inputGetInt = function (item_id) {
         return parseInt(inputGet(item_id));
     };
@@ -119,7 +128,7 @@ $(function () {
     var CONFIG_ITEMS = [
         new GroupItem("General Config", legendFactory),
         new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
-        new ConfigItem("configPassword", passwordFieldFactory, inputApply, inputGet, "The admin password for the web UI"),
+        new ConfigItem("configPassword", passwordFieldFactory, inputApply, passwordGet, "The admin password for the web UI (min. 8 characters)"),
 
         new GroupItem("MQTT Config", legendFactory),
         new ConfigItem("mqttBroker", inputFieldFactory, inputApply, inputGet, "MQTT Broker host"),
@@ -231,7 +240,7 @@ $(function () {
         _item.change(function () {
             var name = _item.data("field");
             var new_data = ui_map[name].fetch(name);
-            if (JSON.stringify(last_cfg[name]) !== JSON.stringify(new_data)) {
+            if (new_data !== undefined && JSON.stringify(last_cfg[name]) !== JSON.stringify(new_data)) {
                 changes[name] = new_data;
             }
         });
