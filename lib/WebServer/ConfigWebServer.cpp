@@ -27,15 +27,13 @@
   SOFTWARE.
 */
 
-// It won't compile if clang-format reorders these includes.
-// clang-format off
 #include <WString.h>
+
 #include <ArduinoJson.h>
-// clang-format on
 
 #include <ArduinoSimpleLogging.h>
-#include <WiFiUdp.h>
 #include <ESP8266WebServer.h>
+#include <WiFiUdp.h>
 
 #include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
