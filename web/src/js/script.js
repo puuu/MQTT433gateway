@@ -280,10 +280,12 @@ $(function () {
         reset_config: function () {
             var _body = $("body");
             _body.empty();
-            _body.append("<p>Devices Config was reset!</p><p>Reload page ...</p>");
+            _body.append("<p>Devices Config was reset - reboot device!</p>" +
+                "<p>You might have to reconfigure the wifi!</p>" +
+                "<p>Reload page in 10 seconds...</p>");
             setTimeout(function () {
                 window.location.reload(true);
-            }, 2000);
+            }, 10000);
         }
     };
 
