@@ -19,6 +19,7 @@ install:
   # PlatformIO
   - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
   # copy password file
+  - platformio update
   - platformio lib install
   - cd web && npm install && cd ..
 
