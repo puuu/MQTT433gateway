@@ -92,7 +92,7 @@ bool MqttClient::connect() {
 
 void MqttClient::reconnect() {
   if (lastConnectAttempt > 0 &&
-      (millis() - lastConnectAttempt) < MQTT_CONNECTION_ATTEMPT_FREQUENCY) {
+      (millis() - lastConnectAttempt) < MQTT_CONNECTION_ATTEMPT_DELAY) {
     return;
   }
 
