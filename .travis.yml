@@ -7,6 +7,7 @@ sudo: false
 cache:
   directories:
     - "~/.platformio"
+    - web/node_modules
 
 env:
   - PLATFORMIO_ENV=esp12e
