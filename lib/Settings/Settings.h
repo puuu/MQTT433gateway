@@ -33,6 +33,8 @@
 #define SETTINGS_FILE "/settings.json"
 #define SETTINGS_TERMINATOR '\0'
 
+#define DEFAULT_PASSWORD "rfESP_password"
+
 #define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
 #define TRANSMITTER_PIN 4
 
@@ -81,7 +83,7 @@ class Settings {
         rfProtocols(("[]")),
         serialLogLevel("debug"),
         webLogLevel(""),
-        configPassword("rfESP_password"),
+        configPassword(DEFAULT_PASSWORD),
         syslogLevel(""),
         syslogHost(""),
         syslogPort(514) {}
@@ -138,6 +140,8 @@ class Settings {
   void reset();
 
   ~Settings();
+
+  bool hasValidPassword();
 
  private:
   struct SettingListener {

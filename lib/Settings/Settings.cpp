@@ -225,9 +225,15 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
                    setIfPresent(parsedSettings, FPSTR(JsonKey::webLogLevel),
                                 webLogLevel)}));
 
+  bool pass_before = hasValidPassword();
   changed.set(WEB_CONFIG,
               setIfPresent(parsedSettings, FPSTR(JsonKey::configPassword),
                            configPassword, notEmpty()));
+
+  if (hasValidPassword() != pass_before) {
+    changed.set(MQTT);
+    changed.set(RF_CONFIG);
+  }
 
   changed.set(
       SYSLOG,
@@ -244,4 +250,9 @@ void Settings::reset() {
   if (SPIFFS.exists(SETTINGS_FILE)) {
     SPIFFS.remove(SETTINGS_FILE);
   }
+}
+
+bool Settings::hasValidPassword() {
+  return (configPassword.length() > 7) &&
+         (configPassword != F(DEFAULT_PASSWORD));
 }
