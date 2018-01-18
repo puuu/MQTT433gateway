@@ -30,8 +30,9 @@
 #ifndef WEBSOCKETLOGTARGET_H
 #define WEBSOCKETLOGTARGET_H
 
-#include <LineBufferProxy.h>
 #include <Print.h>
+
+#include <LineBufferProxy.h>
 #include <WebSocketsServer.h>
 
 class WebSocketLogTarget : public LineBufferProxy<64> {
