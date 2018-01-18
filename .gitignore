@@ -5,4 +5,6 @@
 .piolibdeps
 .clang_complete
 .gcc-flags.json
+web/build/
+web/node_modules/
 src/config.h

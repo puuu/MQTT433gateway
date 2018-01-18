@@ -60,9 +60,7 @@ void LED::setState(bool state) {
   }
 }
 
-bool LED::getState() {
-  return digitalRead(_pin) == _activeHigh;
-}
+bool LED::getState() { return digitalRead(_pin) == _activeHigh; }
 
 LED::~LED() = default;
 

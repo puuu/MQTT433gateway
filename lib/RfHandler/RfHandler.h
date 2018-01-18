@@ -1,5 +1,5 @@
-/*
-  debug_helper - defines for debugging via serial console.
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
@@ -27,15 +27,54 @@
   SOFTWARE.
 */
 
-#ifndef debug_helper_h
-#define debug_helper_h
+#ifndef RFHANDLER_H
+#define RFHANDLER_H
 
-#ifdef DEBUG
-#define Debug(x) Serial.print(x)
-#define DebugLn(x) Serial.println(x)
-#else
-#define Debug(x)
-#define DebugLn(x)
-#endif
+#include <functional>
 
-#endif
+#include <WString.h>
+
+#include <Settings.h>
+
+class ESPiLight;
+
+class RfHandler {
+ public:
+  using ReceiveCallback = std::function<void(const String &, const String &)>;
+
+  RfHandler(const Settings &settings, const ReceiveCallback &sendCb);
+
+  ~RfHandler();
+
+  void transmitCode(const String &protocol, const String &message);
+
+  void setRawMode(bool mode) { rawMode = mode; }
+
+  bool isRawModeEnabled() const { return rawMode; }
+
+  void enableReceiver();
+  void disableReceiver();
+
+  void setEchoEnabled(bool enabled);
+
+  void filterProtocols(const String &protocols);
+  String availableProtocols() const;
+
+  void begin();
+  void loop();
+
+  void rfCallback(const String &protocol, const String &message, int status,
+                  size_t repeats, const String &deviceID);
+
+  void rfRawCallback(const uint16_t *pulses, size_t length);
+
+ private:
+  ESPiLight *rf;
+  int8_t recieverPin;
+
+  ReceiveCallback onReceiveCallback;
+
+  bool rawMode = false;
+};
+
+#endif  // RFHANDLER_H

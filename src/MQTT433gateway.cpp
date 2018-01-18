@@ -1,4 +1,4 @@
-/*
+/**
   MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
@@ -27,251 +27,246 @@
   SOFTWARE.
 */
 
-#include "config.h"
-
-#include <ESP8266WiFi.h>
 #include <ESP8266httpUpdate.h>
+#include <ESP8266mDNS.h>
+#include <FS.h>
 
-#include <ESPiLight.h>
-#include <PubSubClient.h>
+#include <ArduinoSimpleLogging.h>
+#include <WiFiManager.h>
 
-#include <Heartbeat.h>
-#include <SHAauth.h>
-#include <debug_helper.h>
+#include <ConfigWebServer.h>
+#include <HeartbeatFlashing.h>
+#include <MqttClient.h>
+#include <RfHandler.h>
+#include <Settings.h>
+#include <SyslogLogTarget.h>
 
-
-#ifndef myMQTT_USERNAME
-#define myMQTT_USERNAME nullptr
-#define myMQTT_PASSWORD nullptr
-#endif
-
-const char *ssid = mySSID;
-const char *password = myWIFIPASSWD;
-const char *mqttBroker = myMQTT_BROCKER;
-const char *mqttUser = myMQTT_USERNAME;
-const char *mqttPassword = myMQTT_PASSWORD;
-
-const int RECEIVER_PIN = 12;  // avoid 0, 2, 15, 16
-const int TRANSMITTER_PIN = 4;
 const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
-PubSubClient mqtt(wifi);
-Heartbeat beatLED(HEARTBEAD_LED_PIN);
-ESPiLight rf(TRANSMITTER_PIN);
-SHAauth otaAuth(myOTA_PASSWD);
 
-const String mainTopic = String("rfESP_") + String(ESP.getChipId(), HEX);
-const String globalTopic = "rf434";
-bool logMode = false;
-bool rawMode = false;
-String otaURL = "";
+Settings settings;
+RfHandler *rf = nullptr;
+ConfigWebServer *webServer = nullptr;
+MqttClient *mqttClient = nullptr;
+
+HeartbeatFlashing beatLED(HEARTBEAD_LED_PIN);
+
+SyslogLogTarget *syslogLog = nullptr;
+
+void reconnectMqtt(const Settings &) {
+  if (mqttClient != nullptr) {
+    delete mqttClient;
+    mqttClient = nullptr;
+  }
+
+  if (!settings.hasValidPassword()) {
+    Logger.warning.println(
+        F("No valid config password set - do not connect to MQTT!"));
+    return;
+  }
+
+  if (settings.mqttBroker.length() <= 0) {
+    Logger.warning.println(F("No MQTT broker configured yet"));
+    return;
+  }
+
+  mqttClient = new MqttClient(settings, wifi);
+  mqttClient->begin();
+  Logger.info.println(F("MQTT instance created."));
+
+  mqttClient->registerRfDataHandler(
+      [](const String &protocol, const String &data) {
+        if (rf) rf->transmitCode(protocol, data);
+      });
+}
+
+void setupRf(const Settings &) {
+  if (rf) {
+    delete rf;
+    rf = nullptr;
+  }
+
+  if (!settings.hasValidPassword()) {
+    Logger.warning.println(
+        F("No valid config password set - do not start RF handler!"));
+    return;
+  }
+
+  rf = new RfHandler(settings, [](const String &protocol, const String &data) {
+    if (mqttClient) {
+      mqttClient->publishCode(protocol, data);
+    }
+  });
+  rf->begin();
+  Logger.info.println(F("RfHandler Instance created."));
+}
+
+void setupWebLog() {
+  if (webServer) {
+    if (settings.webLogLevel.length() > 0) {
+      Logger.addHandler(Logger.stringToLevel(settings.webLogLevel),
+                        webServer->logTarget());
+    } else {
+      Logger.removeHandler(webServer->logTarget());
+    }
+  }
+}
+
+void setupWebServer(const Settings &s) {
+  webServer = new ConfigWebServer();
+
+  webServer->registerSystemCommandHandler(F("restart"), []() {
+    delay(100);
+    ESP.restart();
+  });
+  webServer->registerSystemCommandHandler(F("reset_wifi"), []() {
+    WiFi.disconnect(true);
+    delay(100);
+    ESP.restart();
+  });
+  webServer->registerSystemCommandHandler(F("reset_config"), []() {
+    settings.reset();
+    delay(100);
+    ESP.restart();
+  });
+
+  webServer->registerProtocolProvider([]() {
+    if (rf) {
+      return rf->availableProtocols();
+    }
+    return String(F("[]"));
+  });
+
+  webServer->registerOtaHook([]() {
+    if (rf) {
+      delete rf;
+      rf = nullptr;
+    }
+    WiFiUDP::stopAll();
+  });
+
+  webServer->registerDebugFlagHandler(
+      F("protocolRaw"), []() { return rf && rf->isRawModeEnabled(); },
+      [](bool state) {
+        if (rf) rf->setRawMode(state);
+      });
+
+  webServer->begin(settings);
+
+  setupWebLog();
+}
+
+void setupMdns() {
+  if (0 == settings.deviceName.length()) {
+    return;
+  }
+  if (!MDNS.begin(settings.deviceName.c_str())) {
+    Logger.error.println(F("Error setting up MDNS responder"));
+  }
+
+  MDNS.addService("http", "tcp", 80);
+}
 
 void setupWifi() {
-  delay(10);
-  beatLED.on();
-  // We start by connecting to a WiFi network
-  DebugLn();
-  Debug(F("Connecting to "));
-  DebugLn(ssid);
+  beatLED.flash(500);
+  WiFiManager wifiManager;
+  wifiManager.setConfigPortalTimeout(180);
+  wifiManager.setAPCallback([](WiFiManager *) {
+    Logger.info.println(F("Start wifimanager config portal."));
+    beatLED.flash(100);
+  });
 
-  WiFi.mode(WIFI_STA);  // Explicitly set station mode
-  WiFi.begin(ssid, password);
+  // Restart after we had the portal running
+  wifiManager.setSaveConfigCallback([]() {
+    Logger.info.println(F("Wifi config changed. Restart."));
+    delay(100);
+    ESP.restart();
+  });
 
-  while (WiFi.status() != WL_CONNECTED) {
-    beatLED.off();
-    delay(500);
-    beatLED.off();
-    delay(500);
-    beatLED.on();
-    Debug(F("."));
-  }
-
-  DebugLn();
-  DebugLn(F("WiFi connected"));
-  DebugLn(F("IP address: "));
-  DebugLn(WiFi.localIP());
-}
-
-void transmitt(const String &protocol, const char *message) {
-  Debug(F("rf send "));
-  Debug(message);
-  Debug(F(" with protocol "));
-  DebugLn(protocol);
-
-  if (protocol == F("RAW")) {
-    uint16_t rawpulses[MAXPULSESTREAMLENGTH];
-    int rawlen =
-        rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
-    if (rawlen > 0) {
-      rf.sendPulseTrain(rawpulses, rawlen);
-    }
-  } else {
-    rf.send(protocol, message);
-  }
-}
-
-void mqttCallback(const char *topic_, const byte *payload_,
-                  unsigned int length) {
-  Debug(F("Message arrived ["));
-  Debug(topic_);
-  Debug(F("] "));
-  for (unsigned int i = 0; i < length; i++) {
-    Debug((char)payload_[i]);
-  }
-  DebugLn();
-
-  String topic = topic_;
-  char payload[length + 1];
-  strncpy(payload, (char *)payload_, length);
-  payload[length] = '\0';
-
-  String sendTopic = globalTopic + F("/send/");
-  if (topic.startsWith(sendTopic)) {
-    transmitt(topic.substring(sendTopic.length()), payload);
-  }
-  sendTopic = mainTopic + F("/send/");
-  if (topic.startsWith(sendTopic)) {
-    transmitt(topic.substring(sendTopic.length()), payload);
-  }
-  if (topic == (mainTopic + F("/set/protocols"))) {
-    DebugLn(F("Change available protocols."));
-    rf.limitProtocols(payload);
-  }
-  if (topic == (mainTopic + F("/set/raw"))) {
-    DebugLn(F("Change raw mode."));
-    rawMode = payload[0] == '1';
-  }
-  if (topic == (mainTopic + F("/set/log"))) {
-    DebugLn(F("Change log mode."));
-    logMode = payload[0] == '1';
-  }
-  if (topic == (mainTopic + F("/ota/url"))) {
-    otaURL = String(payload);
-    mqtt.publish((mainTopic + F("/ota/nonce")).c_str(),
-                 otaAuth.nonce().c_str());
-  }
-  if ((topic == (mainTopic + F("/ota/passwd"))) && (otaURL.length() > 7)) {
-    if (otaAuth.verify(payload)) {
-      beatLED.on();
-      Debug(F("Start OTA update from: "));
-      DebugLn(otaURL);
-      rf.disableReceiver();
-      t_httpUpdate_return ret = ESPhttpUpdate.update(otaURL);
-      switch (ret) {
-        case HTTP_UPDATE_FAILED:
-          Debug(F("HTTP_UPDATE_FAILD Error ("));
-          Debug(ESPhttpUpdate.getLastError());
-          Debug(F("): "));
-          DebugLn(ESPhttpUpdate.getLastErrorString());
-          break;
-        case HTTP_UPDATE_NO_UPDATES:
-          DebugLn(F("HTTP_UPDATE_NO_UPDATES"));
-          break;
-        case HTTP_UPDATE_OK:
-          DebugLn(F("HTTP_UPDATE_OK"));  // may not called ESPhttpUpdate
-                                         // reboot the ESP?
-          ESP.restart();
-          break;
-      }
-      rf.enableReceiver();
-    } else {
-      DebugLn(F("OTA authentication failed!"));
-    }
-  }
-}
-
-void rfCallback(const String &protocol, const String &message, int status,
-                int repeats, const String &deviceID) {
-  Debug(F("RF signal arrived ["));
-  Debug(protocol);
-  Debug(F("]/["));
-  Debug(deviceID);
-  Debug(F("] ("));
-  Debug(status);
-  Debug(F(") "));
-  Debug(message);
-  Debug(F(" ("));
-  Debug(repeats);
-  DebugLn(F(")"));
-
-  if (status == VALID) {
-    String topic = globalTopic + String(F("/recv/")) + protocol;
-    if (deviceID != nullptr) {
-      topic += String('/') + deviceID;
-    }
-    mqtt.publish(topic.c_str(), message.c_str(), true);
-  }
-  if (logMode) {
-    String topic = mainTopic + String(F("/log/")) + String(status) +
-                   String('/') + protocol;
-    mqtt.publish(topic.c_str(), message.c_str());
-  }
-}
-
-void rfRawCallback(const uint16_t *pulses, int length) {
-  if (rawMode) {
-    String data = rf.pulseTrainToString(pulses, length);
-    if (data.length() > 0) {
-      Debug(F("RAW RF signal ("));
-      Debug(length);
-      Debug(F("): "));
-      Debug(data);
-      DebugLn();
-
-      mqtt.publish((mainTopic + F("/recvRaw")).c_str(), data.c_str());
-    }
-  }
-}
-
-void reconnect() {
-  beatLED.on();
-  // Loop until we're reconnected
-  while (!mqtt.connected()) {
-    Debug(F("Attempting MQTT connection..."));
-    // Attempt to connect
-    if (mqtt.connect(mainTopic.c_str(), mqttUser, mqttPassword,
-                     mainTopic.c_str(), 0, true, "offline")) {
-      DebugLn(F("connected"));
-      mqtt.publish(mainTopic.c_str(), "online", true);
-      mqtt.subscribe((mainTopic + F("/set/+")).c_str());
-      mqtt.subscribe((mainTopic + F("/ota/+")).c_str());
-      mqtt.subscribe((mainTopic + F("/send/+")).c_str());
-      mqtt.subscribe((globalTopic + F("/send/+")).c_str());
-    } else {
-      Debug(F("failed, rc="));
-      Debug(mqtt.state());
-      DebugLn(F(" try again in 5 seconds"));
-      // Wait 5 seconds before retrying
-      beatLED.off();
-      delay(500);
-      beatLED.on();
-      delay(4500);
-    }
+  if (!wifiManager.autoConnect(settings.deviceName.c_str(),
+                               settings.configPassword.c_str())) {
+    Logger.warning.println(F("Try connecting again after reboot"));
+    ESP.restart();
   }
   beatLED.off();
 }
 
 void setup() {
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+  Logger.addHandler(Logger.DEBUG, Serial);
+  if (!SPIFFS.begin()) {
+    Logger.error.println(F("Initializing of SPIFFS failed!"));
+  }
+
+  settings.registerChangeHandler(MQTT, reconnectMqtt);
+
+  settings.registerChangeHandler(RF_ECHO, [](const Settings &s) {
+    if (rf) rf->setEchoEnabled(s.rfEchoMessages);
+  });
+
+  settings.registerChangeHandler(RF_PROTOCOL, [](const Settings &s) {
+    if (rf) rf->filterProtocols(s.rfProtocols);
+  });
+
+  settings.registerChangeHandler(WEB_CONFIG, [](const Settings &s) {
+    if (!webServer) {
+      setupWebServer(s);
+    } else {
+      webServer->updateSettings(s);
+    }
+  });
+
+  settings.registerChangeHandler(SYSLOG, [](const Settings &s) {
+    if (syslogLog) {
+      Logger.removeHandler(*syslogLog);
+      delete syslogLog;
+    }
+    if (s.syslogLevel.length() > 0 && s.syslogHost.length() > 0 &&
+        s.syslogPort != 0) {
+      syslogLog = new SyslogLogTarget();
+      syslogLog->begin(s.deviceName, s.syslogHost, s.syslogPort);
+      Logger.addHandler(Logger.stringToLevel(s.syslogLevel), *syslogLog);
+    }
+  });
+
+  settings.registerChangeHandler(RF_CONFIG, setupRf);
+
+  settings.registerChangeHandler(LOGGING, [](const Settings &s) {
+    if (s.serialLogLevel.length() > 0) {
+      Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
+    } else {
+      Logger.removeHandler(Serial);
+    }
+    setupWebLog();
+  });
+
+  Logger.info.println(F("Load Settings..."));
+  settings.load();
+
   setupWifi();
-  mqtt.setServer(mqttBroker, 1883);
-  mqtt.setCallback(mqttCallback);
-  pinMode(RECEIVER_PIN,
-          INPUT_PULLUP);  // 5V protection with reverse diode needs pullup
-  rf.setCallback(rfCallback);
-  rf.setPulseTrainCallBack(rfRawCallback);
-  rf.initReceiver(RECEIVER_PIN);
-  DebugLn();
-  Debug(F("Name: "));
-  DebugLn(mainTopic);
+
+  // Notify all setting listeners
+  settings.notifyAll();
+
+  Logger.debug.println(F("Current configuration:"));
+  settings.serialize(Logger.debug, true, false);
+
+  setupMdns();
+
+  Logger.info.print(F("\nListen on IP: "));
+  Logger.info.println(WiFi.localIP());
 }
 
 void loop() {
-  if (!mqtt.connected()) {
-    reconnect();
+  webServer->handleClient();
+
+  if (mqttClient) {
+    mqttClient->loop();
   }
-  mqtt.loop();
-  rf.loop();
+
+  if (rf) {
+    rf->loop();
+  }
   beatLED.loop();
 }

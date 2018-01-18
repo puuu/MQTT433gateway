@@ -1,10 +1,10 @@
-/*
-  HeartbeatFlashing - Library for flashing LED
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,30 +27,30 @@
   SOFTWARE.
 */
 
-#include "HeartbeatFlashing.h"
+#ifndef WEBSOCKETLOGTARGET_H
+#define WEBSOCKETLOGTARGET_H
 
-void _flash_tick(LED* led) { led->toggle(); }
+#include <Print.h>
 
-HeartbeatFlashing::HeartbeatFlashing(LED& led, int interval)
-    : Heartbeat(led, interval) {
-  _flashing = false;
-}
+#include <LineBufferProxy.h>
+#include <WebSocketsServer.h>
 
-HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
-    : Heartbeat(pin, interval) {
-  _flashing = false;
-}
+class WebSocketLogTarget : public LineBufferProxy<64> {
+ public:
+  explicit WebSocketLogTarget(const uint16_t port)
+      : server(WebSocketsServer(port)), clientCount(0) {}
 
-void HeartbeatFlashing::off() {
-  if (_flashing) {
-    _ticker.detach();
-    _flashing = false;
-  }
-  Heartbeat::off();
-}
+  void loop() { server.loop(); }
+  void begin();
 
-void HeartbeatFlashing::flash(unsigned int onMilliseconds) {
-  on();
-  _flashing = true;
-  _ticker.attach_ms(onMilliseconds, _flash_tick, &_led);
-}
+  void handleEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
+
+ protected:
+  void flush(const char* data) override;
+
+ private:
+  WebSocketsServer server;
+  size_t clientCount;
+};
+
+#endif  // WEBSOCKETLOGTARGET_H

@@ -1,10 +1,10 @@
-/*
-  HeartbeatFlashing - Library for flashing LED
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,30 +27,43 @@
   SOFTWARE.
 */
 
-#include "HeartbeatFlashing.h"
+#include "WebSocketLogTarget.h"
 
-void _flash_tick(LED* led) { led->toggle(); }
+void WebSocketLogTarget::begin() {
+  using namespace std::placeholders;
 
-HeartbeatFlashing::HeartbeatFlashing(LED& led, int interval)
-    : Heartbeat(led, interval) {
-  _flashing = false;
+  server.onEvent(
+      std::bind(&WebSocketLogTarget::handleEvent, this, _1, _2, _3, _4));
+  server.begin();
 }
 
-HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
-    : Heartbeat(pin, interval) {
-  _flashing = false;
-}
+void WebSocketLogTarget::handleEvent(uint8_t num, WStype_t type,
+                                     uint8_t *payload, size_t length) {
+  switch (type) {
+    case WStype_DISCONNECTED:
+      if (clientCount > 0) {
+        clientCount--;
+      }
+      break;
 
-void HeartbeatFlashing::off() {
-  if (_flashing) {
-    _ticker.detach();
-    _flashing = false;
+    case WStype_CONNECTED:
+      clientCount++;
+      {
+        String reply(F("*** Connection established ***\n"));
+        server.sendTXT(num, reply);
+      }
+      break;
+    case WStype_TEXT:
+      // We do not expect any data except the __PING__ requests from the
+      // frontend. So we can save the cycles to check the message and just send
+      // the response.
+      server.sendTXT(num, "__PONG__");
+      break;
+    default:
+      break;
   }
-  Heartbeat::off();
 }
 
-void HeartbeatFlashing::flash(unsigned int onMilliseconds) {
-  on();
-  _flashing = true;
-  _ticker.attach_ms(onMilliseconds, _flash_tick, &_led);
+void WebSocketLogTarget::flush(const char *data) {
+  server.broadcastTXT(data, size());
 }
