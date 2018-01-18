@@ -123,10 +123,9 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on(F("/firmware"), HTTP_GET, authenticated([this]() {
-              server.send(200, APPLICATION_JSON,
-                          String(F("{\"version\": \"")) +
-                              String(QUOTE(FIRMWARE_VERSION)) +
-                              String(F("\"}")));
+              server.send_P(
+                  200, APPLICATION_JSON,
+                  PSTR("{\"version\": \"" QUOTE(FIRMWARE_VERSION) "\"}"));
             }));
 
   server.on(
