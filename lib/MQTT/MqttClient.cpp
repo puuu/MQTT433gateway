@@ -68,8 +68,8 @@ void MqttClient::begin() {
 
 static String stateMessage(const bool online) {
   return String(F("{\"chipId\":\"")) + String(ESP.getChipId(), HEX) +
-         String(F("\",\"firmware\":\"")) + String(QUOTE(FIRMWARE_VERSION)) +
-         String(F("\",\"state\":\"")) +
+         String(F(
+             "\",\"firmware\":\"" QUOTE(FIRMWARE_VERSION) "\",\"state\":\"")) +
          String(online ? F("online") : F("offline")) + String(F("\"}"));
 }
 
