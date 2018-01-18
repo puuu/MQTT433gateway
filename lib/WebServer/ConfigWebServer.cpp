@@ -27,13 +27,12 @@
   SOFTWARE.
 */
 
+#include <ESP8266WebServer.h>
 #include <WString.h>
+#include <WiFiUdp.h>
 
 #include <ArduinoJson.h>
-
 #include <ArduinoSimpleLogging.h>
-#include <ESP8266WebServer.h>
-#include <WiFiUdp.h>
 
 #include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
