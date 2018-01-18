@@ -32,13 +32,14 @@
 #include <FS.h>
 
 #include <ArduinoSimpleLogging.h>
+#include <WiFiManager.h>
+
 #include <ConfigWebServer.h>
 #include <HeartbeatFlashing.h>
 #include <MqttClient.h>
 #include <RfHandler.h>
 #include <Settings.h>
 #include <SyslogLogTarget.h>
-#include <WiFiManager.h>
 
 const int HEARTBEAD_LED_PIN = 0;
 
