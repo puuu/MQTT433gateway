@@ -27,9 +27,8 @@
   SOFTWARE.
 */
 
-#include <PubSubClient.h>
-
 #include <ArduinoSimpleLogging.h>
+#include <PubSubClient.h>
 
 #include "MqttClient.h"
 
