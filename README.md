@@ -30,42 +30,36 @@ software. More information can be found in their [documentation](http://docs.pla
 1. Open a terminal and go to the MQTT433Gateway project folder.
 
 2. Then initialize the project:
-```
-platformio init
-```
+   ```
+   platformio init
+   ```
 
-3. To avoid accidentally uploads of the passwords to a (public) git
-repository, the WiFI, MQTT and OTA configuration is organized in a
-separate file and not part of git.  An example is provided in
-`/src/config.h-example`.  Therefore, create `/src/config.h` by
-yourself, e.g., by copying and modifying the example file.
+3. After that, decide for which board to create the firmware and give
+   this as `--environment` to the platformio `run` command:
+   ```
+   platformio run --environment <board>
+   ```
+   The available boards are defined in `platformio.ini`. Currently, this are
+   + `esp12e` for ESP8266-12e/f models,
+   + `nodemcuv2` for NodeMCU boards,
+   + `d1_mini`for D1 Mini boards,
+   + `huzzah` for the Huzzah boards.
 
-4. After that, decide for which board to create the firmware and give
-this as `--environment` to the platformio `run` command:
-```
-platformio run --environment <board>
-```
-The available boards are defined in `platformio.ini`. Currently, this are
-+ `esp12e` for ESP8266-12e/f models,
-+ `nodemcuv2` for NodeMCU boards,
-+ `d1_mini`for D1 Mini boards,
-+ `huzzah` for the Huzzah boards.
-
-5. To flash the firmware to the board, connect the board to the PC via
-USB or a serial adapter. Make sure, it is the only device currently
-connected, as otherwise you might flash the wrong unit
-accidentaly. Some boards need to be set manually into a programming
-mode, please check the manual of the board to get more details about
-how to do that.  The `platformio run` has the upload target to
-initialize flashing:
-```
-platformio run --environment <board> --target upload
-```
-this will try to autodetect the serial port. If this is not
-successful, try
-```
-platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
-```
+4. To flash the firmware to the board, connect the board to the PC via
+   USB or a serial adapter. Make sure, it is the only device currently
+   connected, as otherwise you might flash the wrong unit
+   accidentaly. Some boards need to be set manually into a programming
+   mode, please check the manual of the board to get more details about
+   how to do that.  The `platformio run` has the upload target to
+   initialize flashing:
+   ```
+   platformio run --environment <board> --target upload
+   ```
+   this will try to autodetect the serial port. If this is not
+   successful, try
+   ```
+   platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
+   ```
 
 Older versions of MQTT433gateway were developed with the Arduino
 IDE. You can find the old sources in the departed
@@ -111,6 +105,26 @@ The MQTT433gateway indicates its status by a LED connected to GPIO0:
 - Normal operation: Heartbeat pulsing
 - MQTT connection problems: 4.5s on, 0.5s off
 - OTA Update: on during flashing
+
+
+## Configuration
+
+The device is fully configurable through a web browser. If you boot it
+for the first time, it will create a WiFi AccessPoint where you can
+connect to. If you type in any url in your browser, you will get
+directed to the wifi configuration of the device. You can select your
+network here and fill in the credentials.
+
+After that it will stop the access point and connect to your network.
+There you can either discover it via mDNS or ask your router for the
+address of the device. If you type this address in your browser, you'll
+see the main configuration frontend. The default username is `admin`,
+the default password is `MQTT433gateway`.
+
+Please fill here your MQTT connection details. You can also change the
+topics the device will subscribe and publish to. **Please note:** you
+have to change the configuration password! For security reasons the
+device will not start working before this password is changed.
 
 
 ## MQTT/Automation
