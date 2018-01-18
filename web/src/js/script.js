@@ -348,7 +348,7 @@ $(function () {
                    type: "PUT",
                    data: JSON.stringify(data),
                    contentType: 'application/json',
-                   success: loadConfig
+                   success: loadDebug
                });
     };
 
