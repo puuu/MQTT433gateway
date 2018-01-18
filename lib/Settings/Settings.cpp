@@ -27,12 +27,12 @@
   SOFTWARE.
 */
 
-#include <WString.h>
-
 #include <algorithm>
 
-#include <ArduinoSimpleLogging.h>
 #include <FS.h>
+#include <WString.h>
+
+#include <ArduinoSimpleLogging.h>
 
 #include "Settings.h"
 
