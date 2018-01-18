@@ -389,7 +389,7 @@ $(function () {
         return false;
     });
 
-    $("#debugging-form").submit(function (e) {
+    $("#debugging-form").change(function (e) {
         e.preventDefault();
 
         saveDebug();
