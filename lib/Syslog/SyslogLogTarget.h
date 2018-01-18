@@ -32,10 +32,10 @@
 
 #define SYSLOG_BUFFSIZE 100
 
-#include <Syslog.h>
 #include <WiFiUdp.h>
 
 #include <LineBufferProxy.h>
+#include <Syslog.h>
 
 class SyslogLogTarget : public LineBufferProxy<SYSLOG_BUFFSIZE> {
  public:
