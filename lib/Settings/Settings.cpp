@@ -55,7 +55,7 @@ const char PROGMEM syslogHost[] = "syslogHost";
 const char PROGMEM syslogPort[] = "syslogPort";
 const char PROGMEM mqttPassword[] = "mqttPassword";
 const char PROGMEM configPassword[] = "configPassword";
-}
+}  // namespace JsonKey
 
 static inline bool any(std::initializer_list<bool> items) {
   return std::any_of(items.begin(), items.end(),
