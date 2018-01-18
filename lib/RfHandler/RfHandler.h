@@ -32,8 +32,9 @@
 
 #include <functional>
 
-#include <Settings.h>
 #include <WString.h>
+
+#include <Settings.h>
 
 class ESPiLight;
 
