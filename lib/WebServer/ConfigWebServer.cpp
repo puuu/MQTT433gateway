@@ -202,13 +202,13 @@ void ConfigWebServer::onSystemCommand() {
     return;
   }
 
-  if (!request.containsKey(PSTR("command"))) {
+  if (!request.containsKey(F("command"))) {
     server.send_P(400, TEXT_PLAIN, PSTR("No command found!"));
     return;
   }
 
   for (const auto& systemCommandHandler : systemCommandHandlers) {
-    if (systemCommandHandler.command == request[PSTR("command")]) {
+    if (systemCommandHandler.command == request[F("command")]) {
       server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
       systemCommandHandler.cb();
       return;
