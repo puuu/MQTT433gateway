@@ -40,6 +40,7 @@
 #include <Settings.h>
 #include <StatusLED.h>
 #include <SyslogLogTarget.h>
+#include <SystemLoad.h>
 
 WiFiClient wifi;
 
@@ -51,6 +52,8 @@ MqttClient *mqttClient = nullptr;
 StatusLED *statusLED = nullptr;
 
 SyslogLogTarget *syslogLog = nullptr;
+
+SystemLoad *systemLoad = nullptr;
 
 void reconnectMqtt(const Settings &) {
   if (mqttClient != nullptr) {
@@ -149,6 +152,17 @@ void setupWebServer(const Settings &s) {
       F("protocolRaw"), []() { return rf && rf->isRawModeEnabled(); },
       [](bool state) {
         if (rf) rf->setRawMode(state);
+      });
+
+  webServer->registerDebugFlagHandler(
+      F("systemLoad"), []() { return systemLoad != nullptr; },
+      [](bool state) {
+        if (state) {
+          systemLoad = new SystemLoad(Logger.debug);
+        } else if (systemLoad) {
+          delete systemLoad;
+          systemLoad = nullptr;
+        }
       });
 
   webServer->begin(settings);
@@ -288,5 +302,9 @@ void loop() {
 
   if (rf) {
     rf->loop();
+  }
+
+  if (systemLoad) {
+    systemLoad->loop();
   }
 }
