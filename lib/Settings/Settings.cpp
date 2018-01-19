@@ -53,6 +53,8 @@ const char PROGMEM webLogLevel[] = "webLogLevel";
 const char PROGMEM syslogLevel[] = "syslogLevel";
 const char PROGMEM syslogHost[] = "syslogHost";
 const char PROGMEM syslogPort[] = "syslogPort";
+const char PROGMEM ledPin[] = "ledPin";
+const char PROGMEM ledActiveHigh[] = "ledActiveHigh";
 const char PROGMEM mqttPassword[] = "mqttPassword";
 const char PROGMEM configPassword[] = "configPassword";
 }  // namespace JsonKey
@@ -159,6 +161,9 @@ void Settings::doSerialize(JsonObject &root, bool sensible) const {
   root[FPSTR(JsonKey::syslogHost)] = this->syslogHost;
   root[FPSTR(JsonKey::syslogPort)] = this->syslogPort;
 
+  root[FPSTR(JsonKey::ledPin)] = this->ledPin;
+  root[FPSTR(JsonKey::ledActiveHigh)] = this->ledActiveHigh;
+
   if (sensible) {
     root[FPSTR(JsonKey::mqttPassword)] = this->mqttPassword;
     root[FPSTR(JsonKey::configPassword)] = this->configPassword;
@@ -243,6 +248,10 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
            setIfPresent(parsedSettings, FPSTR(JsonKey::syslogPort),
                         syslogPort)}));
 
+  changed.set(STATUSLED,
+              any({setIfPresent(parsedSettings, FPSTR(JsonKey::ledPin), ledPin),
+                   setIfPresent(parsedSettings, FPSTR(JsonKey::ledActiveHigh),
+                                ledActiveHigh)}));
   return changed;
 }
 

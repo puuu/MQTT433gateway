@@ -64,6 +64,7 @@ enum SettingType {
   WEB_CONFIG,
   LOGGING,
   SYSLOG,
+  STATUSLED,
   _END
 };
 
@@ -87,7 +88,9 @@ class Settings {
         configPassword(DEFAULT_PASSWORD),
         syslogLevel(""),
         syslogHost(""),
-        syslogPort(514) {}
+        syslogPort(514),
+        ledPin(BUILTIN_LED),
+        ledActiveHigh(false) {}
 
   using SettingTypeSet = std::bitset<SettingType::_END>;
   using SettingCallbackFn = std::function<void(const Settings &)>;
@@ -120,6 +123,9 @@ class Settings {
   String syslogLevel;
   String syslogHost;
   uint16_t syslogPort;
+
+  uint8_t ledPin;
+  bool ledActiveHigh;
 
   void load();
   void save();
