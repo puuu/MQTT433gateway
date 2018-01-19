@@ -51,6 +51,8 @@ RfHandler::~RfHandler() {
 }
 
 void RfHandler::transmitCode(const String &protocol, const String &message) {
+  int result = 0;
+
   Logger.info.print(F("transmit rf signal "));
   Logger.info.print(message);
   Logger.info.print(F(" with protocol "));
@@ -62,9 +64,37 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
         rf->stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
     if (rawlen > 0) {
       rf->sendPulseTrain(rawpulses, rawlen);
+      result = rawlen;
+    } else {
+      result = -9999;
     }
   } else {
-    rf->send(protocol, message);
+    result = rf->send(protocol, message);
+  }
+
+  if (result > 0) {
+    Logger.debug.print(F("transmitted pulse train with "));
+    Logger.debug.print(result);
+    Logger.debug.println(F(" pulses"));
+  } else {
+    Logger.error.print(F("transmitting failed: "));
+    switch (result) {
+      case ESPiLight::ERROR_UNAVAILABLE_PROTOCOL:
+        Logger.error.println(F("protocol is not avaiable"));
+        break;
+      case ESPiLight::ERROR_INVALID_PILIGHT_MSG:
+        Logger.error.println(F("message is invalid"));
+        break;
+      case ESPiLight::ERROR_INVALID_JSON:
+        Logger.error.println(F("message is not a proper json object"));
+        break;
+      case ESPiLight::ERROR_NO_OUTPUT_PIN:
+        Logger.error.println(F("no transmitter pin"));
+        break;
+      case -9999:
+        Logger.error.println(F("invalid pulse train message"));
+        break;
+    }
   }
 }
 
