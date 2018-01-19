@@ -30,8 +30,10 @@
 #ifndef HeartbeatFlashing_h
 #define HeartbeatFlashing_h
 
-#include <Arduino.h>
+#include <stdint.h>
+
 #include <Ticker.h>
+
 #include "Heartbeat.h"
 
 class HeartbeatFlashing : public Heartbeat {

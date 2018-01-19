@@ -27,7 +27,10 @@
   SOFTWARE.
 */
 
+#include <Arduino.h>
+
 #include "HeartbeatFlashing.h"
+
 
 void _flash_tick(LED* led) { led->toggle(); }
 
