@@ -30,7 +30,7 @@
 #ifndef LED_h
 #define LED_h
 
-#include <Arduino.h>
+#include <stdint.h>
 
 class LED {
  public:

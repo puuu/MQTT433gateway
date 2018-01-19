@@ -27,6 +27,8 @@
   SOFTWARE.
 */
 
+#include <Arduino.h>
+
 #include "LED.h"
 
 static inline uint8_t _pin_val(const bool value) {
