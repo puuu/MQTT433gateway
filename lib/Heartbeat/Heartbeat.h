@@ -30,7 +30,8 @@
 #ifndef Heartbeat_h
 #define Heartbeat_h
 
-#include <Arduino.h>
+#include <stdint.h>
+
 #include "LED.h"
 
 class Heartbeat {

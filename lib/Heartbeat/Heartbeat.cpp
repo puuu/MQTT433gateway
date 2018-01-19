@@ -27,6 +27,8 @@
   SOFTWARE.
 */
 
+#include <Arduino.h>
+
 #include "Heartbeat.h"
 
 Heartbeat::Heartbeat(LED& led, unsigned int interval) : _led(led) {
