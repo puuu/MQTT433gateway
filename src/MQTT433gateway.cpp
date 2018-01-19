@@ -40,6 +40,7 @@
 #include <Settings.h>
 #include <StatusLED.h>
 #include <SyslogLogTarget.h>
+#include <SystemHeap.h>
 #include <SystemLoad.h>
 
 WiFiClient wifi;
@@ -54,6 +55,7 @@ StatusLED *statusLED = nullptr;
 SyslogLogTarget *syslogLog = nullptr;
 
 SystemLoad *systemLoad = nullptr;
+SystemHeap *systemHeap = nullptr;
 
 void reconnectMqtt(const Settings &) {
   if (mqttClient != nullptr) {
@@ -162,6 +164,17 @@ void setupWebServer(const Settings &s) {
         } else if (systemLoad) {
           delete systemLoad;
           systemLoad = nullptr;
+        }
+      });
+
+  webServer->registerDebugFlagHandler(
+      F("freeHeap"), []() { return systemHeap != nullptr; },
+      [](bool state) {
+        if (state) {
+          systemHeap = new SystemHeap(Logger.debug);
+        } else if (systemHeap) {
+          delete systemHeap;
+          systemHeap = nullptr;
         }
       });
 
@@ -306,5 +319,8 @@ void loop() {
 
   if (systemLoad) {
     systemLoad->loop();
+  }
+  if (systemHeap) {
+    systemHeap->loop();
   }
 }
