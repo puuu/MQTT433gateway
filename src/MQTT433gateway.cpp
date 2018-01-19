@@ -35,13 +35,11 @@
 #include <WiFiManager.h>
 
 #include <ConfigWebServer.h>
-#include <HeartbeatFlashing.h>
 #include <MqttClient.h>
 #include <RfHandler.h>
 #include <Settings.h>
+#include <StatusLED.h>
 #include <SyslogLogTarget.h>
-
-const int HEARTBEAD_LED_PIN = 0;
 
 WiFiClient wifi;
 
@@ -50,7 +48,7 @@ RfHandler *rf = nullptr;
 ConfigWebServer *webServer = nullptr;
 MqttClient *mqttClient = nullptr;
 
-HeartbeatFlashing beatLED(HEARTBEAD_LED_PIN);
+StatusLED *statusLED = nullptr;
 
 SyslogLogTarget *syslogLog = nullptr;
 
@@ -139,6 +137,7 @@ void setupWebServer(const Settings &s) {
   });
 
   webServer->registerOtaHook([]() {
+    if (statusLED) statusLED->setState(StatusLED::ota);
     if (rf) {
       delete rf;
       rf = nullptr;
@@ -168,13 +167,21 @@ void setupMdns() {
   MDNS.addService("http", "tcp", 80);
 }
 
+void setupStatusLED(const Settings &s) {
+  delete statusLED;
+  statusLED = new StatusLED(s.ledPin, s.ledActiveHigh);
+  Logger.debug.print("Change status LED config: pin=");
+  Logger.debug.print(s.ledPin);
+  Logger.debug.print(" activeHigh=");
+  Logger.debug.println(s.ledActiveHigh);
+}
+
 void setupWifi() {
-  beatLED.flash(500);
   WiFiManager wifiManager;
   wifiManager.setConfigPortalTimeout(180);
   wifiManager.setAPCallback([](WiFiManager *) {
     Logger.info.println(F("Start wifimanager config portal."));
-    beatLED.flash(100);
+    if (statusLED) statusLED->setState(StatusLED::wifimanager);
   });
 
   // Restart after we had the portal running
@@ -189,7 +196,6 @@ void setupWifi() {
     Logger.warning.println(F("Try connecting again after reboot"));
     ESP.restart();
   }
-  beatLED.off();
 }
 
 void setup() {
@@ -198,6 +204,8 @@ void setup() {
   if (!SPIFFS.begin()) {
     Logger.error.println(F("Initializing of SPIFFS failed!"));
   }
+
+  settings.registerChangeHandler(STATUSLED, setupStatusLED);
 
   settings.registerChangeHandler(MQTT, reconnectMqtt);
 
@@ -244,10 +252,14 @@ void setup() {
   Logger.info.println(F("Load Settings..."));
   settings.load();
 
+  setupStatusLED(settings);
+  if (statusLED) statusLED->setState(StatusLED::wifiConnect);
+
   setupWifi();
 
   // Notify all setting listeners
   settings.notifyAll();
+  if (statusLED) statusLED->setState(StatusLED::startup);
 
   Logger.debug.println(F("Current configuration:"));
   settings.serialize(Logger.debug, true, false);
@@ -259,6 +271,15 @@ void setup() {
 }
 
 void loop() {
+  if (rf && mqttClient) {
+    if (statusLED) statusLED->setState(StatusLED::normalOperation);
+  } else {
+    if (statusLED) statusLED->setState(StatusLED::requireConfiguration);
+  }
+  if (statusLED) {
+    statusLED->loop();
+  }
+
   webServer->handleClient();
 
   if (mqttClient) {
@@ -268,5 +289,4 @@ void loop() {
   if (rf) {
     rf->loop();
   }
-  beatLED.loop();
 }
