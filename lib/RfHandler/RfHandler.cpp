@@ -40,6 +40,7 @@ RfHandler::RfHandler(const Settings &settings,
       recieverPinPullUp(settings.rfReceiverPinPullUp),
       onReceiveCallback(sendCb) {
   rf->setEchoEnabled(settings.rfEchoMessages);
+  rf->setErrorOutput(Logger.error);
 }
 
 RfHandler::~RfHandler() {
