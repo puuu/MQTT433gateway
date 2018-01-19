@@ -60,6 +60,18 @@
                         protocolRaw
                         <span class="pure-form-message">Enable Raw RF message logging</span>
                     </label>
+                    <label class="pure-checkbox">
+                        <input class="debug-item" type="checkbox" value="systemLoad" data-dbg-field="systemLoad"
+                               name="systemLoad">
+                        systemLoad
+                        <span class="pure-form-message">Show the processed loop() iterations for each second</span>
+                    </label>
+                    <label class="pure-checkbox">
+                        <input class="debug-item" type="checkbox" value="freeHeap" data-dbg-field="freeHeap"
+                               name="freeHeap">
+                        freeHeap
+                        <span class="pure-form-message">Show the free heap memory every second</span>
+                    </label>
                 </fieldset>
             </form>
         </div>
