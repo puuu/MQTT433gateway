@@ -51,10 +51,10 @@ RfHandler::~RfHandler() {
 }
 
 void RfHandler::transmitCode(const String &protocol, const String &message) {
-  Logger.debug.print(F("rf send "));
-  Logger.debug.print(message);
-  Logger.debug.print(F(" with protocol "));
-  Logger.debug.println(protocol);
+  Logger.info.print(F("transmit rf signal "));
+  Logger.info.print(message);
+  Logger.info.print(F(" with protocol "));
+  Logger.info.println(protocol);
 
   if (protocol == F("RAW")) {
     uint16_t rawpulses[MAXPULSESTREAMLENGTH];
@@ -70,24 +70,30 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
 
 void RfHandler::rfCallback(const String &protocol, const String &message,
                            int status, size_t repeats, const String &deviceID) {
-  Logger.debug.print(F("RF signal arrived ["));
-  Logger.debug.print(protocol);
-  Logger.debug.print(F("]/["));
-  Logger.debug.print(deviceID);
-  Logger.debug.print(F("] ("));
-  Logger.debug.print(status);
-  Logger.debug.print(F(") "));
-  Logger.debug.print(message);
-  Logger.debug.print(F(" ("));
-  Logger.debug.print(repeats);
-  Logger.debug.println(F(")"));
-
   if (status == VALID) {
+    Logger.info.print(F("rf signal received: "));
+    Logger.info.print(message);
+    Logger.info.print(F(" with protocol "));
+    Logger.info.print(protocol);
     if (deviceID != nullptr) {
+      Logger.info.print(F(" deviceID="));
+      Logger.info.println(deviceID);
       onReceiveCallback(protocol + "/" + deviceID, message);
     } else {
+      Logger.info.println(deviceID);
       onReceiveCallback(protocol, message);
     }
+  } else {
+    Logger.debug.print(F("rf signal received: "));
+    Logger.debug.print(message);
+    Logger.debug.print(F(" protocol= "));
+    Logger.debug.print(protocol);
+    Logger.debug.print(F(" status="));
+    Logger.debug.print(status);
+    Logger.debug.print(F(" repeats="));
+    Logger.debug.print(repeats);
+    Logger.debug.print(F(" deviceID="));
+    Logger.debug.println(deviceID);
   }
 }
 
@@ -98,8 +104,7 @@ void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
       Logger.debug.print(F("RAW RF signal ("));
       Logger.debug.print(length);
       Logger.debug.print(F("): "));
-      Logger.debug.print(data);
-      Logger.debug.println();
+      Logger.debug.println(data);
     }
   }
 }
