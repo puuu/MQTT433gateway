@@ -45,6 +45,7 @@ const char PROGMEM mqttBrokerPort[] = "mqttBrokerPort";
 const char PROGMEM mqttUser[] = "mqttUser";
 const char PROGMEM mqttRetain[] = "mqttRetain";
 const char PROGMEM rfReceiverPin[] = "rfReceiverPin";
+const char PROGMEM rfReceiverPinPullUp[] = "rfReceiverPinPullUp";
 const char PROGMEM rfTransmitterPin[] = "rfTransmitterPin";
 const char PROGMEM rfEchoMessages[] = "rfEchoMessages";
 const char PROGMEM rfProtocols[] = "rfProtocols";
@@ -143,6 +144,7 @@ void Settings::doSerialize(JsonObject &root, bool sensible) const {
   root[FPSTR(JsonKey::mqttUser)] = this->mqttUser;
   root[FPSTR(JsonKey::mqttRetain)] = this->mqttRetain;
   root[FPSTR(JsonKey::rfReceiverPin)] = this->rfReceiverPin;
+  root[FPSTR(JsonKey::rfReceiverPinPullUp)] = this->rfReceiverPinPullUp;
   root[FPSTR(JsonKey::rfTransmitterPin)] = this->rfTransmitterPin;
   root[FPSTR(JsonKey::rfEchoMessages)] = this->rfEchoMessages;
 
@@ -208,6 +210,8 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
       RF_CONFIG,
       any({setIfPresent(parsedSettings, FPSTR(JsonKey::rfReceiverPin),
                         rfReceiverPin),
+           setIfPresent(parsedSettings, FPSTR(JsonKey::rfReceiverPinPullUp),
+                        rfReceiverPinPullUp),
            setIfPresent(parsedSettings, FPSTR(JsonKey::rfTransmitterPin),
                         rfTransmitterPin)}));
 

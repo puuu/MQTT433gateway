@@ -80,6 +80,7 @@ class Settings {
         mqttPassword(""),
         mqttRetain(true),
         rfReceiverPin(RECEIVER_PIN),
+        rfReceiverPinPullUp(true),
         rfTransmitterPin(TRANSMITTER_PIN),
         rfEchoMessages(false),
         rfProtocols(("[]")),
@@ -111,6 +112,7 @@ class Settings {
   bool mqttRetain;
 
   int8_t rfReceiverPin;
+  bool rfReceiverPinPullUp;
   int8_t rfTransmitterPin;
   bool rfEchoMessages;
   String rfProtocols;
