@@ -44,6 +44,8 @@ HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
   _flashing = false;
 }
 
+HeartbeatFlashing::~HeartbeatFlashing() { off(); }
+
 void HeartbeatFlashing::off() {
   if (_flashing) {
     _ticker.detach();
