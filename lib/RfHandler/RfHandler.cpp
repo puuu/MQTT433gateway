@@ -37,6 +37,7 @@ RfHandler::RfHandler(const Settings &settings,
                      const RfHandler::ReceiveCallback &sendCb)
     : rf(new ESPiLight(settings.rfTransmitterPin)),
       recieverPin(settings.rfReceiverPin),
+      recieverPinPullUp(settings.rfReceiverPinPullUp),
       onReceiveCallback(sendCb) {
   rf->setEchoEnabled(settings.rfEchoMessages);
 }
@@ -105,9 +106,10 @@ void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
 void RfHandler::begin() {
   if (0 < recieverPin) {
     using namespace std::placeholders;
-
-    pinMode(recieverPin,
-            INPUT_PULLUP);  // 5V protection with reverse diode needs pullup
+    if (recieverPinPullUp) {
+      // 5V protection with reverse diode needs pullup
+      pinMode(recieverPin, INPUT_PULLUP);
+    }
     rf->setCallback(
         std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
     rf->setPulseTrainCallBack(

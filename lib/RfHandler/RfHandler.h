@@ -71,6 +71,7 @@ class RfHandler {
  private:
   ESPiLight *rf;
   int8_t recieverPin;
+  bool recieverPinPullUp;
 
   ReceiveCallback onReceiveCallback;
 
