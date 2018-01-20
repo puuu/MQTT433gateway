@@ -97,7 +97,9 @@ void ConfigWebServer::begin(Settings& settings) {
         if (Update.hasError()) {
           server.send_P(
               200, TEXT_PLAIN,
-              PSTR("Update failed. You may need to reflash the device."));
+              PSTR("Update failed. More information can be found on the serial "
+                   "console. \n\nDevice will reboot with old firmware. Please "
+                   "reconnect and try to flash again."));
         } else {
           server.sendHeader(F("Refresh"), F("20; URL=/"));
           server.send_P(200, TEXT_PLAIN,
