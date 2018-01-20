@@ -37,7 +37,6 @@
 class Heartbeat {
  public:
   Heartbeat(LED& led, unsigned int interval = 100);
-  Heartbeat(uint8_t pin, unsigned int interval = 100);
   ~Heartbeat();
   virtual void on();
   virtual void off();
@@ -45,7 +44,6 @@ class Heartbeat {
 
  protected:
   LED& _led;
-  LED* _ptr_led;
   unsigned int _interval;
 
  private:

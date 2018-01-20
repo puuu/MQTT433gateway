@@ -39,7 +39,6 @@
 class HeartbeatFlashing : public Heartbeat {
  public:
   HeartbeatFlashing(LED& led, int interval = 100);
-  HeartbeatFlashing(int pin, int interval = 100);
   virtual ~HeartbeatFlashing();
 
   virtual void off() override;

@@ -31,18 +31,10 @@
 
 #include "HeartbeatFlashing.h"
 
-
 void _flash_tick(LED* led) { led->toggle(); }
 
 HeartbeatFlashing::HeartbeatFlashing(LED& led, int interval)
-    : Heartbeat(led, interval) {
-  _flashing = false;
-}
-
-HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
-    : Heartbeat(pin, interval) {
-  _flashing = false;
-}
+    : Heartbeat(led, interval), _flashing(false){};
 
 HeartbeatFlashing::~HeartbeatFlashing() { off(); }
 
