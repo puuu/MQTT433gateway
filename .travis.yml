@@ -7,6 +7,7 @@ sudo: false
 cache:
   directories:
     - "~/.platformio"
+    - web/node_modules
 
 env:
   - PLATFORMIO_ENV=esp12e
@@ -15,9 +16,11 @@ env:
 install:
   # PlatformIO
   - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
-  # copy password file
-  - cp src/config.h-example src/config.h
+  - platformio update
   - platformio lib install
+  # install node
+  - nvm install node
+  - cd web && npm install && cd ..
 
 script:
   - platformio run --environment=$PLATFORMIO_ENV

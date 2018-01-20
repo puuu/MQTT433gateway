@@ -1,0 +1,31 @@
+h2 {
+    margin-top: 2em;
+}
+
+h1 {
+    margin-bottom: 0.3em;
+}
+
+legend {
+    margin-top: 1em;
+}
+
+.container {
+    margin: 1em;
+}
+
+#log-container {
+    background: #cfcfcf;
+    max-height: 40em;
+    overflow: auto;
+}
+
+.pure-button {
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.system-btn {
+    background: rgb(202, 60, 60);
+    color: white;
+}

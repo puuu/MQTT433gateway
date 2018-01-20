@@ -1,10 +1,10 @@
-/*
-  HeartbeatFlashing - Library for flashing LED
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,30 +27,28 @@
   SOFTWARE.
 */
 
-#include "HeartbeatFlashing.h"
+#ifndef SYSLOGLOGTARGET_H
+#define SYSLOGLOGTARGET_H
 
-void _flash_tick(LED* led) { led->toggle(); }
+#define SYSLOG_BUFFSIZE 100
 
-HeartbeatFlashing::HeartbeatFlashing(LED& led, int interval)
-    : Heartbeat(led, interval) {
-  _flashing = false;
-}
+#include <WiFiUdp.h>
 
-HeartbeatFlashing::HeartbeatFlashing(int pin, int interval)
-    : Heartbeat(pin, interval) {
-  _flashing = false;
-}
+#include <LineBufferProxy.h>
+#include <Syslog.h>
 
-void HeartbeatFlashing::off() {
-  if (_flashing) {
-    _ticker.detach();
-    _flashing = false;
-  }
-  Heartbeat::off();
-}
+class SyslogLogTarget : public LineBufferProxy<SYSLOG_BUFFSIZE> {
+ public:
+  SyslogLogTarget() : udp(), syslog(udp) {}
 
-void HeartbeatFlashing::flash(unsigned int onMilliseconds) {
-  on();
-  _flashing = true;
-  _ticker.attach_ms(onMilliseconds, _flash_tick, &_led);
-}
+  void begin(const String& name, const String& server, uint16_t port);
+
+ protected:
+  void flush(const char* buff) override;
+
+ private:
+  WiFiUDP udp;
+  Syslog syslog;
+};
+
+#endif  // SYSLOGLOGTARGET_H

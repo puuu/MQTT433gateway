@@ -1,10 +1,10 @@
-/*
-  SHAauth - SHA1 digest authentication
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,41 +27,15 @@
   SOFTWARE.
 */
 
-#include "SHAauth.h"
-#include <Hash.h>
+#include <algorithm>
 
-//#define DEBUG
+#include "SyslogLogTarget.h"
 
-SHAauth::SHAauth(const String &password, unsigned long validMillis) {
-  _passHash = sha1(password);
-  _validMillis = validMillis;
-  _timestamb = 0;
-  _nonceHash = "";
-};
-
-String SHAauth::nonce() {
-  _nonceHash = sha1(String(micros()));
-  _timestamb = millis();
-  return _nonceHash;
+void SyslogLogTarget::begin(const String &name, const String &server,
+                            uint16_t port) {
+  syslog.server(server.c_str(), port);
+  syslog.deviceHostname(name.c_str());
+  syslog.appName("MQTT433gateway");
 }
 
-bool SHAauth::verify(const String &answer) {
-  if ((_nonceHash.length() > 0) && ((millis() - _timestamb) <= _validMillis)) {
-    int pos = answer.indexOf(' ');
-    if ((pos > 1) && (answer.length() > (unsigned)pos)) {
-      String cnonce = answer.substring(0, pos);
-      String response = answer.substring(pos + 1);
-      String result = sha1(_passHash + F(":") + _nonceHash + F(":") + cnonce);
-#ifdef DEBUG
-      Serial.print(F("SHAauth::verify: "));
-      Serial.print(cnonce);
-      Serial.print(F(" "));
-      Serial.print(response);
-      Serial.print(F(" "));
-      Serial.println(result);
-#endif  // DEBUG
-      return response == result;
-    }
-  }
-  return false;
-};
+void SyslogLogTarget::flush(const char *buff) { syslog.log(buff); }

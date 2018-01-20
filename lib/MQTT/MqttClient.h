@@ -1,10 +1,10 @@
-/*
-  SHAauth - SHA1 digest authentication
+/**
+  MQTT433gateway - MQTT 433.92 MHz radio gateway utilizing ESPiLight
   Project home: https://github.com/puuu/MQTT433gateway/
 
   The MIT License (MIT)
 
-  Copyright (c) 2016 Puuu
+  Copyright (c) 2017 Jan Losinski
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,22 +27,51 @@
   SOFTWARE.
 */
 
-#ifndef SHAauth_h
-#define SHAauth_h
+#ifndef MQTTCLIENT_H
+#define MQTTCLIENT_H
 
-#include <Arduino.h>
+#include <WString.h>
+#include <WiFiClient.h>
 
-class SHAauth {
+#include <Settings.h>
+
+#ifndef MQTT_CONNECTION_ATTEMPT_DELAY
+#define MQTT_CONNECTION_ATTEMPT_DELAY 5000
+#endif
+
+class PubSubClient;
+
+class MqttClient {
  public:
-  SHAauth(const String &password, unsigned long validMillis = 10000);
-  String nonce();
-  bool verify(const String &response);
+  using HandlerCallback =
+      std::function<void(const String &topic_part, const String &payload)>;
+
+  MqttClient(const Settings &settings, WiFiClient &client);
+
+  void begin();
+
+  bool connect();
+
+  void reconnect();
+
+  bool subsrcibe();
+
+  void loop();
+
+  void publishCode(const String &protocol, const String &payload);
+
+  void registerRfDataHandler(const HandlerCallback &cb);
+
+  ~MqttClient();
 
  private:
-  String _passHash;
-  String _nonceHash;
-  unsigned long _timestamb;
-  unsigned long _validMillis;
+  void onMessage(char *topic, uint8_t *payload, unsigned int length);
+
+  const Settings &settings;
+  PubSubClient *mqttClient = nullptr;
+
+  HandlerCallback onSendCallback;
+  unsigned long lastConnectAttempt;
 };
 
-#endif
+#endif  // MQTTCLIENT_H

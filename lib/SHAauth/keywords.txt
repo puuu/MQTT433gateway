@@ -1,3 +1,0 @@
-SHAauth KEYWORD1
-nonce   KEYWORD2
-verify  KEYWORD2
