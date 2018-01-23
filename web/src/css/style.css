@@ -16,7 +16,7 @@ legend {
 
 .log-container {
     background: #cfcfcf;
-    max-height: 40em;
+    height: 40em;
     overflow: auto;
 }
 
