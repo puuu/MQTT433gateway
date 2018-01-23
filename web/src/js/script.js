@@ -325,13 +325,13 @@ $(function () {
     };
 
 
-    var loadDebug = function () {
-        var applyDebug = function (data) {
-            $.each(data, function (key, value) {
-                $('.debug-item[data-dbg-field="' + key + '"]').prop("checked", value);
-            });
-        };
+    var applyDebug = function (data) {
+        $.each(data, function (key, value) {
+            $('.debug-item[data-dbg-field="' + key + '"]').prop("checked", value);
+        });
+    };
 
+    var loadDebug = function () {
         $.ajax({
                    url: "/debug",
                    type: "GET",
@@ -339,7 +339,6 @@ $(function () {
                    success: applyDebug
                });
     };
-
 
     var saveDebug = function () {
         var data = {};
@@ -353,7 +352,7 @@ $(function () {
                    type: "PUT",
                    data: JSON.stringify(data),
                    contentType: 'application/json',
-                   success: loadDebug
+                   success: applyDebug
                });
     };
 
