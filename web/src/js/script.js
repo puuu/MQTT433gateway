@@ -340,12 +340,9 @@ $(function () {
                });
     };
 
-    var saveDebug = function () {
+    var submitDebug = function (item) {
         var data = {};
-        $(".debug-item").each(function (_, item) {
-            var _item = $(item);
-            data[_item.attr("name")] = _item.prop("checked");
-        });
+        data[item.name] = item.checked;
 
         $.ajax({
                    url: '/debug',
@@ -393,11 +390,10 @@ $(function () {
         return false;
     });
 
-    $("#debugging-form").change(function (e) {
-        e.preventDefault();
-
-        saveDebug();
-        return false;
+    $(".debug-item").forEach(function (item) {
+        $(item).change(function (e) {
+            submitDebug(this);
+          });
     });
 
     $('#dbg-form-reset').click(function (e) {
