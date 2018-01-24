@@ -327,7 +327,7 @@ $(function () {
 
     var applyDebug = function (data) {
         $.each(data, function (key, value) {
-            $('.debug-item[data-dbg-field="' + key + '"]').prop("checked", value);
+            $('#debug-' + key).prop("checked", value);
         });
     };
 
