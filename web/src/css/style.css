@@ -14,7 +14,7 @@ legend {
     margin: 1em;
 }
 
-#log-container {
+.log-container {
     background: #cfcfcf;
     max-height: 40em;
     overflow: auto;
