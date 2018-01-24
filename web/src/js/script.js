@@ -1,4 +1,10 @@
 $(function () {
+    var DEBUG_FLAGS = {
+        protocolRaw: "Enable Raw RF message logging",
+        systemLoad: "Show the processed loop() iterations for each second",
+        freeHeap: "Show the free heap memory every second"
+    };
+
     var logLevelInputFactory = function (item) {
         return '<label for="' + item.name + '">' + item.name + '</label>' +
             '<select class="config-item" data-field="' + item.name + '">' +
@@ -321,37 +327,57 @@ $(function () {
             registerConfigUi('.config-item[data-field="' + item.name + '"]');
         });
         loadConfig();
-        loadDebug();
     };
 
+    function initDebugUi(debugFlags, container) {
+        function create(debugFlag, helpText) {
+            var checkbox = $('<input>', {
+                type: 'checkbox',
+                class: 'debug-item',
+                id: 'debug-' + debugFlag,
+                name: debugFlag,
+            });
+            checkbox.change(function (env) {
+                submit(this);
+            });
+            return $('<label>', {class: 'pure-checkbox'}).append([
+                checkbox,
+                ' ' + debugFlag,
+                $('<span>', {
+                    class: 'pure-form-message',
+                    text: helpText,
+                }),
+            ]);
+        }
 
-    var applyDebug = function (data) {
-        $.each(data, function (key, value) {
-            $('#debug-' + key).prop("checked", value);
+        function apply(data) {
+            $.each(data, function (key, value) {
+                $('#debug-' + key).prop("checked", value);
+            });
+        }
+
+        function submit(item) {
+            var data = {};
+            data[item.name] = item.checked;
+            $.ajax({
+                url: '/debug',
+                type: "PUT",
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: apply
+            });
+        }
+
+        $.each(debugFlags, function(debugFlag, helpText) {
+            container.append(create(debugFlag, helpText));
         });
-    };
-
-    var loadDebug = function () {
         $.ajax({
-                   url: "/debug",
-                   type: "GET",
-                   contentType: 'application/json',
-                   success: applyDebug
-               });
-    };
-
-    var submitDebug = function (item) {
-        var data = {};
-        data[item.name] = item.checked;
-
-        $.ajax({
-                   url: '/debug',
-                   type: "PUT",
-                   data: JSON.stringify(data),
-                   contentType: 'application/json',
-                   success: applyDebug
-               });
-    };
+            url: "/debug",
+            type: "GET",
+            contentType: 'application/json',
+            success: apply
+        });
+    }
 
     var loadFwVersion = function () {
         $.ajax({
@@ -367,7 +393,6 @@ $(function () {
     $('.system-btn').click(function () {
         sendCommand({command: $(this).data('command')});
     });
-
 
     $('#settings-form').submit(function (e) {
         e.preventDefault();
@@ -390,12 +415,6 @@ $(function () {
         return false;
     });
 
-    $(".debug-item").forEach(function (item) {
-        $(item).change(function (e) {
-            submitDebug(this);
-          });
-    });
-
     // Clear log
     $('#btn-clear-log').click(function (e) {
         $('#log-container').find('pre').empty();
@@ -406,6 +425,7 @@ $(function () {
     });
 
     initUi();
+    initDebugUi(DEBUG_FLAGS, $("#debugflags"));
     loadFwVersion();
     openWebSocket();
 });
