@@ -6,8 +6,8 @@ $(function () {
     };
 
     function logLevelInputFactory(item) {
-        return '<label for="' + item.name + '">' + item.name + '</label>' +
-            '<select class="config-item" data-field="' + item.name + '">' +
+        return '<label for="cfg-' + item.name + '">' + item.name + '</label>' +
+            '<select class="config-item" id="cfg-' + item.name + '" name="' + item.name + '">' +
             '<option value="">None</option>' +
             '<option value="error">Error</option>' +
             '<option value="warning">Warning</option>' +
@@ -18,20 +18,20 @@ $(function () {
     }
 
     function inputFieldFactory(item) {
-        return '<label for="' + item.name + '">' + item.name + '</label>' +
-            '<input type="text" class="pure-input-1 config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
+        return '<label for="cfg-' + item.name + '">' + item.name + '</label>' +
+            '<input type="text" class="pure-input-1 config-item" id="cfg-' + item.name + '" name="' + item.name + '">' +
             '<span class="pure-form-message">' + item.help + '</span>';
     }
 
     function passwordFieldFactory(item) {
-        return '<label for="' + item.name + '">' + item.name + '</label>' +
-            '<input type="password" class="pure-input-1 config-item" id="' + item.name + '" name="' + item.name + '" data-field="' + item.name + '">' +
+        return '<label for="cfg-' + item.name + '">' + item.name + '</label>' +
+            '<input type="password" class="pure-input-1 config-item" id="cfg-' + item.name + '" name="' + item.name + '">' +
             '<span class="pure-form-message">' + item.help + '</span>';
     }
 
     function checkboxFactory(item) {
         return '<label class="pure-checkbox">' +
-            '<input class="config-item" type="checkbox" value="' + item.name + '" data-field="' + item.name + '" name="' + item.name + '"> ' +
+            '<input type="checkbox" class="config-item" id="cfg-' + item.name + '" name="' + item.name + '"> ' +
             item.name +
             '<span class="pure-form-message">' + item.help + '</span>' +
             '</label>';
@@ -42,31 +42,31 @@ $(function () {
     }
 
     function protocolInputField(item) {
-        return '<div id="rfProtocols"></div>';
+        return '<div id="cfg-' + item.name + '"></div>';
     }
 
     function inputApply(item_id, data) {
-        $('.config-item[data-field="' + item_id + '"]').val(data);
+        $('#cfg-' + item_id).val(data);
     }
 
     function checkboxApply(item_id, data) {
-        $('.config-item[data-field="' + item_id + '"]').prop("checked", data);
+        $('#cfg-' + item_id).prop("checked", data);
     }
 
     function protocolApply(item_id, data) {
         function fillProtocolData(protos) {
-            $("#rfProtocols").empty();
+            $("#cfg-" + item_id).empty();
             protos.forEach(function (value) {
                 var elem = '<label class="pure-checkbox">' +
-                    '<input class="config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
+                    '<input type="checkbox" class="config-item protocols-item" id="cfg-' + item_id +'-' + value + '" name="' + item_id + '" value="' + value + '">' +
                     ' Protocol ' + value +
                     '</label>';
-                $("#rfProtocols").append(elem);
-                registerConfigUi('#proto_check_' + value);
+                $("#cfg-" + item_id).append(elem);
+                registerConfigUi('#cfg-' + item_id + '-' + value);
             });
             if (data.length > 0) {
                 data.forEach(function (value) {
-                    $('#proto_check_' + value).prop('checked', true);
+                    $('#cfg-' + item_id + '-' + value).prop('checked', true);
                 });
             } else {
                 $(".protocols-item").each(function (_, value) {
@@ -83,11 +83,11 @@ $(function () {
     }
 
     function inputGet(item_id) {
-        return $('.config-item[data-field="' + item_id + '"]').val();
+        return $('#cfg-' + item_id).val();
     }
 
     function passwordGet(item_id) {
-        var pwd = $('.config-item[data-field="' + item_id + '"]').val();
+        var pwd = $('#cfg-' + item_id).val();
         if (pwd.length < 8) {
             alert("Password must have at least 8 characters");
             return undefined;
@@ -100,7 +100,7 @@ $(function () {
     }
 
     function checkboxGet(item_id) {
-        return $('.config-item[data-field="' + item_id + '"]').prop("checked");
+        return $('#cfg-' + item_id).prop("checked");
     }
 
     function protocolGet(item_id) {
@@ -230,13 +230,11 @@ $(function () {
         };
     }
 
-    function registerConfigUi(item) {
-        var _item = $(item);
-        _item.change(function (event) {
-            var name = _item.data("field");
-            var new_data = ui_map[name].fetch(name);
-            if (new_data !== undefined && JSON.stringify(last_cfg[name]) !== JSON.stringify(new_data)) {
-                changes[name] = new_data;
+    function registerConfigUi(item_id) {
+        $('#cfg-' + item_id).change(function (event) {
+            var new_data = ui_map[item_id].fetch(item_id);
+            if (new_data !== undefined && JSON.stringify(last_cfg[item_id]) !== JSON.stringify(new_data)) {
+                changes[item_id] = new_data;
             }
         });
     }
@@ -306,7 +304,7 @@ $(function () {
         });
         $("#settings").prepend(settings);
         CONFIG_ITEMS.forEach(function (item) {
-            registerConfigUi('.config-item[data-field="' + item.name + '"]');
+            registerConfigUi(item.name);
         });
         loadConfig();
     }
