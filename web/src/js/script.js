@@ -333,14 +333,16 @@ $(function () {
             checkbox.change(function (event) {
                 submit(this);
             });
-            return $('<label>', {class: 'pure-checkbox'}).append([
+            return $('<div>', {
+                class: 'pure-u-1 pure-u-md-1-3'
+            }).append($('<label>', {class: 'pure-checkbox'}).append([
                 checkbox,
                 ' ' + debugFlag,
                 $('<span>', {
                     class: 'pure-form-message',
                     text: helpText,
                 }),
-            ]);
+            ]));
         }
 
         function apply(data) {
