@@ -26,7 +26,7 @@ $(function () {
 
     var checkboxFactory = function (item) {
         return '<label class="pure-checkbox">' +
-            '<input class=" config-item " type="checkbox" value="' + item.name + '" data-field="' + item.name + '" name="' + item.name + '"> ' +
+            '<input class="config-item" type="checkbox" value="' + item.name + '" data-field="' + item.name + '" name="' + item.name + '"> ' +
             item.name +
             '<span class="pure-form-message">' + item.help + '</span>' +
             '</label>';
@@ -56,7 +56,7 @@ $(function () {
             $("#rfProtocols").empty();
             protos.forEach(function (value) {
                 var elem = '<label class="pure-checkbox">' +
-                    '<input class=" config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
+                    '<input class="config-item protocols-item" id="proto_check_' + value + '" type="checkbox" value="' + value + '" data-field="' + item_id + '" name="' + item_id + '">' +
                     ' Protocol ' + value +
                     '</label>';
                 $("#rfProtocols").append(elem);
