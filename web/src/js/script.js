@@ -66,15 +66,12 @@ $(function () {
                 $("#cfg-" + item_id).append(elem);
                 registerConfigUi('#cfg-' + item_id + '-' + value);
             });
-            if (data.length > 0) {
-                data.forEach(function (value) {
-                    $('#cfg-' + item_id + '-' + value).prop('checked', true);
-                });
-            } else {
-                $(".protocols-item").each(function (_, value) {
-                    $(value).prop("checked", true);
-                });
+            if (data.length == 0) {
+                data = protos;
             }
+            data.forEach(function (value) {
+                $('#cfg-' + item_id + '-' + value).prop('checked', true);
+            });
         }
         $.ajax({
                    url: "/protocols",
