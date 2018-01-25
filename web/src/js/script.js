@@ -226,7 +226,7 @@ $(function () {
 
     function throttle(callback, limit) {
         var wait = false;
-        return function (args) {
+        return function () {
             if (!wait) {
                 callback.apply(this, arguments);
                 wait = true;
