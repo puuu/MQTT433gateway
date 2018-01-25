@@ -319,22 +319,22 @@ $(function () {
 
     var SystemCommandActions = {
         restart: function () {
-            var _body = $("body");
-            _body.empty();
-            _body.append("<p>Device will reboot!</p><p>Try to reconnect in 15 seconds.</p>");
+            var body = $("body");
+            body.empty();
+            body.append("<p>Device will reboot!</p><p>Try to reconnect in 15 seconds.</p>");
             setTimeout(function () {
                 window.location.reload(true);
             }, 15000);
         },
         reset_wifi: function () {
-            var _body = $("body");
-            _body.empty();
-            _body.append("<p>Devices WIFI settings where cleared!</p><p>Please reconfigure it.</p>");
+            var body = $("body");
+            body.empty();
+            body.append("<p>Devices WIFI settings where cleared!</p><p>Please reconfigure it.</p>");
         },
         reset_config: function () {
-            var _body = $("body");
-            _body.empty();
-            _body.append("<p>Devices Config was reset - reboot device!</p>" +
+            var body = $("body");
+            body.empty();
+            body.append("<p>Devices Config was reset - reboot device!</p>" +
                 "<p>You might have to reconfigure the wifi!</p>" +
                 "<p>Reload page in 10 seconds...</p>");
             setTimeout(function () {
