@@ -160,24 +160,24 @@ $(function () {
         return container;
     }
 
-    function inputApply(item_id, data) {
-        $('#cfg-' + item_id).val(data);
+    function inputApply(itemName, data) {
+        $('#cfg-' + itemName).val(data);
     }
 
-    function checkboxApply(item_id, data) {
-        $('#cfg-' + item_id).prop("checked", data);
+    function checkboxApply(itemName, data) {
+        $('#cfg-' + itemName).prop("checked", data);
     }
 
-    function protocolApply(item_id, data) {
+    function protocolApply(itemName, data) {
         if (protocols === undefined) {
-            setTimeout(protocolApply(item_id, data), 100);
+            setTimeout(protocolApply(itemName, data), 100);
             return;
         }
         if (data.length == 0) {
             data = protocols;
         }
         data.forEach(function (value) {
-            $('#cfg-' + item_id + '-' + value).prop('checked', true);
+            $('#cfg-' + itemName + '-' + value).prop('checked', true);
         });
     }
 
