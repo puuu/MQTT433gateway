@@ -30,14 +30,6 @@
 #ifndef MQTT433GATEWAY_SETTINGS_H
 #define MQTT433GATEWAY_SETTINGS_H
 
-#define SETTINGS_FILE "/settings.json"
-
-#define DEFAULT_PASSWORD "MQTT433gateway"
-#define DEFAULT_NAME "rf434"
-
-#define RECEIVER_PIN 12  // avoid 0, 2, 15, 16
-#define TRANSMITTER_PIN 4
-
 #ifndef FIRMWARE_VERSION
 #define FIRMWARE_VERSION unknown
 #endif
@@ -54,6 +46,15 @@
 #include <WString.h>
 
 #include <ArduinoJson.h>
+
+const char PROGMEM SETTINGS_FILE[] = "/settings.json";
+
+const char PROGMEM DEFAULT_NAME[] = "rf434";
+const char PROGMEM DEFAULT_PASSWORD[] = "MQTT433gateway";
+const char PROGMEM DEFAULT_RECEIVE_TOPIC_SUFFIX[] = "/recv/";
+const char PROGMEM DEFAULT_SEND_TOPIC_SUFFIX[] = "/send/";
+const char PROGMEM DEFAULT_RF_PROTOCOLS[] = "[]";
+const char PROGMEM DEFAULT_SERIAL_LOG_LEVEL[] = "debug";
 
 enum SettingType {
   BASE,
@@ -74,21 +75,21 @@ class Settings {
   using SettingCallbackFn = std::function<void(const Settings &)>;
 
   Settings()
-      : deviceName(DEFAULT_NAME),
-        configPassword(DEFAULT_PASSWORD),
+      : deviceName(FPSTR(DEFAULT_NAME)),
+        configPassword(FPSTR(DEFAULT_PASSWORD)),
         mqttBroker(""),
         mqttBrokerPort(1883),
         mqttUser(""),
         mqttPassword(""),
         mqttRetain(true),
-        mqttReceiveTopic(deviceName + ("/recv/")),
-        mqttSendTopic(deviceName + ("/send/")),
+        mqttReceiveTopic(deviceName + FPSTR(DEFAULT_RECEIVE_TOPIC_SUFFIX)),
+        mqttSendTopic(deviceName + FPSTR(DEFAULT_SEND_TOPIC_SUFFIX)),
         rfEchoMessages(false),
-        rfReceiverPin(RECEIVER_PIN),
-        rfTransmitterPin(TRANSMITTER_PIN),
+        rfReceiverPin(12),  // avoid 0, 2, 15, 16
+        rfTransmitterPin(4),
         rfReceiverPinPullUp(true),
-        rfProtocols(("[]")),
-        serialLogLevel("debug"),
+        rfProtocols(FPSTR(DEFAULT_RF_PROTOCOLS)),
+        serialLogLevel(FPSTR(DEFAULT_SERIAL_LOG_LEVEL)),
         webLogLevel(""),
         syslogLevel(""),
         syslogHost(""),

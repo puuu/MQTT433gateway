@@ -113,8 +113,8 @@ void Settings::onConfigChange(SettingTypeSet typeSet) const {
 
 void Settings::load() {
   Logger.debug.println(F("Loading config file."));
-  if (SPIFFS.exists(SETTINGS_FILE)) {
-    File file = SPIFFS.open(SETTINGS_FILE, "r");
+  if (SPIFFS.exists(FPSTR(SETTINGS_FILE))) {
+    File file = SPIFFS.open(FPSTR(SETTINGS_FILE), "r");
     if (!file) {
       Logger.error.println(F("Open settings file for read failed!"));
       return;
@@ -135,7 +135,7 @@ void Settings::notifyAll() {
 
 void Settings::save() {
   Logger.debug.println(F("Saving config file."));
-  File file = SPIFFS.open(SETTINGS_FILE, "w");
+  File file = SPIFFS.open(FPSTR(SETTINGS_FILE), "w");
 
   if (!file) {
     Logger.error.println(F("Open settings file for write failed!"));
@@ -262,13 +262,13 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
 }
 
 void Settings::reset() {
-  if (SPIFFS.exists(SETTINGS_FILE)) {
+  if (SPIFFS.exists(FPSTR(SETTINGS_FILE))) {
     Logger.info.println(F("Remove config file."));
-    SPIFFS.remove(SETTINGS_FILE);
+    SPIFFS.remove(FPSTR(SETTINGS_FILE));
   }
 }
 
 bool Settings::hasValidPassword() {
   return (configPassword.length() > 7) &&
-         (configPassword != F(DEFAULT_PASSWORD));
+         (configPassword != FPSTR(DEFAULT_PASSWORD));
 }
