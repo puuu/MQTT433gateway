@@ -74,15 +74,25 @@ std::function<bool(const T &)> notZero() {
   return [](const T &val) { return val != 0; };
 }
 
+static void logInvalidWarning(const String &key) {
+  Logger.warning.print(F("Setting "));
+  Logger.warning.print(key);
+  Logger.warning.println(F(" is not valid, will ignore it."));
+}
+
 template <typename TVal, typename TKey>
 bool setIfPresent(JsonObject &obj, TKey key, TVal &var,
                   const std::function<bool(const TVal &)> &validator =
                       std::function<bool(const TVal &)>()) {
   if (obj.containsKey(key)) {
     TVal tmp = obj.get<TVal>(key);
-    if (tmp != var && (!validator || validator(tmp))) {
-      var = tmp;
-      return true;
+    if (tmp != var) {
+      if (!validator || validator(tmp)) {
+        var = tmp;
+        return true;
+      } else {
+        logInvalidWarning(key);
+      }
     }
   }
   return false;
@@ -102,10 +112,11 @@ void Settings::onConfigChange(SettingTypeSet typeSet) const {
 }
 
 void Settings::load() {
+  Logger.debug.println(F("Loading config file."));
   if (SPIFFS.exists(SETTINGS_FILE)) {
     File file = SPIFFS.open(SETTINGS_FILE, "r");
     if (!file) {
-      Logger.error.println(F("Cannot open setings file!"));
+      Logger.error.println(F("Open settings file for read failed!"));
       return;
     }
     DynamicJsonBuffer jsonBuffer;
@@ -123,10 +134,11 @@ void Settings::notifyAll() {
 }
 
 void Settings::save() {
+  Logger.debug.println(F("Saving config file."));
   File file = SPIFFS.open(SETTINGS_FILE, "w");
 
   if (!file) {
-    Logger.error.println(F("Opening settings file failed"));
+    Logger.error.println(F("Open settings file for write failed!"));
   } else {
     serialize(file, false, true);
     file.close();
@@ -180,10 +192,11 @@ void Settings::deserialize(const String &json) {
 }
 
 Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
+  Logger.debug.println(F("Applying config settings."));
   SettingTypeSet changed;
 
   if (!parsedSettings.success()) {
-    Logger.warning.println(F("Config parse failed!"));
+    Logger.warning.println(F("Parsing config data as JSON object failed!"));
     return changed;
   }
 
@@ -261,6 +274,7 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
 
 void Settings::reset() {
   if (SPIFFS.exists(SETTINGS_FILE)) {
+    Logger.info.println(F("Remove config file."));
     SPIFFS.remove(SETTINGS_FILE);
   }
 }
