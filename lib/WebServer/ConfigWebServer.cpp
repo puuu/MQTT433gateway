@@ -36,61 +36,70 @@
 #include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
 
-const char TEXT_PLAIN[] PROGMEM = "text/plain";
-const char APPLICATION_JSON[] = "application/json";
+const char PROGMEM PLAIN[] = "plain";
+const char PROGMEM TEXT_PLAIN[] = "text/plain";
+const char PROGMEM TEXT_HTML[] = "text/html";
+const char PROGMEM APPLICATION_JSON[] = "application/json";
+
+const char PROGMEM URL_ROOT[] = "/";
+const char PROGMEM URL_SYSTEM[] = "/system";
+const char PROGMEM URL_CONFIG[] = "/config";
+const char PROGMEM URL_PROTOCOLS[] = "/protocols";
+const char PROGMEM URL_DEBUG[] = "/debug";
+const char PROGMEM URL_FIRMWARE[] = "/firmware";
 
 void ConfigWebServer::begin(Settings& settings) {
   updateSettings(settings);
 
-  server.on(F("/"), authenticated([this]() {
-              server.sendHeader(F("Content-Encoding"), "gzip");
+  server.on(FPSTR(URL_ROOT), authenticated([this]() {
+              server.sendHeader(F("Content-Encoding"), F("gzip"));
               server.setContentLength(index_html_gz_len);
-              server.send(200, F("text/html"), "");
+              server.send(200, FPSTR(TEXT_HTML), "");
               server.sendContent_P(index_html_gz, index_html_gz_len);
             }));
 
-  server.on(F("/system"), HTTP_GET, authenticated([this]() {
+  server.on(FPSTR(URL_SYSTEM), HTTP_GET, authenticated([this]() {
               server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
             }));
 
   server.on(
-      F("/system"), HTTP_POST,
+      FPSTR(URL_SYSTEM), HTTP_POST,
       authenticated(std::bind(&::ConfigWebServer::onSystemCommand, this)));
 
-  server.on(F("/config"), HTTP_GET, authenticated([&]() {
+  server.on(FPSTR(URL_CONFIG), HTTP_GET, authenticated([&]() {
               String buff;
               settings.serialize(buff, true, false);
-              server.send(200, APPLICATION_JSON, buff);
+              server.send(200, FPSTR(APPLICATION_JSON), buff);
             }));
 
-  server.on(F("/config"), HTTP_PUT, authenticated([&]() {
-              settings.deserialize(server.arg("plain"));
+  server.on(FPSTR(URL_CONFIG), HTTP_PUT, authenticated([&]() {
+              settings.deserialize(server.arg(FPSTR(PLAIN)));
               settings.save();
-              server.send(200, APPLICATION_JSON, F("true"));
+              server.send_P(200, APPLICATION_JSON, PSTR("true"));
             }));
 
-  server.on("/protocols", HTTP_GET, authenticated([this]() {
+  server.on(FPSTR(URL_PROTOCOLS), HTTP_GET, authenticated([this]() {
               if (protocolProvider) {
-                server.send(200, APPLICATION_JSON, protocolProvider());
+                server.send(200, FPSTR(APPLICATION_JSON), protocolProvider());
               } else {
-                server.send(200, APPLICATION_JSON, F("[]"));
+                server.send_P(200, APPLICATION_JSON, PSTR("[]"));
               }
             }));
 
-  server.on("/debug", HTTP_GET,
+  server.on(FPSTR(URL_DEBUG), HTTP_GET,
             authenticated(std::bind(&::ConfigWebServer::onDebugFlagGet, this)));
 
-  server.on("/debug", HTTP_PUT,
+  server.on(FPSTR(URL_DEBUG), HTTP_PUT,
             authenticated(std::bind(&::ConfigWebServer::onDebugFlagSet, this)));
 
-  server.on(F("/firmware"), HTTP_GET, authenticated([this]() {
+  server.on(FPSTR(URL_FIRMWARE), HTTP_GET, authenticated([this]() {
               server.send_P(
                   200, APPLICATION_JSON,
                   PSTR("{\"version\": \"" QUOTE(FIRMWARE_VERSION) "\"}"));
             }));
 
   server.on(
-      F("/firmware"), HTTP_POST, authenticated([this]() {
+      FPSTR(URL_FIRMWARE), HTTP_POST, authenticated([this]() {
         server.sendHeader(F("Connection"), F("close"));
 
         Logger.info.println(F("Got an update. Reboot."));
@@ -161,7 +170,7 @@ void ConfigWebServer::registerDebugFlagHandler(
 
 void ConfigWebServer::onSystemCommand() {
   DynamicJsonBuffer buffer;
-  JsonObject& request = buffer.parse(server.arg(F("plain")));
+  JsonObject& request = buffer.parse(server.arg(FPSTR(PLAIN)));
 
   if (!request.success()) {
     server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse command!"));
@@ -186,7 +195,7 @@ void ConfigWebServer::onSystemCommand() {
 
 void ConfigWebServer::onDebugFlagSet() {
   DynamicJsonBuffer buffer;
-  JsonObject& request = buffer.parse(server.arg(F("plain")));
+  JsonObject& request = buffer.parse(server.arg(FPSTR(PLAIN)));
 
   if (!request.success()) {
     server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse json object!"));
@@ -214,7 +223,7 @@ void ConfigWebServer::onDebugFlagGet() {
   }
   String result;
   root.printTo(result);
-  server.send(200, APPLICATION_JSON, result);
+  server.send(200, FPSTR(APPLICATION_JSON), result);
 }
 
 void ConfigWebServer::handleClient() {
