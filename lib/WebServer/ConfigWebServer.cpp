@@ -99,59 +99,9 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on(
-      FPSTR(URL_FIRMWARE), HTTP_POST, authenticated([this]() {
-        server.sendHeader(F("Connection"), F("close"));
-
-        Logger.info.println(F("Got an update. Reboot."));
-        if (Update.hasError()) {
-          server.send_P(
-              200, TEXT_PLAIN,
-              PSTR("Update failed. More information can be found on the serial "
-                   "console. \n\nDevice will reboot with old firmware. Please "
-                   "reconnect and try to flash again."));
-        } else {
-          server.sendHeader(F("Refresh"), F("20; URL=/"));
-          server.send_P(200, TEXT_PLAIN,
-                        PSTR("Update successful.\n\nDevice will reboot and try "
-                             "to reconnect in 20 seconds."));
-        }
-        delay(500);
-        ESP.restart();
-      }),
-      authenticated([this]() {
-        HTTPUpload& upload = server.upload();
-        if (upload.status == UPLOAD_FILE_START) {
-          Serial.setDebugOutput(true);
-
-          if (otaHook) {
-            otaHook();
-          }
-
-          Serial.print(F("Update: "));
-          Serial.println(upload.filename.c_str());
-          uint32_t maxSketchSpace =
-              (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-          if (!Update.begin(maxSketchSpace)) {  // start with max available size
-            Update.printError(Serial);
-          }
-        } else if (upload.status == UPLOAD_FILE_WRITE) {
-          if (Update.write(upload.buf, upload.currentSize) !=
-              upload.currentSize) {
-            Update.printError(Serial);
-          }
-        } else if (upload.status == UPLOAD_FILE_END) {
-          if (Update.end(
-                  true)) {  // true to set the size to the current progress
-            Serial.print(F("Update Success: "));
-            Serial.print(upload.totalSize);
-            Serial.print(F("\nRebooting...\n"));
-          } else {
-            Update.printError(Serial);
-          }
-          Serial.setDebugOutput(false);
-        }
-        yield();
-      }));
+      FPSTR(URL_FIRMWARE), HTTP_POST,
+      authenticated(std::bind(&::ConfigWebServer::onFirmwareFinish, this)),
+      authenticated(std::bind(&::ConfigWebServer::onFirmwareUpload, this)));
 
   wsLogTarget.begin();
   server.begin();
@@ -224,6 +174,58 @@ void ConfigWebServer::onDebugFlagGet() {
   String result;
   root.printTo(result);
   server.send(200, FPSTR(APPLICATION_JSON), result);
+}
+
+void ConfigWebServer::onFirmwareFinish() {
+  server.sendHeader(F("Connection"), F("close"));
+
+  Logger.info.println(F("Got an update. Reboot."));
+  if (Update.hasError()) {
+    server.send_P(
+        200, TEXT_PLAIN,
+        PSTR("Update failed. More information can be found on the serial "
+             "console. \n\nDevice will reboot with old firmware. Please "
+             "reconnect and try to flash again."));
+  } else {
+    server.sendHeader(F("Refresh"), F("20; URL=/"));
+    server.send_P(200, TEXT_PLAIN,
+                  PSTR("Update successful.\n\nDevice will reboot and try "
+                       "to reconnect in 20 seconds."));
+  }
+  delay(500);
+  ESP.restart();
+}
+
+void ConfigWebServer::onFirmwareUpload() {
+  HTTPUpload& upload = server.upload();
+  if (upload.status == UPLOAD_FILE_START) {
+    Serial.setDebugOutput(true);
+
+    if (otaHook) {
+      otaHook();
+    }
+
+    Serial.print(F("Update: "));
+    Serial.println(upload.filename.c_str());
+    uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    if (!Update.begin(maxSketchSpace)) {  // start with max available size
+      Update.printError(Serial);
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+      Update.printError(Serial);
+    }
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (Update.end(true)) {  // true to set the size to the current progress
+      Serial.print(F("Update Success: "));
+      Serial.print(upload.totalSize);
+      Serial.print(F("\nRebooting...\n"));
+    } else {
+      Update.printError(Serial);
+    }
+    Serial.setDebugOutput(false);
+  }
+  yield();
 }
 
 void ConfigWebServer::handleClient() {

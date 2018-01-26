@@ -90,6 +90,8 @@ class ConfigWebServer {
   void onSystemCommand();
   void onDebugFlagGet();
   void onDebugFlagSet();
+  void onFirmwareFinish();
+  void onFirmwareUpload();
 
   ESP8266WebServer server;
   WebSocketLogTarget wsLogTarget;
