@@ -314,7 +314,9 @@ void loop() {
     statusLED->loop();
   }
 
-  webServer->loop();
+  if (webServer) {
+    webServer->loop();
+  }
 
   if (mqttClient) {
     mqttClient->loop();
