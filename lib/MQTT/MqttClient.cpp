@@ -113,10 +113,12 @@ void MqttClient::reconnect() {
 }
 
 bool MqttClient::subsrcibe() {
-  Logger.debug.print(F("MQTT subscribe to topic: "));
-  Logger.debug.println((settings.mqttSendTopic + "+"));
+  String topic = settings.mqttSendTopic + "+";
 
-  return mqttClient->subscribe((settings.mqttSendTopic + "+").c_str());
+  Logger.debug.print(F("MQTT subscribe to topic: "));
+  Logger.debug.println(topic);
+
+  return mqttClient->subscribe(topic.c_str());
 }
 
 void MqttClient::loop() {
@@ -146,12 +148,13 @@ void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
 }
 
 void MqttClient::publishCode(const String &protocol, const String &payload) {
+  String topic = settings.mqttReceiveTopic + protocol;
+
   Logger.debug.print(F("Publish MQTT message: "));
-  Logger.debug.print(settings.mqttReceiveTopic + protocol);
+  Logger.debug.print(topic);
   Logger.debug.print(F(" retain="));
   Logger.debug.print(settings.mqttRetain);
   Logger.debug.print(F(" .. "));
   Logger.debug.println(payload);
-  mqttClient->publish((settings.mqttReceiveTopic + protocol).c_str(),
-                      payload.c_str(), settings.mqttRetain);
+  mqttClient->publish(topic.c_str(), payload.c_str(), settings.mqttRetain);
 }
