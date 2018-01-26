@@ -52,6 +52,7 @@ void ConfigWebServer::begin(Settings& settings) {
   updateSettings(settings);
 
   server.on(FPSTR(URL_ROOT), authenticated([this]() {
+              Logger.debug.println(F("Webserver: frontend request"));
               server.sendHeader(F("Content-Encoding"), F("gzip"));
               server.setContentLength(index_html_gz_len);
               server.send(200, FPSTR(TEXT_HTML), "");
@@ -59,6 +60,7 @@ void ConfigWebServer::begin(Settings& settings) {
             }));
 
   server.on(FPSTR(URL_SYSTEM), HTTP_GET, authenticated([this]() {
+              Logger.debug.println(F("Webserver: system GET"));
               server.send_P(200, TEXT_PLAIN, PSTR("POST your commands here"));
             }));
 
@@ -66,31 +68,38 @@ void ConfigWebServer::begin(Settings& settings) {
       FPSTR(URL_SYSTEM), HTTP_POST,
       authenticated(std::bind(&::ConfigWebServer::onSystemCommand, this)));
 
-  server.on(FPSTR(URL_CONFIG), HTTP_GET,
-            authenticated(
-                std::bind(&::ConfigWebServer::onConfigGet, this, settings)));
+  server.on(FPSTR(URL_CONFIG), HTTP_GET, authenticated([&]() {
+              Logger.debug.println(F("Webserver: config GET"));
+              onConfigGet(settings);
+            }));
 
   server.on(FPSTR(URL_CONFIG), HTTP_PUT, authenticated([&]() {
+              Logger.debug.println(F("Webserver: config PUT"));
               settings.deserialize(server.arg(FPSTR(PLAIN)));
               settings.save();
               onConfigGet(settings);
             }));
 
   server.on(FPSTR(URL_PROTOCOLS), HTTP_GET, authenticated([this]() {
+              Logger.debug.println(F("Webserver: protocols GET"));
               if (protocolProvider) {
                 server.send(200, FPSTR(APPLICATION_JSON), protocolProvider());
               } else {
+                Logger.warning.println(F("No protocolProvider avaiable."));
                 server.send_P(200, APPLICATION_JSON, PSTR("[]"));
               }
             }));
 
-  server.on(FPSTR(URL_DEBUG), HTTP_GET,
-            authenticated(std::bind(&::ConfigWebServer::onDebugFlagGet, this)));
+  server.on(FPSTR(URL_DEBUG), HTTP_GET, authenticated([&]() {
+              Logger.debug.println(F("Webserver: debug GET"));
+              onDebugFlagGet();
+            }));
 
   server.on(FPSTR(URL_DEBUG), HTTP_PUT,
             authenticated(std::bind(&::ConfigWebServer::onDebugFlagSet, this)));
 
   server.on(FPSTR(URL_FIRMWARE), HTTP_GET, authenticated([this]() {
+              Logger.debug.println(F("Webserver: firmware GET"));
               server.send_P(
                   200, APPLICATION_JSON,
                   PSTR("{\"version\": \"" QUOTE(FIRMWARE_VERSION) "\"}"));
@@ -101,6 +110,7 @@ void ConfigWebServer::begin(Settings& settings) {
       authenticated(std::bind(&::ConfigWebServer::onFirmwareFinish, this)),
       authenticated(std::bind(&::ConfigWebServer::onFirmwareUpload, this)));
 
+  Logger.debug.println(F("Starting webserver and websocket server."));
   wsLogTarget.begin();
   server.begin();
 }
@@ -123,6 +133,7 @@ void ConfigWebServer::onConfigGet(const Settings& settings) {
 }
 
 void ConfigWebServer::onSystemCommand() {
+  Logger.debug.println(F("Webserver: system POST"));
   DynamicJsonBuffer buffer;
   JsonObject& request = buffer.parse(server.arg(FPSTR(PLAIN)));
 
@@ -148,22 +159,22 @@ void ConfigWebServer::onSystemCommand() {
 }
 
 void ConfigWebServer::onDebugFlagSet() {
+  Logger.debug.println(F("Webserver: debug PUT"));
   DynamicJsonBuffer buffer;
   JsonObject& request = buffer.parse(server.arg(FPSTR(PLAIN)));
 
-  if (!request.success()) {
-    server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse json object!"));
-    return;
-  }
-
-  for (const auto& debugFlagHandler : debugFlagHandlers) {
-    if (request.containsKey(debugFlagHandler.name)) {
-      debugFlagHandler.setState(request[debugFlagHandler.name].as<bool>());
-      Logger.debug.print(F("Set debug flag "));
-      Logger.debug.print(debugFlagHandler.name);
-      Logger.debug.print(F(": "));
-      Logger.debug.println(request[debugFlagHandler.name].as<bool>());
+  if (request.success()) {
+    for (const auto& debugFlagHandler : debugFlagHandlers) {
+      if (request.containsKey(debugFlagHandler.name)) {
+        debugFlagHandler.setState(request[debugFlagHandler.name].as<bool>());
+        Logger.debug.print(F("Set debug flag "));
+        Logger.debug.print(debugFlagHandler.name);
+        Logger.debug.print(F(": "));
+        Logger.debug.println(request[debugFlagHandler.name].as<bool>());
+      }
     }
+  } else {
+    Logger.error.println(F("Cannot parse debug flag as json object!"));
   }
   onDebugFlagGet();
 }
@@ -183,7 +194,7 @@ void ConfigWebServer::onDebugFlagGet() {
 void ConfigWebServer::onFirmwareFinish() {
   server.sendHeader(F("Connection"), F("close"));
 
-  Logger.info.println(F("Got an update. Reboot."));
+  Logger.info.println(F("Got an update. Rebooting..."));
   if (Update.hasError()) {
     server.send_P(
         200, TEXT_PLAIN,
@@ -203,6 +214,7 @@ void ConfigWebServer::onFirmwareFinish() {
 void ConfigWebServer::onFirmwareUpload() {
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {
+    Logger.info.println(F("Webserver: firmware upload started"));
     Serial.setDebugOutput(true);
 
     if (otaHook) {
@@ -211,6 +223,8 @@ void ConfigWebServer::onFirmwareUpload() {
 
     Serial.print(F("Update: "));
     Serial.println(upload.filename.c_str());
+    Serial.print(F("Free heap: "));
+    Serial.println(ESP.getFreeHeap());
     uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     if (!Update.begin(maxSketchSpace)) {  // start with max available size
       Update.printError(Serial);
@@ -222,8 +236,7 @@ void ConfigWebServer::onFirmwareUpload() {
   } else if (upload.status == UPLOAD_FILE_END) {
     if (Update.end(true)) {  // true to set the size to the current progress
       Serial.print(F("Update Success: "));
-      Serial.print(upload.totalSize);
-      Serial.print(F("\nRebooting...\n"));
+      Serial.println(upload.totalSize);
     } else {
       Update.printError(Serial);
     }
@@ -250,6 +263,7 @@ ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
       server.sendHeader(F("WWW-Authenticate"),
                         F("Basic realm=\"Login Required\""));
       server.send_P(401, TEXT_PLAIN, PSTR("Authentication required!"));
+      Logger.warning.println(F("Webserver: Authentication failed."));
     } else {
       handler();
     }
