@@ -45,9 +45,7 @@ class PayloadString : public String {
 MqttClient::MqttClient(const Settings &settings, WiFiClient &client)
     : settings(settings),
       mqttClient(new PubSubClient(client)),
-      lastConnectAttempt(0) {
-  Logger.debug.println(F("New MQTT client instance."));
-}
+      lastConnectAttempt(0) {}
 
 MqttClient::~MqttClient() {
   if (mqttClient) {
@@ -96,17 +94,18 @@ void MqttClient::reconnect() {
   }
 
   if (!mqttClient->connected()) {
+    Logger.debug.println(F("Try to (re)connect to MQTT broker"));
     if (connect()) {
-      Logger.info.println(F("MQTT connected"));
+      Logger.info.println(F("MQTT connected."));
       if (subsrcibe()) {
         mqttClient->publish(stateTopic(settings.deviceName).c_str(),
                             stateMessage(true).c_str(), true);
-        Logger.info.println(F("Subscribed!"));
+        Logger.info.println(F("MQTT subscribed."));
       } else {
-        Logger.error.println(F("Cannot subsrcibe!"));
+        Logger.error.println(F("MQTT subsrcibe failed!"));
       }
     } else {
-      Logger.error.println(F("Cannot connect!"));
+      Logger.error.println(F("MQTT connect failed!"));
     }
   }
 
@@ -114,8 +113,8 @@ void MqttClient::reconnect() {
 }
 
 bool MqttClient::subsrcibe() {
-  Logger.debug.println(F("...Subscribe to: "));
-  Logger.debug.println((settings.mqttSendTopic + "+").c_str());
+  Logger.debug.print(F("MQTT subscribe to topic: "));
+  Logger.debug.println((settings.mqttSendTopic + "+"));
 
   return mqttClient->subscribe((settings.mqttSendTopic + "+").c_str());
 }
@@ -147,6 +146,12 @@ void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
 }
 
 void MqttClient::publishCode(const String &protocol, const String &payload) {
+  Logger.debug.print(F("Publish MQTT message: "));
+  Logger.debug.print(settings.mqttReceiveTopic + protocol);
+  Logger.debug.print(F(" retain="));
+  Logger.debug.print(settings.mqttRetain);
+  Logger.debug.print(F(" .. "));
+  Logger.debug.println(payload);
   mqttClient->publish((settings.mqttReceiveTopic + protocol).c_str(),
                       payload.c_str(), settings.mqttRetain);
 }
