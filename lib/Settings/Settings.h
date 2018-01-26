@@ -57,11 +57,11 @@
 
 enum SettingType {
   BASE,
+  WEB_CONFIG,
   MQTT,
-  RF_PROTOCOL,
   RF_ECHO,
   RF_CONFIG,
-  WEB_CONFIG,
+  RF_PROTOCOL,
   LOGGING,
   SYSLOG,
   STATUSLED,
@@ -70,70 +70,35 @@ enum SettingType {
 
 class Settings {
  public:
+  using SettingTypeSet = std::bitset<SettingType::_END>;
+  using SettingCallbackFn = std::function<void(const Settings &)>;
+
   Settings()
       : deviceName(DEFAULT_NAME),
-        mqttReceiveTopic(deviceName + ("/recv/")),
-        mqttSendTopic(deviceName + ("/send/")),
+        configPassword(DEFAULT_PASSWORD),
         mqttBroker(""),
         mqttBrokerPort(1883),
         mqttUser(""),
         mqttPassword(""),
         mqttRetain(true),
-        rfReceiverPin(RECEIVER_PIN),
-        rfReceiverPinPullUp(true),
-        rfTransmitterPin(TRANSMITTER_PIN),
+        mqttReceiveTopic(deviceName + ("/recv/")),
+        mqttSendTopic(deviceName + ("/send/")),
         rfEchoMessages(false),
+        rfReceiverPin(RECEIVER_PIN),
+        rfTransmitterPin(TRANSMITTER_PIN),
+        rfReceiverPinPullUp(true),
         rfProtocols(("[]")),
         serialLogLevel("debug"),
         webLogLevel(""),
-        configPassword(DEFAULT_PASSWORD),
         syslogLevel(""),
         syslogHost(""),
         syslogPort(514),
         ledPin(BUILTIN_LED),
         ledActiveHigh(false) {}
-
-  using SettingTypeSet = std::bitset<SettingType::_END>;
-  using SettingCallbackFn = std::function<void(const Settings &)>;
-
-  void registerChangeHandler(SettingType setting,
-                             const SettingCallbackFn &callback);
-
-  String deviceName;
-
-  String mqttReceiveTopic;
-
-  String mqttSendTopic;
-
-  String mqttBroker;
-  uint16_t mqttBrokerPort;
-  String mqttUser;
-  String mqttPassword;
-  bool mqttRetain;
-
-  int8_t rfReceiverPin;
-  bool rfReceiverPinPullUp;
-  int8_t rfTransmitterPin;
-  bool rfEchoMessages;
-  String rfProtocols;
-
-  String serialLogLevel;
-  String webLogLevel;
-
-  String configPassword;
-
-  String syslogLevel;
-  String syslogHost;
-  uint16_t syslogPort;
-
-  uint8_t ledPin;
-  bool ledActiveHigh;
-
+  ~Settings();
   void load();
   void save();
-
   void notifyAll();
-
   template <typename T>
   void serialize(T &target, bool pretty, bool sensible = true) const {
     DynamicJsonBuffer buffer;
@@ -147,10 +112,31 @@ class Settings {
   }
   void deserialize(const String &json);
   void reset();
-
-  ~Settings();
-
   bool hasValidPassword();
+  void registerChangeHandler(SettingType setting,
+                             const SettingCallbackFn &callback);
+
+  String deviceName;
+  String configPassword;
+  String mqttBroker;
+  uint16_t mqttBrokerPort;
+  String mqttUser;
+  String mqttPassword;
+  bool mqttRetain;
+  String mqttReceiveTopic;
+  String mqttSendTopic;
+  bool rfEchoMessages;
+  int8_t rfReceiverPin;
+  int8_t rfTransmitterPin;
+  bool rfReceiverPinPullUp;
+  String rfProtocols;
+  String serialLogLevel;
+  String webLogLevel;
+  String syslogLevel;
+  String syslogHost;
+  uint16_t syslogPort;
+  uint8_t ledPin;
+  bool ledActiveHigh;
 
  private:
   struct SettingListener {
