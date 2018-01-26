@@ -214,9 +214,9 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
                         mqttPassword, notEmpty()),
            setIfPresent(parsedSettings, FPSTR(JsonKey::mqttRetain), mqttRetain),
            setIfPresent(parsedSettings, FPSTR(JsonKey::mqttReceiveTopic),
-                        mqttReceiveTopic),
+                        mqttReceiveTopic, notEmpty()),
            setIfPresent(parsedSettings, FPSTR(JsonKey::mqttSendTopic),
-                        mqttSendTopic)}));
+                        mqttSendTopic, notEmpty())}));
   changed.set(RF_ECHO,
               (setIfPresent(parsedSettings, FPSTR(JsonKey::rfEchoMessages),
                             rfEchoMessages)));
@@ -246,8 +246,8 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
       any({setIfPresent(parsedSettings, FPSTR(JsonKey::syslogLevel),
                         syslogLevel),
            setIfPresent(parsedSettings, FPSTR(JsonKey::syslogHost), syslogHost),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::syslogPort),
-                        syslogPort)}));
+           setIfPresent(parsedSettings, FPSTR(JsonKey::syslogPort), syslogPort,
+                        notZero<uint16_t>())}));
   changed.set(STATUSLED,
               any({setIfPresent(parsedSettings, FPSTR(JsonKey::ledPin), ledPin),
                    setIfPresent(parsedSettings, FPSTR(JsonKey::ledActiveHigh),
