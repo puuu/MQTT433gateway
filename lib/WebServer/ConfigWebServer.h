@@ -50,25 +50,20 @@ class ConfigWebServer {
   using DebugFlagSetCb = std::function<void(bool)>;
 
   ConfigWebServer() : server(80), wsLogTarget(81) {}
+  ~ConfigWebServer() = default;
 
   void begin(Settings& settings);
   void updateSettings(const Settings& settings);
-
   void handleClient();
-
   void registerSystemCommandHandler(const String& command,
                                     const SystemCommandCb& cb);
-
   void registerProtocolProvider(const ProtocolProviderCb& cb) {
     protocolProvider = cb;
   }
-
   void registerOtaHook(const OtaHookCb& cb) { otaHook = cb; }
-
   void registerDebugFlagHandler(const String& state,
                                 const DebugFlagGetCb& getState,
                                 const DebugFlagSetCb& setState);
-
   Print& logTarget();
 
  private:
@@ -102,7 +97,6 @@ class ConfigWebServer {
   ProtocolProviderCb protocolProvider;
   OtaHookCb otaHook;
   std::forward_list<DebugFlagHandler> debugFlagHandlers;
-
   String password;
 };
 
