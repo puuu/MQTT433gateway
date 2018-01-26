@@ -148,6 +148,10 @@ void setupWebServer() {
       delete rf;
       rf = nullptr;
     }
+    if (mqttClient) {
+      delete mqttClient;
+      mqttClient = nullptr;
+    }
     WiFiUDP::stopAll();
   });
 
