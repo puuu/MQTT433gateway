@@ -57,7 +57,7 @@ SyslogLogTarget *syslogLog = nullptr;
 SystemLoad *systemLoad = nullptr;
 SystemHeap *systemHeap = nullptr;
 
-void reconnectMqtt(const Settings &) {
+void setupMqtt(const Settings &) {
   if (mqttClient != nullptr) {
     delete mqttClient;
     mqttClient = nullptr;
@@ -239,7 +239,7 @@ void setup() {
 
   settings.registerChangeHandler(STATUSLED, setupStatusLED);
 
-  settings.registerChangeHandler(MQTT, reconnectMqtt);
+  settings.registerChangeHandler(MQTT, setupMqtt);
 
   settings.registerChangeHandler(RF_ECHO, [](const Settings &s) {
     if (rf) rf->setEchoEnabled(s.rfEchoMessages);
