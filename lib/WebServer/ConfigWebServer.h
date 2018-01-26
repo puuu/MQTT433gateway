@@ -87,6 +87,7 @@ class ConfigWebServer {
 
   ESP8266WebServer::THandlerFunction authenticated(
       const ESP8266WebServer::THandlerFunction& handler);
+  void onConfigGet(const Settings& settings);
   void onSystemCommand();
   void onDebugFlagGet();
   void onDebugFlagSet();

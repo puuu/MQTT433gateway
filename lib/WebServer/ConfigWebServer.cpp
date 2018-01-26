@@ -66,16 +66,14 @@ void ConfigWebServer::begin(Settings& settings) {
       FPSTR(URL_SYSTEM), HTTP_POST,
       authenticated(std::bind(&::ConfigWebServer::onSystemCommand, this)));
 
-  server.on(FPSTR(URL_CONFIG), HTTP_GET, authenticated([&]() {
-              String buff;
-              settings.serialize(buff, true, false);
-              server.send(200, FPSTR(APPLICATION_JSON), buff);
-            }));
+  server.on(FPSTR(URL_CONFIG), HTTP_GET,
+            authenticated(
+                std::bind(&::ConfigWebServer::onConfigGet, this, settings)));
 
   server.on(FPSTR(URL_CONFIG), HTTP_PUT, authenticated([&]() {
               settings.deserialize(server.arg(FPSTR(PLAIN)));
               settings.save();
-              server.send_P(200, APPLICATION_JSON, PSTR("true"));
+              onConfigGet(settings);
             }));
 
   server.on(FPSTR(URL_PROTOCOLS), HTTP_GET, authenticated([this]() {
@@ -116,6 +114,12 @@ void ConfigWebServer::registerDebugFlagHandler(
     const String& state, const ConfigWebServer::DebugFlagGetCb& getState,
     const ConfigWebServer::DebugFlagSetCb& setState) {
   debugFlagHandlers.emplace_front(state, getState, setState);
+}
+
+void ConfigWebServer::onConfigGet(const Settings& settings) {
+  String buff;
+  settings.serialize(buff, true, false);
+  server.send(200, FPSTR(APPLICATION_JSON), buff);
 }
 
 void ConfigWebServer::onSystemCommand() {
