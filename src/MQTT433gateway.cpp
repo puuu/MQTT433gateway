@@ -46,14 +46,11 @@
 WiFiClient wifi;
 
 Settings settings;
-RfHandler *rf = nullptr;
 ConfigWebServer *webServer = nullptr;
 MqttClient *mqttClient = nullptr;
-
-StatusLED *statusLED = nullptr;
-
+RfHandler *rf = nullptr;
 SyslogLogTarget *syslogLog = nullptr;
-
+StatusLED *statusLED = nullptr;
 SystemLoad *systemLoad = nullptr;
 SystemHeap *systemHeap = nullptr;
 
@@ -61,14 +58,13 @@ void setupMqtt(const Settings &) {
   if (mqttClient != nullptr) {
     delete mqttClient;
     mqttClient = nullptr;
+    Logger.debug.println(F("MQTT instance removed."));
   }
-
   if (!settings.hasValidPassword()) {
     Logger.warning.println(
         F("No valid config password set - do not connect to MQTT!"));
     return;
   }
-
   if (settings.mqttBroker.length() <= 0) {
     Logger.warning.println(F("No MQTT broker configured yet"));
     return;
@@ -88,8 +84,8 @@ void setupRf(const Settings &) {
   if (rf) {
     delete rf;
     rf = nullptr;
+    Logger.debug.println(F("Rf instance removed."));
   }
-
   if (!settings.hasValidPassword()) {
     Logger.warning.println(
         F("No valid config password set - do not start RF handler!"));
@@ -121,28 +117,30 @@ void setupWebServer() {
   webServer = new ConfigWebServer(settings);
 
   webServer->registerSystemCommandHandler(F("restart"), []() {
+    Logger.info.println(F("Restart device."));
     delay(100);
     ESP.restart();
   });
   webServer->registerSystemCommandHandler(F("reset_wifi"), []() {
+    Logger.info.println(F("Reset wifi and restart device."));
     WiFi.disconnect(true);
     delay(100);
     ESP.restart();
   });
   webServer->registerSystemCommandHandler(F("reset_config"), []() {
+    Logger.info.println(F("Reset configuration and restart device."));
     settings.reset();
     delay(100);
     ESP.restart();
   });
-
   webServer->registerProtocolProvider([]() {
     if (rf) {
       return rf->availableProtocols();
     }
     return String(F("[]"));
   });
-
   webServer->registerOtaHook([]() {
+    Logger.debug.println(F("Prepare for oat update."));
     if (statusLED) statusLED->setState(StatusLED::ota);
     if (rf) {
       delete rf;
@@ -154,13 +152,11 @@ void setupWebServer() {
     }
     WiFiUDP::stopAll();
   });
-
   webServer->registerDebugFlagHandler(
       F("protocolRaw"), []() { return rf && rf->isRawModeEnabled(); },
       [](bool state) {
         if (rf) rf->setRawMode(state);
       });
-
   webServer->registerDebugFlagHandler(
       F("systemLoad"), []() { return systemLoad != nullptr; },
       [](bool state) {
@@ -171,7 +167,6 @@ void setupWebServer() {
           systemLoad = nullptr;
         }
       });
-
   webServer->registerDebugFlagHandler(
       F("freeHeap"), []() { return systemHeap != nullptr; },
       [](bool state) {
@@ -184,6 +179,7 @@ void setupWebServer() {
       });
 
   webServer->begin();
+  Logger.info.println(F("WebServer instance created."));
 
   setupWebLog();
 }
@@ -195,8 +191,8 @@ void setupMdns() {
   if (!MDNS.begin(settings.deviceName.c_str())) {
     Logger.error.println(F("Error setting up MDNS responder"));
   }
-
   MDNS.addService("http", "tcp", 80);
+  Logger.info.println(F("MDNS service registered."));
 }
 
 void setupStatusLED(const Settings &s) {
@@ -238,39 +234,46 @@ void setup() {
   }
 
   settings.registerChangeHandler(STATUSLED, setupStatusLED);
-
   settings.registerChangeHandler(MQTT, setupMqtt);
-
   settings.registerChangeHandler(RF_ECHO, [](const Settings &s) {
-    if (rf) rf->setEchoEnabled(s.rfEchoMessages);
+    Logger.debug.println(F("Configure rfEchoMessages."));
+    if (rf) {
+      rf->setEchoEnabled(s.rfEchoMessages);
+    } else {
+      Logger.warning.println(F("No Rf instance available"));
+    }
   });
-
   settings.registerChangeHandler(RF_PROTOCOL, [](const Settings &s) {
-    if (rf) rf->filterProtocols(s.rfProtocols);
+    Logger.debug.println(F("Configure rfProtocols."));
+    if (rf) {
+      rf->filterProtocols(s.rfProtocols);
+    } else {
+      Logger.warning.println(F("No Rf instance available"));
+    }
   });
-
   settings.registerChangeHandler(WEB_CONFIG, [](const Settings &s) {
+    Logger.debug.println(F("Configure WebServer."));
     if (!webServer) {
       setupWebServer();
     }
   });
-
   settings.registerChangeHandler(SYSLOG, [](const Settings &s) {
     if (syslogLog) {
       Logger.removeHandler(*syslogLog);
       delete syslogLog;
+      Logger.debug.println(F("Syslog instance removed."));
     }
     if (s.syslogLevel.length() > 0 && s.syslogHost.length() > 0 &&
         s.syslogPort != 0) {
       syslogLog = new SyslogLogTarget();
       syslogLog->begin(s.deviceName, s.syslogHost, s.syslogPort);
+      Logger.debug.println(F("Syslog instance created."));
       Logger.addHandler(Logger.stringToLevel(s.syslogLevel), *syslogLog);
     }
   });
-
   settings.registerChangeHandler(RF_CONFIG, setupRf);
-
   settings.registerChangeHandler(LOGGING, [](const Settings &s) {
+    Logger.debug.println(F("Configure logging."));
     if (s.serialLogLevel.length() > 0) {
       Logger.addHandler(Logger.stringToLevel(settings.serialLogLevel), Serial);
     } else {
@@ -293,10 +296,11 @@ void setup() {
 
   Logger.debug.println(F("Current configuration:"));
   settings.serialize(Logger.debug, true, false);
+  Logger.debug.println();
 
   setupMdns();
 
-  Logger.info.print(F("\nListen on IP: "));
+  Logger.info.print(F("Listen on IP: "));
   Logger.info.println(WiFi.localIP());
 }
 
