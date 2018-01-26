@@ -257,14 +257,14 @@ $(function () {
         });
     };
 
-    var loadConfig = function () {
-        var applyConfig = function (data) {
-            $.each(data, function (key, value) {
-                ui_map[key].apply(key, value);
-            });
-            changes = {};
-        };
+    var applyConfig = function (data) {
+        $.each(data, function (key, value) {
+            ui_map[key].apply(key, value);
+        });
+        changes = {};
+    };
 
+    var loadConfig = function () {
         $.ajax({
                    url: '/config',
                    type: 'GET',
@@ -402,7 +402,7 @@ $(function () {
                    type: 'PUT',
                    contentType: 'application/json',
                    data: JSON.stringify(changes),
-                   success: loadConfig
+                   success: applyConfig
 
                });
 
