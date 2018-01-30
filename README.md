@@ -16,49 +16,45 @@ Arduino library which is a port of the [pilight](https://pilight.org/)
 receive and parse many 433.92MHz protocols directly on the device and
 publish the results via MQTT.
 
-A list of supported protocols can be found in the pilight wiki:
-https://wiki.pilight.org/doku.php/protocols
+A list of supported protocols can be found in the pilight manual:
+https://manual.pilight.org/protocols/433.92/index.html
 
 
 ## Software/Requirements
 
 The software is using the [PlatformIO](http://platformio.org/) ecosystem. See their
-[install instructions](http://docs.platformio.org/en/latest/installation.html) Or get
+[install instructions](http://docs.platformio.org/en/latest/installation.html) or get
 their [IDE](http://docs.platformio.org/en/latest/ide/pioide.html) to get the
 software. More information can be found in their [documentation](http://docs.platformio.org/en/latest/).
 
 1. Open a terminal and go to the MQTT433Gateway project folder.
 
-2. Then initialize the project:
-   ```
-   platformio init
-   ```
-
-3. After that, decide for which board to create the firmware and give
+2. After that, decide for which board to create the firmware and give
    this as `--environment` to the platformio `run` command:
-   ```
-   platformio run --environment <board>
+   ```console
+   $ platformio run --environment <board>
    ```
    The available boards are defined in `platformio.ini`. Currently, this are
    + `esp12e` for ESP8266-12e/f models,
+   + `esp12e_160` for ESP8266-12e/f models with cpu clock set to 160MHz,
    + `nodemcuv2` for NodeMCU boards,
    + `d1_mini`for D1 Mini boards,
    + `huzzah` for the Huzzah boards.
 
-4. To flash the firmware to the board, connect the board to the PC via
+3. To flash the firmware to the board, connect the board to the PC via
    USB or a serial adapter. Make sure, it is the only device currently
    connected, as otherwise you might flash the wrong unit
-   accidentaly. Some boards need to be set manually into a programming
+   accidentally. Some boards need to be set manually into a programming
    mode, please check the manual of the board to get more details about
    how to do that.  The `platformio run` has the upload target to
    initialize flashing:
-   ```
-   platformio run --environment <board> --target upload
+   ```console
+   $ platformio run --environment <board> --target upload
    ```
    this will try to autodetect the serial port. If this is not
    successful, try
-   ```
-   platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
+   ```console
+   $ platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
    ```
 
 Older versions of MQTT433gateway were developed with the Arduino
@@ -84,8 +80,8 @@ is highly recommended.
 
 For transmitting and receiving you need 434MHz-RF modules.  More
 information can be found here:
-- https://wiki.pilight.org/doku.php/receivers
-- https://wiki.pilight.org/doku.php/senders
+- https://wiki.pilight.org/receivers
+- https://wiki.pilight.org/senders
 - https://github.com/sui77/rc-switch/wiki/List_TransmitterReceiverModules
 
 If you are interested in a good receiving range, then I can not
@@ -109,57 +105,49 @@ The MQTT433gateway indicates its status by a LED connected to GPIO0:
 
 ## Configuration
 
-The device is fully configurable through a web browser. If you boot it
-for the first time, it will create a WiFi AccessPoint where you can
-connect to. If you type in any url in your browser, you will get
-directed to the wifi configuration of the device. You can select your
-network here and fill in the credentials.
+The device is fully configurable through a web browser.  If you boot it for the
+first time, it will create a WiFi access point (default ssid is `rf434`) where
+you can connect to.  If you type in any url in your browser, you will get
+directed to the WiFi configuration of the device.  You can select your network
+here and fill in the credentials.
 
-After that it will stop the access point and connect to your network.
-There you can either discover it via mDNS or ask your router for the
-address of the device. If you type this address in your browser, you'll
-see the main configuration frontend. The default username is `admin`,
-the default password is `MQTT433gateway`.
+After that it will stop the access point and connect to your network.  There you
+can either discover it via mDNS (default is `rf434.local`), ask your router for
+the address of the device or check the serial console output.  If you type this
+address in your browser, you'll see the main configuration frontend.  The
+default username is `admin`, the default password is `MQTT433gateway`.
 
-Please fill here your MQTT connection details. You can also change the
-topics the device will subscribe and publish to. **Please note:** you
-have to change the configuration password! For security reasons the
-device will not start working before this password is changed.
+Please fill here your MQTT connection details. You can also change the topics
+the device will subscribe and publish to.  In addition, all hardware related
+settings, like connection pins of transmitter and receiver are configurable.
+
+**Please note:** you have to change the configuration password! For security
+reasons the device will not start working before this password is changed.
 
 
 ## MQTT/Automation
 
-The MQTT433gateway communicates via MQTT, therefore a MQTT broker is
-needed, e.g., [Mosquitto](https://mosquitto.org/).  The MQTT433gateway
-uses two root topics for communication: a common topic and a
-device-only topic.
-
-The common topic is `rf434` and is used for transmitted and received
-RF messages.  The idea of utilizing a common topic is to run multiple
-gateways in one network and thus to expand the radio range.  The
-device-only topic is `rfESP_<ChipId>`, where `<ChipId>` is the
-hexdecimal value of the ESP8266 chip ID.  E.g., if the chip ID is
-`fd804`, then the topic results to `rfESP_fd804`.
+The MQTT433gateway communicates via MQTT, therefore a MQTT broker is needed,
+e.g., [Mosquitto](https://mosquitto.org/). The topics for receiving and
+transmitting can be configured with the `mqttReceiveTopic` and `mqttSendTopic`
+settings. They default to `rf434/recv/` and `rf434/send/`, respectively.  It is
+possible to use a common topic for multiple gateways in one network and thus to
+expand the radio range.
 
 After (re)connecting to the MQTT broker, the gateway sends the message
-`online` to the `rfESP_<ChipId>` topic.  In addition, it registered
-with the last will set to the message `offline` for the same topic.
-This allows to check the status of the MQTT433gateway.
+`{"chipId":"<chipId>","firmware":"<git tag or hash>","state":"online"}` to the
+topic that is set to setting `deviceName`.  In addition, it registered with the
+last will set to the same message but with `state` set to `offline` for the same
+topic. This allows to check the status of the MQTT433gateway.
 
-MQTT subscription is done to the following topics:
-- `rfESP_<ChipId>/set`: configuration, like switching the logging or
-  RAW mode
-- `rfESP_<ChipId>/ota`: OTA updates
-- `rfESP_<ChipId>/send/<protocol>` and `rf434/send/<protocol>`:
-  message that should be transmitted by the RF transmitter
-
-The messages to be transmitted must be valid pilight JSON messages.
-`<protocol>` is the pilight protocol name.  Additionally, `<protocol>`
-can be `RAW` to transmit a RAW signal similar as used with the
-[pilight USB Nano](https://github.com/pilight/pilight-usb-nano/blob/master/pilight_usb_nano.c).
+MQTT subscription is done to the topic `<mqttSendTopic><protocol>`.  The
+messages to be transmitted must be a valid pilight JSON messages.  The setting
+`mqttSendTopic` should end with a `/`.  `<protocol>` is the pilight protocol
+name.  Additionally, `<protocol>` can be `RAW` to transmit a RAW signal similar
+as used with the [pilight USB Nano](https://github.com/pilight/pilight-usb-nano/blob/master/pilight_usb_nano.c).
 
 Received and decoded RF signals are published in the
-`rf434/recv/<protocol>[/<id>]` topic as pilight JSON message.  To
+`<mqttReceiveTopic><protocol>[/<id>]` topic as pilight JSON message.  To
 avoid receiving errors, a message must be received at least twice
 before it is published.  `<protocol>` is the pilight protocol name and
 the optional `<id>` will be used if the pilight JSON message contains
@@ -176,10 +164,11 @@ Status of the MQTT433gateway:
 ```yaml
 binary_sensor:
   - platform: mqtt
-    state_topic: "rfESP_fd804"
-    name: "rfESP_fd804"
+    state_topic: "rf434"
+    name: "rf434"
     payload_on: "online"
     payload_off: "offline"
+    value_template: '{{ value_json.state }}'
 ```
 
 The message of a TCM 218943 weather station sensor looks like this:
@@ -282,113 +271,32 @@ switch:
 
 ## OTA Update
 
-Updates of the MQTT433gateway can be preformed by OTA (Over-the-air
-programming).  To do this, the binary file must be provided by HTTP.
-The URL and the authentication information are handled via MQTT.
-
-All this is implemented in the `ota_update.py` Python script.  It will
-start a HTTP server and handle the MQTT communication.  It requires
-the Python paho-mqtt module:
-
-```console
-$ pip install paho-mqtt
-```
-
-You can use the script like:
-
-```console
-$ ./ota_update.py <ESPid> <passwd> <file> <broker> <thisip>
-```
-
-The parameters are:
-- `ESPid`: The MQTT client name of the MQTT433gateway
-  (`rfESP_<ChipId>`)
-- `passwd`: OTA password as defined in `passwd-net.h`
-- `file`: binary file (`<BUILD_DIR>/firmware.bin`, e.g. `.pioenvs/d1_mini/firmware.bin`)
-- `broker`: address of the MQTT broker
-- `thisip`: ip address of the computer running the script and that is
-  access-able by the MQTT433gateway
+Updates of the MQTT433gateway can be preformed by OTA (Over-the-air programming)
+via the web frontend.  To do this, you need the binary file that can be found at
+`<BUILD_DIR>/firmware.bin`, e.g. `.pioenvs/huzzah/firmware.bin`.
 
 
 ## Debugging/RF-protocol analyzing
 
-The MQTT433gateway outputs many messages over the RX/TX interface
-which could be very helpful for debugging.  In addition it supports a
-logging mode and a RAW mode.
-
-
-### Logging mode
-
-By publishing any message starting with `1` to the MQTT topic
-`rfESP_<ChipId>/set/log` activates the logging mode.  Any other message
-to this topic will deactivate this mode.  You can use the Mosquitto
-tools to publish the message:
-
-```console
-$ mosquitto_pub -t rfESP_fd804/set/log -m '1'
-```
-
-The logging messages can be observed with `mosquitto_sub`:
-
-```console
-$ mosquitto_sub -v -t '#'
-rfESP_fd804/log/0/tcm {"id":87,"temperature":18.8,"humidity":68,"battery":1,"button":0}
-rf434/recv/tcm/87 {"id":87,"temperature":18.8,"humidity":68,"battery":1,"button":0}
-rfESP_fd804/log/2/tcm {"id":87,"temperature":18.8,"humidity":68,"battery":1,"button":0}
-rfESP_fd804/log/3/tcm {"id":87,"temperature":18.8,"humidity":68,"battery":1,"button":0}
-```
-
-
-### RAW mode
-
-By publishing any message starting with `1` to the MQTT topic
-`rfESP_<ChipId>/set/raw` activates the RAW mode.  Any other message to
-this will deactivate this mode.  Be careful, this mode is very verbose
-and will generate much network traffic.  You can use the Mosquitto
-tools to publish the message:
-
-```console
-$ mosquitto_pub -t rfESP_fd804/set/raw -m '1'
-```
-
-The RAW messages can be observed with `mosquitto_sub`.  The messages
-are similar as used with the
-[pilight USB Nano](https://github.com/pilight/pilight-usb-nano/blob/master/pilight_usb_nano.c).
-
-```console
-$ mosquitto_sub -v -t '#'
-rfESP_fd804/recvRaw c:012234134220145243231624216278;p:1360,578,396,1031,759,2591,1186,1532,5490@
-rfESP_fd804/recvRaw c:010101010102020101020334010101010200350201010102020106;p:365,920,1959,188,622,1458,6537@
-rfESP_fd804/recvRaw c:010202010110101010101010101010101010102020101020101010101020202010101020203;p:300,926,1960,8014@
-rfESP_fd804/recvRaw c:0123040101010101010101010101010104040101040101010101040404010101040405;p:258,965,4878,801,1979,8039@
-rfESP_fd804/recvRaw c:01020201020101010101010101010101010102020101020101010101020202010101020203;p:194,1035,1994,8037@
-rfESP_fd804/recvRaw c:01020201020101010101013;p:228,1013,2026,5319@
-rfESP_fd804/recvRaw c:011203030343031313031343434313030343435;p:875,1025,4918,225,2012,8076@
-rf434/recv/tcm/104 {"id":104,"temperature":22.7,"humidity":50,"battery":1,"button":0}
-rfESP_fd804/recvRaw c:01020201020101010101010101010101010102020101020101010101020202010101020203;p:204,1010,1976,8039@
-```
+The MQTT433gateway has a powerful logging system based on
+[ArduinoSimpleLogging](https://github.com/janLo/ArduinoSimpleLogging).  Messages
+for different log levels can be logged to serial interface, websocket (web
+frontend) and syslog server.  The configuration can be done via web frontend.
+The log messages could be very helpful for debugging.  In addition, RF-protocol
+analyzing can be enabled with the `protocolRaw` debug flag.
 
 
 ## Protocol limitation
 
 If you have the situation that there is a lot of noise in the air
 and/or your device matches multiple protocols, you can limit the
-available protocols. This is easily possible with a MQTT message. Just
-send a JSON array with your needed protocols to
-`rfESP_<ChipId>/set/protocols`. For example:
-
-```console
-$ mosquitto_pub -t rfESP_fd804/set/protocols -m '["elro_800_switch", "arctech_switch"]'
-```
+available protocols.  This is easily possible with via the web frontend.
 
 
 ## Contributions
 
-If you find any bug, please feel free to fill an issue.  Also, pull
-request are welcome.
-
-Please format the code using `clang-format` and the style configuration
-`.clang-format` provided by this project.
+If you find any bug, please feel free to fill an issue.  Also, pull request are
+welcome.  More information can be found in the [contributing guide](CONTRIBUTING.md).
 
 
 ## Acknowledgement
@@ -396,3 +304,6 @@ Please format the code using `clang-format` and the style configuration
 Big thanks goes to the pilight community, which implemented all the
 434MHz protocols.  If you want to integrate more protocols, please
 contribute directly to [pilight](https://pilight.org/).
+
+Many thanks goes to [@janLo](https://github.com/janLo), who developed the web
+configuration interface.
