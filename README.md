@@ -96,11 +96,12 @@ For the transmitter and receiver module you need separate antennas.
 
 ### LED status
 
-The MQTT433gateway indicates its status by a LED connected to GPIO0:
-- Connecting to WiFi: Flashing at 1 Hz
+The MQTT433gateway indicates its status by a LED:
+- Connecting to WiFi/startup: Flashing at 1 Hz
+- WiFiManager require WiFi configuration: Flashing at 5 Hz
+- Device require configuration: Flashing at 0.5 Hz
 - Normal operation: Heartbeat pulsing
-- MQTT connection problems: 4.5s on, 0.5s off
-- OTA Update: on during flashing
+- OTA Update: on during upload
 
 
 ## Configuration
