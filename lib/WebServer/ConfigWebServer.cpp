@@ -255,9 +255,8 @@ ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
   return [=]() {
     if (!server.authenticate(ADMIN_USERNAME,
                              this->settings.configPassword.c_str())) {
-      server.sendHeader(F("WWW-Authenticate"),
-                        F("Basic realm=\"Login Required\""));
-      server.send_P(401, TEXT_PLAIN, PSTR("Authentication required!"));
+      server.requestAuthentication(DIGEST_AUTH, nullptr,
+                                   F("Authentication required!"));
       Logger.warning.println(F("Webserver: Authentication failed."));
     } else {
       handler();
