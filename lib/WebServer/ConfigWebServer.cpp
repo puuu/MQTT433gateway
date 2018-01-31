@@ -98,9 +98,11 @@ void ConfigWebServer::begin() {
 
   server.on(FPSTR(URL_FIRMWARE), HTTP_GET, authenticated([this]() {
               Logger.debug.println(F("Webserver: firmware GET"));
-              server.send_P(
-                  200, APPLICATION_JSON,
-                  PSTR("{\"version\": \"" QUOTE(FIRMWARE_VERSION) "\"}"));
+              server.send(
+                  200, FPSTR(APPLICATION_JSON),
+                  String(F("{\"version\":\"" QUOTE(FIRMWARE_VERSION) "\",")) +
+                      F("\"chipId\":\"") + String(ESP.getChipId(), HEX) +
+                      F("\"}"));
             }));
 
   server.on(
