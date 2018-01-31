@@ -54,7 +54,7 @@ class ConfigWebServer {
 
   void begin(Settings& settings);
   void updateSettings(const Settings& settings);
-  void handleClient();
+  void loop();
   void registerSystemCommandHandler(const String& command,
                                     const SystemCommandCb& cb);
   void registerProtocolProvider(const ProtocolProviderCb& cb) {

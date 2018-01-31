@@ -245,7 +245,7 @@ void ConfigWebServer::onFirmwareUpload() {
   yield();
 }
 
-void ConfigWebServer::handleClient() {
+void ConfigWebServer::loop() {
   wsLogTarget.loop();
   server.handleClient();
 }
