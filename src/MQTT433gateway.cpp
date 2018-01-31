@@ -261,6 +261,7 @@ void setup() {
     if (syslogLog) {
       Logger.removeHandler(*syslogLog);
       delete syslogLog;
+      syslogLog = nullptr;
       Logger.debug.println(F("Syslog instance removed."));
     }
     if (s.syslogLevel.length() > 0 && s.syslogHost.length() > 0 &&
