@@ -49,11 +49,11 @@ class ConfigWebServer {
   using DebugFlagGetCb = std::function<bool()>;
   using DebugFlagSetCb = std::function<void(bool)>;
 
-  ConfigWebServer() : server(80), wsLogTarget(81) {}
+  ConfigWebServer(Settings& settings)
+      : settings(settings), server(80), wsLogTarget(81) {}
   ~ConfigWebServer() = default;
 
-  void begin(Settings& settings);
-  void updateSettings(const Settings& settings);
+  void begin();
   void loop();
   void registerSystemCommandHandler(const String& command,
                                     const SystemCommandCb& cb);
@@ -87,13 +87,14 @@ class ConfigWebServer {
 
   ESP8266WebServer::THandlerFunction authenticated(
       const ESP8266WebServer::THandlerFunction& handler);
-  void onConfigGet(const Settings& settings);
+  void onConfigGet();
   void onSystemCommand();
   void onDebugFlagGet();
   void onDebugFlagSet();
   void onFirmwareFinish();
   void onFirmwareUpload();
 
+  Settings& settings;
   ESP8266WebServer server;
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;

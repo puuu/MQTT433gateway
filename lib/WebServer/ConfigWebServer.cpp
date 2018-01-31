@@ -48,9 +48,7 @@ const char PROGMEM URL_PROTOCOLS[] = "/protocols";
 const char PROGMEM URL_DEBUG[] = "/debug";
 const char PROGMEM URL_FIRMWARE[] = "/firmware";
 
-void ConfigWebServer::begin(Settings& settings) {
-  updateSettings(settings);
-
+void ConfigWebServer::begin() {
   server.on(FPSTR(URL_ROOT), authenticated([this]() {
               Logger.debug.println(F("Webserver: frontend request"));
               server.sendHeader(F("Content-Encoding"), F("gzip"));
@@ -70,14 +68,14 @@ void ConfigWebServer::begin(Settings& settings) {
 
   server.on(FPSTR(URL_CONFIG), HTTP_GET, authenticated([&]() {
               Logger.debug.println(F("Webserver: config GET"));
-              onConfigGet(settings);
+              onConfigGet();
             }));
 
   server.on(FPSTR(URL_CONFIG), HTTP_PUT, authenticated([&]() {
               Logger.debug.println(F("Webserver: config PUT"));
               settings.deserialize(server.arg(FPSTR(PLAIN)));
               settings.save();
-              onConfigGet(settings);
+              onConfigGet();
             }));
 
   server.on(FPSTR(URL_PROTOCOLS), HTTP_GET, authenticated([this]() {
@@ -126,7 +124,7 @@ void ConfigWebServer::registerDebugFlagHandler(
   debugFlagHandlers.emplace_front(state, getState, setState);
 }
 
-void ConfigWebServer::onConfigGet(const Settings& settings) {
+void ConfigWebServer::onConfigGet() {
   String buff;
   settings.serialize(buff, true, false);
   server.send(200, FPSTR(APPLICATION_JSON), buff);
@@ -250,16 +248,13 @@ void ConfigWebServer::loop() {
   server.handleClient();
 }
 
-void ConfigWebServer::updateSettings(const Settings& settings) {
-  password = settings.configPassword;
-}
-
 Print& ConfigWebServer::logTarget() { return wsLogTarget; }
 
 ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
     const ESP8266WebServer::THandlerFunction& handler) {
   return [=]() {
-    if (!server.authenticate(ADMIN_USERNAME, this->password.c_str())) {
+    if (!server.authenticate(ADMIN_USERNAME,
+                             this->settings.configPassword.c_str())) {
       server.sendHeader(F("WWW-Authenticate"),
                         F("Basic realm=\"Login Required\""));
       server.send_P(401, TEXT_PLAIN, PSTR("Authentication required!"));

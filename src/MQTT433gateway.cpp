@@ -117,8 +117,8 @@ void setupWebLog() {
   }
 }
 
-void setupWebServer(const Settings &s) {
-  webServer = new ConfigWebServer();
+void setupWebServer() {
+  webServer = new ConfigWebServer(settings);
 
   webServer->registerSystemCommandHandler(F("restart"), []() {
     delay(100);
@@ -179,7 +179,7 @@ void setupWebServer(const Settings &s) {
         }
       });
 
-  webServer->begin(settings);
+  webServer->begin();
 
   setupWebLog();
 }
@@ -247,9 +247,7 @@ void setup() {
 
   settings.registerChangeHandler(WEB_CONFIG, [](const Settings &s) {
     if (!webServer) {
-      setupWebServer(s);
-    } else {
-      webServer->updateSettings(s);
+      setupWebServer();
     }
   });
 
