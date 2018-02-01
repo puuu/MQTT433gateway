@@ -30,11 +30,8 @@
 
 #include "RfHandler.h"
 
-RfHandler::RfHandler(const Settings &settings,
-                     const RfHandler::ReceiveCb &sendCb)
-    : settings(settings),
-      rf(settings.rfTransmitterPin),
-      onReceiveCallback(sendCb) {
+RfHandler::RfHandler(const Settings &settings)
+    : settings(settings), rf(settings.rfTransmitterPin) {
   rf.setEchoEnabled(settings.rfEchoMessages);
   rf.setErrorOutput(Logger.error);
 }
@@ -91,6 +88,8 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
 
 void RfHandler::rfCallback(const String &protocol, const String &message,
                            int status, size_t repeats, const String &deviceID) {
+  if (!onReceiveCallback) return;
+
   if (status == VALID) {
     Logger.info.print(F("rf signal received: "));
     Logger.info.print(message);
@@ -157,3 +156,7 @@ void RfHandler::filterProtocols(const String &protocols) {
 String RfHandler::availableProtocols() const { return rf.availableProtocols(); }
 
 void RfHandler::loop() { rf.loop(); }
+
+void RfHandler::registerReceiveHandler(const ReceiveCb &cb) {
+  onReceiveCallback = cb;
+}

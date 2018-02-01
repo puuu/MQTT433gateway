@@ -42,10 +42,11 @@ class RfHandler {
  public:
   using ReceiveCb = std::function<void(const String &, const String &)>;
 
-  RfHandler(const Settings &settings, const ReceiveCb &sendCb);
+  RfHandler(const Settings &settings);
   ~RfHandler();
   void begin();
   void loop();
+  void registerReceiveHandler(const ReceiveCb &cb);
 
   void transmitCode(const String &protocol, const String &message);
   void setRawMode(bool mode) { rawMode = mode; }
@@ -62,7 +63,7 @@ class RfHandler {
   void rfRawCallback(const uint16_t *pulses, size_t length);
 
   const Settings &settings;
-  ReceiveCb onReceiveCallback;
+  ReceiveCb onReceiveCallback = nullptr;
   bool rawMode = false;
 
   ESPiLight rf;

@@ -96,7 +96,8 @@ void setupRf(const Settings &) {
     return;
   }
 
-  rf = new RfHandler(settings, [](const String &protocol, const String &data) {
+  rf = new RfHandler(settings);
+  rf->registerReceiveHandler([](const String &protocol, const String &data) {
     if (mqttClient) {
       mqttClient->publishCode(protocol, data);
     }
