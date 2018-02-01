@@ -268,7 +268,7 @@ void Settings::reset() {
   }
 }
 
-bool Settings::hasValidPassword() {
+bool Settings::hasValidPassword() const {
   return (configPassword.length() > 7) &&
          (configPassword != FPSTR(DEFAULT_PASSWORD));
 }

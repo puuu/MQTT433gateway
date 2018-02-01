@@ -113,7 +113,7 @@ class Settings {
   }
   void deserialize(const String &json);
   void reset();
-  bool hasValidPassword();
+  bool hasValidPassword() const;
   void registerChangeHandler(SettingType setting,
                              const SettingCallbackFn &callback);
 
