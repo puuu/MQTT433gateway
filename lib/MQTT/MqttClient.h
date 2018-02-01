@@ -61,7 +61,7 @@ class MqttClient {
   bool subsrcibe();
 
   const Settings &settings;
-  RfDataCb onSendCallback;
+  RfDataCb onRfDataCallback;
 
   PubSubClient mqttClient;
   unsigned long lastConnectAttempt;
