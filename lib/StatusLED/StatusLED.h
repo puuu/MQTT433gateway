@@ -47,7 +47,7 @@ class StatusLED {
   ~StatusLED();
   void loop();
 
-  States getState() { return _state; }
+  States getState() const { return _state; }
   void setState(States state);
 
  private:
