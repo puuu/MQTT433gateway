@@ -43,39 +43,30 @@ class RfHandler {
   using ReceiveCallback = std::function<void(const String &, const String &)>;
 
   RfHandler(const Settings &settings, const ReceiveCallback &sendCb);
-
   ~RfHandler();
-
-  void transmitCode(const String &protocol, const String &message);
-
-  void setRawMode(bool mode) { rawMode = mode; }
-
-  bool isRawModeEnabled() const { return rawMode; }
-
-  void enableReceiver();
-  void disableReceiver();
-
-  void setEchoEnabled(bool enabled);
-
-  void filterProtocols(const String &protocols);
-  String availableProtocols() const;
-
   void begin();
   void loop();
 
-  void rfCallback(const String &protocol, const String &message, int status,
-                  size_t repeats, const String &deviceID);
-
-  void rfRawCallback(const uint16_t *pulses, size_t length);
+  void transmitCode(const String &protocol, const String &message);
+  void setRawMode(bool mode) { rawMode = mode; }
+  bool isRawModeEnabled() const { return rawMode; }
+  void enableReceiver();
+  void disableReceiver();
+  void setEchoEnabled(bool enabled);
+  void filterProtocols(const String &protocols);
+  String availableProtocols() const;
 
  private:
-  ESPiLight *rf;
+  void rfCallback(const String &protocol, const String &message, int status,
+                  size_t repeats, const String &deviceID);
+  void rfRawCallback(const uint16_t *pulses, size_t length);
+
   int8_t recieverPin;
   bool recieverPinPullUp;
-
   ReceiveCallback onReceiveCallback;
-
   bool rawMode = false;
+
+  ESPiLight *rf;
 };
 
 #endif  // RFHANDLER_H
