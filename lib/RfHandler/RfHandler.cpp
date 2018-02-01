@@ -26,29 +26,21 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
-
-#include <ESPiLight.h>
-
 #include <ArduinoSimpleLogging.h>
 
 #include "RfHandler.h"
 
 RfHandler::RfHandler(const Settings &settings,
                      const RfHandler::ReceiveCallback &sendCb)
-    : rf(new ESPiLight(settings.rfTransmitterPin)),
+    : rf(settings.rfTransmitterPin),
       recieverPin(settings.rfReceiverPin),
       recieverPinPullUp(settings.rfReceiverPinPullUp),
       onReceiveCallback(sendCb) {
-  rf->setEchoEnabled(settings.rfEchoMessages);
-  rf->setErrorOutput(Logger.error);
+  rf.setEchoEnabled(settings.rfEchoMessages);
+  rf.setErrorOutput(Logger.error);
 }
 
-RfHandler::~RfHandler() {
-  if (rf) {
-    rf->initReceiver(-1);
-    delete rf;
-  }
-}
+RfHandler::~RfHandler() { rf.initReceiver(-1); }
 
 void RfHandler::transmitCode(const String &protocol, const String &message) {
   int result = 0;
@@ -61,15 +53,15 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
   if (protocol == F("RAW")) {
     uint16_t rawpulses[MAXPULSESTREAMLENGTH];
     int rawlen =
-        rf->stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
+        rf.stringToPulseTrain(message, rawpulses, MAXPULSESTREAMLENGTH);
     if (rawlen > 0) {
-      rf->sendPulseTrain(rawpulses, rawlen);
+      rf.sendPulseTrain(rawpulses, rawlen);
       result = rawlen;
     } else {
       result = -9999;
     }
   } else {
-    result = rf->send(protocol, message);
+    result = rf.send(protocol, message);
   }
 
   if (result > 0) {
@@ -129,7 +121,7 @@ void RfHandler::rfCallback(const String &protocol, const String &message,
 
 void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
   if (rawMode) {
-    String data = rf->pulseTrainToString(pulses, length);
+    String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
       Logger.debug.print(F("RAW RF signal ("));
       Logger.debug.print(length);
@@ -146,26 +138,23 @@ void RfHandler::begin() {
       // 5V protection with reverse diode needs pullup
       pinMode(recieverPin, INPUT_PULLUP);
     }
-    rf->setCallback(
-        std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
-    rf->setPulseTrainCallBack(
+    rf.setCallback(std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
+    rf.setPulseTrainCallBack(
         std::bind(&RfHandler::rfRawCallback, this, _1, _2));
-    rf->initReceiver(recieverPin);
+    rf.initReceiver(recieverPin);
   }
 }
 
-void RfHandler::enableReceiver() { rf->enableReceiver(); }
+void RfHandler::enableReceiver() { rf.enableReceiver(); }
 
-void RfHandler::disableReceiver() { rf->disableReceiver(); }
+void RfHandler::disableReceiver() { rf.disableReceiver(); }
 
-void RfHandler::setEchoEnabled(bool enabled) { rf->setEchoEnabled(enabled); }
+void RfHandler::setEchoEnabled(bool enabled) { rf.setEchoEnabled(enabled); }
 
 void RfHandler::filterProtocols(const String &protocols) {
-  rf->limitProtocols(protocols);
+  rf.limitProtocols(protocols);
 }
 
-String RfHandler::availableProtocols() const {
-  return rf->availableProtocols();
-}
+String RfHandler::availableProtocols() const { return rf.availableProtocols(); }
 
-void RfHandler::loop() { rf->loop(); }
+void RfHandler::loop() { rf.loop(); }

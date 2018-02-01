@@ -34,9 +34,9 @@
 
 #include <WString.h>
 
-#include <Settings.h>
+#include <ESPiLight.h>
 
-class ESPiLight;
+#include <Settings.h>
 
 class RfHandler {
  public:
@@ -66,7 +66,7 @@ class RfHandler {
   ReceiveCallback onReceiveCallback;
   bool rawMode = false;
 
-  ESPiLight *rf;
+  ESPiLight rf;
 };
 
 #endif  // RFHANDLER_H
