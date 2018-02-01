@@ -305,7 +305,7 @@ void setup() {
 }
 
 void loop() {
-  if (rf && mqttClient) {
+  if (rf && mqttClient && mqttClient->isConnected()) {
     if (statusLED) statusLED->setState(StatusLED::normalOperation);
   } else {
     if (statusLED) statusLED->setState(StatusLED::requireConfiguration);
