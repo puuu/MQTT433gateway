@@ -135,7 +135,7 @@ void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
   }
 }
 
-void MqttClient::registerRfDataHandler(const MqttClient::HandlerCallback &cb) {
+void MqttClient::registerRfDataHandler(const MqttClient::RfDataCb &cb) {
   onSendCallback = cb;
 }
 

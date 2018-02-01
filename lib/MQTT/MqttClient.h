@@ -43,14 +43,14 @@
 
 class MqttClient {
  public:
-  using HandlerCallback =
+  using RfDataCb =
       std::function<void(const String &topic_part, const String &payload)>;
 
   MqttClient(const Settings &settings, WiFiClient &client);
   ~MqttClient();
   void begin();
   void loop();
-  void registerRfDataHandler(const HandlerCallback &cb);
+  void registerRfDataHandler(const RfDataCb &cb);
 
   void reconnect();
   void publishCode(const String &protocol, const String &payload);
@@ -61,7 +61,7 @@ class MqttClient {
   bool subsrcibe();
 
   const Settings &settings;
-  HandlerCallback onSendCallback;
+  RfDataCb onSendCallback;
 
   PubSubClient mqttClient;
   unsigned long lastConnectAttempt;
