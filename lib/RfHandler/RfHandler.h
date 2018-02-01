@@ -58,8 +58,8 @@ class RfHandler {
   String availableProtocols() const;
 
  private:
-  void rfCallback(const String &protocol, const String &message, int status,
-                  size_t repeats, const String &deviceID);
+  void onRfCode(const String &protocol, const String &message, int status,
+                size_t repeats, const String &deviceID);
   void rfRawCallback(const uint16_t *pulses, size_t length);
 
   const Settings &settings;

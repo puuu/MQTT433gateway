@@ -86,8 +86,8 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
   }
 }
 
-void RfHandler::rfCallback(const String &protocol, const String &message,
-                           int status, size_t repeats, const String &deviceID) {
+void RfHandler::onRfCode(const String &protocol, const String &message,
+                         int status, size_t repeats, const String &deviceID) {
   if (!onReceiveCallback) return;
 
   if (status == VALID) {
@@ -136,7 +136,7 @@ void RfHandler::begin() {
       // 5V protection with reverse diode needs pullup
       pinMode(settings.rfReceiverPin, INPUT_PULLUP);
     }
-    rf.setCallback(std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
+    rf.setCallback(std::bind(&RfHandler::onRfCode, this, _1, _2, _3, _4, _5));
     rf.setPulseTrainCallBack(
         std::bind(&RfHandler::rfRawCallback, this, _1, _2));
     rf.initReceiver(settings.rfReceiverPin);
