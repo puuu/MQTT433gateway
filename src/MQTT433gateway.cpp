@@ -71,13 +71,12 @@ void setupMqtt(const Settings &) {
   }
 
   mqttClient = new MqttClient(settings, wifi);
-  mqttClient->begin();
-  Logger.info.println(F("MQTT instance created."));
-
   mqttClient->registerRfDataHandler(
       [](const String &protocol, const String &data) {
         if (rf) rf->transmitCode(protocol, data);
       });
+  mqttClient->begin();
+  Logger.info.println(F("MQTT instance created."));
 }
 
 void setupRf(const Settings &) {
