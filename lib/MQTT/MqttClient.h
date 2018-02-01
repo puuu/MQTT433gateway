@@ -47,30 +47,23 @@ class MqttClient {
       std::function<void(const String &topic_part, const String &payload)>;
 
   MqttClient(const Settings &settings, WiFiClient &client);
-
+  ~MqttClient();
   void begin();
-
-  bool connect();
-
-  void reconnect();
-
-  bool subsrcibe();
-
   void loop();
-
-  void publishCode(const String &protocol, const String &payload);
-
   void registerRfDataHandler(const HandlerCallback &cb);
 
-  ~MqttClient();
+  void reconnect();
+  void publishCode(const String &protocol, const String &payload);
 
  private:
   void onMessage(char *topic, uint8_t *payload, unsigned int length);
+  bool connect();
+  bool subsrcibe();
 
   const Settings &settings;
-  PubSubClient *mqttClient = nullptr;
-
   HandlerCallback onSendCallback;
+
+  PubSubClient *mqttClient = nullptr;
   unsigned long lastConnectAttempt;
 };
 
