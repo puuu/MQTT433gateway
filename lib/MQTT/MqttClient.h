@@ -33,13 +33,13 @@
 #include <WString.h>
 #include <WiFiClient.h>
 
+#include <PubSubClient.h>
+
 #include <Settings.h>
 
 #ifndef MQTT_CONNECTION_ATTEMPT_DELAY
 #define MQTT_CONNECTION_ATTEMPT_DELAY 5000
 #endif
-
-class PubSubClient;
 
 class MqttClient {
  public:
@@ -63,7 +63,7 @@ class MqttClient {
   const Settings &settings;
   HandlerCallback onSendCallback;
 
-  PubSubClient *mqttClient = nullptr;
+  PubSubClient mqttClient;
   unsigned long lastConnectAttempt;
 };
 

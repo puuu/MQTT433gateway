@@ -28,7 +28,6 @@
 */
 
 #include <ArduinoSimpleLogging.h>
-#include <PubSubClient.h>
 
 #include "MqttClient.h"
 
@@ -43,22 +42,15 @@ class PayloadString : public String {
 };
 
 MqttClient::MqttClient(const Settings &settings, WiFiClient &client)
-    : settings(settings),
-      mqttClient(new PubSubClient(client)),
-      lastConnectAttempt(0) {}
+    : settings(settings), mqttClient(client), lastConnectAttempt(0) {}
 
-MqttClient::~MqttClient() {
-  if (mqttClient) {
-    mqttClient->disconnect();
-    delete mqttClient;
-  }
-}
+MqttClient::~MqttClient() { mqttClient.disconnect(); }
 
 void MqttClient::begin() {
   using namespace std::placeholders;
-  mqttClient->setServer(settings.mqttBroker.c_str(), settings.mqttBrokerPort);
+  mqttClient.setServer(settings.mqttBroker.c_str(), settings.mqttBrokerPort);
 
-  mqttClient->setCallback(std::bind(&MqttClient::onMessage, this, _1, _2, _3));
+  mqttClient.setCallback(std::bind(&MqttClient::onMessage, this, _1, _2, _3));
 
   reconnect();
 }
@@ -76,11 +68,11 @@ static String stateTopic(const String &devName) {
 
 bool MqttClient::connect() {
   if (0 == settings.mqttUser.length()) {
-    return mqttClient->connect(settings.deviceName.c_str(),
-                               stateTopic(settings.deviceName).c_str(), 0, true,
-                               stateMessage(false).c_str());
+    return mqttClient.connect(settings.deviceName.c_str(),
+                              stateTopic(settings.deviceName).c_str(), 0, true,
+                              stateMessage(false).c_str());
   } else {
-    return mqttClient->connect(
+    return mqttClient.connect(
         settings.deviceName.c_str(), settings.mqttUser.c_str(),
         settings.mqttPassword.c_str(), stateTopic(settings.deviceName).c_str(),
         0, true, stateMessage(false).c_str());
@@ -93,13 +85,13 @@ void MqttClient::reconnect() {
     return;
   }
 
-  if (!mqttClient->connected()) {
+  if (!mqttClient.connected()) {
     Logger.debug.println(F("Try to (re)connect to MQTT broker"));
     if (connect()) {
       Logger.info.println(F("MQTT connected."));
       if (subsrcibe()) {
-        mqttClient->publish(stateTopic(settings.deviceName).c_str(),
-                            stateMessage(true).c_str(), true);
+        mqttClient.publish(stateTopic(settings.deviceName).c_str(),
+                           stateMessage(true).c_str(), true);
         Logger.info.println(F("MQTT subscribed."));
       } else {
         Logger.error.println(F("MQTT subsrcibe failed!"));
@@ -118,12 +110,12 @@ bool MqttClient::subsrcibe() {
   Logger.debug.print(F("MQTT subscribe to topic: "));
   Logger.debug.println(topic);
 
-  return mqttClient->subscribe(topic.c_str());
+  return mqttClient.subscribe(topic.c_str());
 }
 
 void MqttClient::loop() {
   reconnect();
-  mqttClient->loop();
+  mqttClient.loop();
 }
 
 void MqttClient::onMessage(char *topic, uint8_t *payload, unsigned int length) {
@@ -156,5 +148,5 @@ void MqttClient::publishCode(const String &protocol, const String &payload) {
   Logger.debug.print(settings.mqttRetain);
   Logger.debug.print(F(" .. "));
   Logger.debug.println(payload);
-  mqttClient->publish(topic.c_str(), payload.c_str(), settings.mqttRetain);
+  mqttClient.publish(topic.c_str(), payload.c_str(), settings.mqttRetain);
 }
