@@ -175,20 +175,12 @@ $(function () {
         }
     });
 
-    var closeWebSocket = function () {
-    };
-
     var openWebSocket = function () {
         var container = $('#log-container');
         var pre = container.find('pre');
 
         var webSocket = new WebSocket("ws://" + location.hostname + ":81");
         var tm;
-
-        closeWebSocket = function () {
-            clearTimeout(tm);
-            webSocket.close();
-        };
 
         var ping = function () {
             tm = setTimeout(function () {
@@ -418,10 +410,6 @@ $(function () {
     // Clear log
     $('#btn-clear-log').click(function (e) {
         $('#log-container').find('pre').empty();
-    });
-
-    $('#update-form').submit(function () {
-        closeWebSocket();
     });
 
     initUi();
