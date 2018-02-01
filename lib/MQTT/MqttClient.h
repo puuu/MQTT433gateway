@@ -54,6 +54,7 @@ class MqttClient {
 
   void reconnect();
   void publishCode(const String &protocol, const String &payload);
+  bool isConnected();
 
  private:
   void onMessage(char *topic, uint8_t *payload, unsigned int length);

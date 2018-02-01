@@ -150,3 +150,5 @@ void MqttClient::publishCode(const String &protocol, const String &payload) {
   Logger.debug.println(payload);
   mqttClient.publish(topic.c_str(), payload.c_str(), settings.mqttRetain);
 }
+
+bool MqttClient::isConnected() { return mqttClient.connected(); }
