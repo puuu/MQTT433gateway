@@ -31,7 +31,7 @@
 #include "RfHandler.h"
 
 RfHandler::RfHandler(const Settings &settings,
-                     const RfHandler::ReceiveCallback &sendCb)
+                     const RfHandler::ReceiveCb &sendCb)
     : settings(settings),
       rf(settings.rfTransmitterPin),
       onReceiveCallback(sendCb) {

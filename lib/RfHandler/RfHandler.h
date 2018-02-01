@@ -40,9 +40,9 @@
 
 class RfHandler {
  public:
-  using ReceiveCallback = std::function<void(const String &, const String &)>;
+  using ReceiveCb = std::function<void(const String &, const String &)>;
 
-  RfHandler(const Settings &settings, const ReceiveCallback &sendCb);
+  RfHandler(const Settings &settings, const ReceiveCb &sendCb);
   ~RfHandler();
   void begin();
   void loop();
@@ -62,7 +62,7 @@ class RfHandler {
   void rfRawCallback(const uint16_t *pulses, size_t length);
 
   const Settings &settings;
-  ReceiveCallback onReceiveCallback;
+  ReceiveCb onReceiveCallback;
   bool rawMode = false;
 
   ESPiLight rf;
