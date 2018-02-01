@@ -61,8 +61,7 @@ class RfHandler {
                   size_t repeats, const String &deviceID);
   void rfRawCallback(const uint16_t *pulses, size_t length);
 
-  int8_t recieverPin;
-  bool recieverPinPullUp;
+  const Settings &settings;
   ReceiveCallback onReceiveCallback;
   bool rawMode = false;
 

@@ -32,9 +32,8 @@
 
 RfHandler::RfHandler(const Settings &settings,
                      const RfHandler::ReceiveCallback &sendCb)
-    : rf(settings.rfTransmitterPin),
-      recieverPin(settings.rfReceiverPin),
-      recieverPinPullUp(settings.rfReceiverPinPullUp),
+    : settings(settings),
+      rf(settings.rfTransmitterPin),
       onReceiveCallback(sendCb) {
   rf.setEchoEnabled(settings.rfEchoMessages);
   rf.setErrorOutput(Logger.error);
@@ -132,16 +131,16 @@ void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
 }
 
 void RfHandler::begin() {
-  if (0 < recieverPin) {
+  if (0 < settings.rfReceiverPin) {
     using namespace std::placeholders;
-    if (recieverPinPullUp) {
+    if (settings.rfReceiverPinPullUp) {
       // 5V protection with reverse diode needs pullup
-      pinMode(recieverPin, INPUT_PULLUP);
+      pinMode(settings.rfReceiverPin, INPUT_PULLUP);
     }
     rf.setCallback(std::bind(&RfHandler::rfCallback, this, _1, _2, _3, _4, _5));
     rf.setPulseTrainCallBack(
         std::bind(&RfHandler::rfRawCallback, this, _1, _2));
-    rf.initReceiver(recieverPin);
+    rf.initReceiver(settings.rfReceiverPin);
   }
 }
 
