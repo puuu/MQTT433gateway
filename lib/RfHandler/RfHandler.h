@@ -60,7 +60,7 @@ class RfHandler {
  private:
   void onRfCode(const String &protocol, const String &message, int status,
                 size_t repeats, const String &deviceID);
-  void rfRawCallback(const uint16_t *pulses, size_t length);
+  void onRfRaw(const uint16_t *pulses, size_t length);
 
   const Settings &settings;
   ReceiveCb onReceiveCallback = nullptr;

@@ -117,7 +117,7 @@ void RfHandler::onRfCode(const String &protocol, const String &message,
   }
 }
 
-void RfHandler::rfRawCallback(const uint16_t *pulses, size_t length) {
+void RfHandler::onRfRaw(const uint16_t *pulses, size_t length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
@@ -137,8 +137,7 @@ void RfHandler::begin() {
       pinMode(settings.rfReceiverPin, INPUT_PULLUP);
     }
     rf.setCallback(std::bind(&RfHandler::onRfCode, this, _1, _2, _3, _4, _5));
-    rf.setPulseTrainCallBack(
-        std::bind(&RfHandler::rfRawCallback, this, _1, _2));
+    rf.setPulseTrainCallBack(std::bind(&RfHandler::onRfRaw, this, _1, _2));
     rf.initReceiver(settings.rfReceiverPin);
   }
 }
