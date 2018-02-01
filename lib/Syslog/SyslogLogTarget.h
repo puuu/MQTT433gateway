@@ -30,7 +30,7 @@
 #ifndef SYSLOGLOGTARGET_H
 #define SYSLOGLOGTARGET_H
 
-#define SYSLOG_BUFFSIZE 100
+#define SYSLOG_BUFFSIZE 64
 
 #include <WiFiUdp.h>
 
