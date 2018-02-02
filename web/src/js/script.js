@@ -1,4 +1,6 @@
 $(function () {
+    'strict mode';
+
     var DEBUG_FLAGS = {
         protocolRaw: "Enable Raw RF message logging",
         systemLoad: "Show the processed loop() iterations for each second",
