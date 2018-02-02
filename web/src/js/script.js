@@ -33,6 +33,7 @@ $(function () {
             $('<option>', {value: 'info', text: 'Info'}),
             $('<option>', {value: 'debug', text: 'Debug'}),
         ]);
+        registerConfigUi(element, item);
         return [
             inputLabelFactory(item),
             element,
@@ -47,6 +48,7 @@ $(function () {
             id: 'cfg-' + item.name,
             name: item.name,
         });
+        registerConfigUi(element, item);
         return [
             inputLabelFactory(item),
             element,
@@ -61,6 +63,7 @@ $(function () {
             id: 'cfg-' + item.name,
             name: item.name,
         });
+        registerConfigUi(element, item);
         return [
             inputLabelFactory(item),
             element,
@@ -75,6 +78,7 @@ $(function () {
             id: 'cfg-' + item.name,
             name: item.name,
         });
+        registerConfigUi(element, item);
         return $('<label>', {
             class: 'pure-checkbox',
         }).append([
@@ -91,6 +95,7 @@ $(function () {
     var protocols;
     function protocolInputField(item) {
         var container = $('<div>', { id: 'cfg-' + item.name });
+        registerConfigUi(container, item);
         function protocolListFactory(protos) {
             protos.forEach(function (value) {
                 var element = $('<input>', {
@@ -106,7 +111,6 @@ $(function () {
                     element,
                     ' Protocol ' + value,
                 ]));
-                registerConfigUi('#cfg-' + item_id + '-' + value);
             });
             protocols = protos;
         }
@@ -288,11 +292,11 @@ $(function () {
         };
     }
 
-    function registerConfigUi(item_id) {
-        $('#cfg-' + item_id).change(function (event) {
-            var new_data = ui_map[item_id].fetch(item_id);
-            if (new_data !== undefined && JSON.stringify(last_cfg[item_id]) !== JSON.stringify(new_data)) {
-                changes[item_id] = new_data;
+    function registerConfigUi(element, item) {
+        element.change(function (event) {
+            var new_data = item.fetch(item.name);
+            if (new_data !== undefined && JSON.stringify(last_cfg[item.name]) !== JSON.stringify(new_data)) {
+                changes[item.name] = new_data;
             }
         });
     }
@@ -359,9 +363,6 @@ $(function () {
         var settings = $("#settings");
         CONFIG_ITEMS.forEach(function (item) {
             settings.append(item.factory(item));
-        });
-        CONFIG_ITEMS.forEach(function (item) {
-            registerConfigUi(item.name);
         });
         loadConfig();
     }
