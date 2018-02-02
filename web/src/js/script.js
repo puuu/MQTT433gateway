@@ -324,26 +324,6 @@ $(function () {
         });
     }
 
-    function applyConfig(data) {
-        CONFIG_ITEMS.forEach(function (item) {
-            if (item.apply) {
-                item.apply(item.name, data[item.name]);
-            }
-        });
-        changes = {};
-        lastConfig = data;
-    }
-
-    function loadConfig() {
-        $.ajax({
-                   url: '/config',
-                   type: 'GET',
-                   contentType: 'application/json',
-                   success: applyConfig
-               });
-    }
-
-
     var sendCommand = throttle(
         function (params) {
             $.ajax({
@@ -361,11 +341,46 @@ $(function () {
     );
 
     function initConfigUi() {
+        function applyConfig(data) {
+            CONFIG_ITEMS.forEach(function (item) {
+                if (item.apply) {
+                    item.apply(item.name, data[item.name]);
+                }
+            });
+            changes = {};
+            lastConfig = data;
+        }
+
+        function loadConfig() {
+            $.ajax({
+                url: '/config',
+                type: 'GET',
+                contentType: 'application/json',
+                success: applyConfig
+            });
+        }
+
         var settings = $("#settings");
         CONFIG_ITEMS.forEach(function (item) {
             settings.append(item.factory(item));
         });
         loadConfig();
+        $('#settings-form').submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: "/config",
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(changes),
+                success: applyConfig
+            });
+            return false;
+        });
+        $('#cfg-form-reset').click(function (event) {
+            event.preventDefault();
+            loadConfig();
+            return false;
+        });
     }
 
     function initDebugUi(debugFlags, container) {
@@ -431,26 +446,6 @@ $(function () {
 
     $('.system-btn').click(function (event) {
         sendCommand({command: $(this).data('command')});
-    });
-
-    $('#settings-form').submit(function (event) {
-        event.preventDefault();
-        $.ajax({
-                   url: "/config",
-                   type: 'PUT',
-                   contentType: 'application/json',
-                   data: JSON.stringify(changes),
-                   success: applyConfig
-
-               });
-
-        return false;
-    });
-
-    $('#cfg-form-reset').click(function (event) {
-        event.preventDefault();
-        loadConfig();
-        return false;
     });
 
     // Clear log
