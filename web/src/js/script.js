@@ -269,7 +269,7 @@ $(function () {
         };
     }
 
-    var last_cfg = {};
+    var lastConfig = {};
     var changes = {};
 
     function throttle(callback, limit) {
@@ -287,9 +287,13 @@ $(function () {
 
     function registerConfigUi(element, item) {
         element.change(function (event) {
-            var new_data = item.fetch(element);
-            if (new_data !== undefined && JSON.stringify(last_cfg[item.name]) !== JSON.stringify(new_data)) {
-                changes[item.name] = new_data;
+            var newData = item.fetch(element);
+            if (newData !== undefined) {
+                if (JSON.stringify(lastConfig[item.name]) !== JSON.stringify(newData)) {
+                    changes[item.name] = newData;
+                } else {
+                    delete changes[item.name];
+                }
             }
         });
     }
@@ -301,6 +305,7 @@ $(function () {
             }
         });
         changes = {};
+        lastConfig = data;
     }
 
     function loadConfig() {
