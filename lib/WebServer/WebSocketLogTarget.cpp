@@ -41,18 +41,11 @@ void WebSocketLogTarget::handleEvent(uint8_t num, WStype_t type,
                                      uint8_t *payload, size_t length) {
   switch (type) {
     case WStype_DISCONNECTED:
-      if (clientCount > 0) {
-        clientCount--;
-      }
       break;
-
-    case WStype_CONNECTED:
-      clientCount++;
-      {
-        String reply(F("*** Connection established ***\n"));
-        server.sendTXT(num, reply);
-      }
-      break;
+    case WStype_CONNECTED: {
+      String reply(F("*** Connection established ***\n"));
+      server.sendTXT(num, reply);
+    } break;
     case WStype_TEXT:
       // We do not expect any data except the __PING__ requests from the
       // frontend. So we can save the cycles to check the message and just send

@@ -38,7 +38,7 @@
 class WebSocketLogTarget : public LineBufferProxy<64> {
  public:
   explicit WebSocketLogTarget(const uint16_t port)
-      : server(WebSocketsServer(port)), clientCount(0) {}
+      : server(WebSocketsServer(port)) {}
 
   void loop() { server.loop(); }
   void begin();
@@ -50,7 +50,6 @@ class WebSocketLogTarget : public LineBufferProxy<64> {
 
  private:
   WebSocketsServer server;
-  size_t clientCount;
 };
 
 #endif  // WEBSOCKETLOGTARGET_H
