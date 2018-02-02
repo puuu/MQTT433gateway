@@ -225,13 +225,6 @@ $(function () {
         new ConfigItem("ledActiveHigh", checkboxFactory, checkboxApply, checkboxGet, "The way how the LED is connected to the pin (false for built-in led)")
     ];
 
-    var ui_map = {};
-    CONFIG_ITEMS.forEach(function (value) {
-        if (value.fetch !== undefined) {
-            ui_map[value.name] = value;
-        }
-    });
-
     function openWebSocket() {
         var container = $('#log-container');
         var pre = container.find('pre');
@@ -302,8 +295,10 @@ $(function () {
     }
 
     function applyConfig(data) {
-        $.each(data, function (key, value) {
-            ui_map[key].apply(key, value);
+        CONFIG_ITEMS.forEach(function (item) {
+            if (item.apply) {
+                item.apply(item.name, data[item.name]);
+            }
         });
         changes = {};
     }
