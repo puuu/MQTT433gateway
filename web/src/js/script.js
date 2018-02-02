@@ -170,7 +170,10 @@ $(function () {
 
     var protocols;
     function protocolInputField(item) {
-        var container = $('<div>', { id: 'cfg-' + item.name });
+        var container = $('<div>', {
+            id: 'cfg-' + item.name,
+            class: 'pure-g',
+        });
         registerConfigUi(container, item);
         function protocolListFactory(protos) {
             protos.forEach(function (value) {
@@ -181,12 +184,14 @@ $(function () {
                     name: item.name,
                     value: value,
                 });
-                container.append($('<label>', {
+                container.append($('<div>', {
+                    class: 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-3 pure-u-xl-1-4',
+                }).append($('<label>', {
                     class: 'pure-checkbox',
                 }).append([
                     element,
                     ' Protocol ' + value,
-                ]));
+                ])));
             });
             protocols = protos;
         }
