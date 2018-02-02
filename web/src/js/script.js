@@ -7,44 +7,89 @@ $(function () {
         freeHeap: "Show the free heap memory every second"
     };
 
+    function inputLabelFactory(item) {
+        return $('<label>', {
+            text: item.name,
+            for: 'cfg-' + item.name,
+        });
+    }
+
+    function inputHelpFactory(item) {
+        return $('<span>', {
+            class: 'pure-form-message',
+            text: item.help,
+        });
+    }
+
     function logLevelInputFactory(item) {
-        return '<label for="cfg-' + item.name + '">' + item.name + '</label>' +
-            '<select class="config-item" id="cfg-' + item.name + '" name="' + item.name + '">' +
-            '<option value="">None</option>' +
-            '<option value="error">Error</option>' +
-            '<option value="warning">Warning</option>' +
-            '<option value="info">Info</option>' +
-            '<option value="debug">Debug</option>' +
-            '</select>' +
-            '<span class="pure-form-message">' + item.help + '</span>';
+        var element = $('<select>', {
+            class: 'config-item',
+            id: 'cfg-' + item.name,
+            name: item.name,
+        }).append([
+            $('<option>', {value: '', text: "None"}),
+            $('<option>', {value: 'error', text: 'Error'}),
+            $('<option>', {value: 'warning', text: 'Warning'}),
+            $('<option>', {value: 'info', text: 'Info'}),
+            $('<option>', {value: 'debug', text: 'Debug'}),
+        ]);
+        return [
+            inputLabelFactory(item),
+            element,
+            inputHelpFactory(item),
+        ];
     }
 
     function inputFieldFactory(item) {
-        return '<label for="cfg-' + item.name + '">' + item.name + '</label>' +
-            '<input type="text" class="pure-input-1 config-item" id="cfg-' + item.name + '" name="' + item.name + '">' +
-            '<span class="pure-form-message">' + item.help + '</span>';
+        var element = $('<input>', {
+            type: 'text',
+            class: 'pure-input-1 config-item',
+            id: 'cfg-' + item.name,
+            name: item.name,
+        });
+        return [
+            inputLabelFactory(item),
+            element,
+            inputHelpFactory(item),
+        ];
     }
 
     function passwordFieldFactory(item) {
-        return '<label for="cfg-' + item.name + '">' + item.name + '</label>' +
-            '<input type="password" class="pure-input-1 config-item" id="cfg-' + item.name + '" name="' + item.name + '">' +
-            '<span class="pure-form-message">' + item.help + '</span>';
+        var element = $('<input>', {
+            type: 'password',
+            class: 'pure-input-1 config-item',
+            id: 'cfg-' + item.name,
+            name: item.name,
+        });
+        return [
+            inputLabelFactory(item),
+            element,
+            inputHelpFactory(item),
+        ];
     }
 
     function checkboxFactory(item) {
-        return '<label class="pure-checkbox">' +
-            '<input type="checkbox" class="config-item" id="cfg-' + item.name + '" name="' + item.name + '"> ' +
-            item.name +
-            '<span class="pure-form-message">' + item.help + '</span>' +
-            '</label>';
+        var element = $('<input>', {
+            type: 'checkbox',
+            class: 'config-item',
+            id: 'cfg-' + item.name,
+            name: item.name,
+        });
+        return $('<label>', {
+            class: 'pure-checkbox',
+        }).append([
+            element,
+            ' ' + item.name,
+            inputHelpFactory(item),
+        ]);
     }
 
     function legendFactory(item) {
-        return '<legend>' + item.name + '</legend>';
+        return $('<legend>', { text: item.name });
     }
 
     function protocolInputField(item) {
-        return '<div id="cfg-' + item.name + '"></div>';
+        return $('<div>', { id: 'cfg-' + item.name });
     }
 
     function inputApply(item_id, data) {
@@ -59,10 +104,19 @@ $(function () {
         function fillProtocolData(protos) {
             $("#cfg-" + item_id).empty();
             protos.forEach(function (value) {
-                var elem = '<label class="pure-checkbox">' +
-                    '<input type="checkbox" class="config-item protocols-item" id="cfg-' + item_id +'-' + value + '" name="' + item_id + '" value="' + value + '">' +
-                    ' Protocol ' + value +
-                    '</label>';
+                var element = $('<input>', {
+                    type: 'checkbox',
+                    class: 'config-item protocols-item',
+                    id: 'cfg-' + item_id + '-' + value,
+                    name: item_id,
+                    value: value,
+                });
+                var elem = $('<label>', {
+                            class: 'pure-checkbox',
+                        }).append([
+                            element,
+                            ' Protocol ' + value,
+                        ]);
                 $("#cfg-" + item_id).append(elem);
                 registerConfigUi('#cfg-' + item_id + '-' + value);
             });
@@ -297,11 +351,10 @@ $(function () {
     );
 
     function initConfigUi() {
-        var settings = "";
+        var settings = $("#settings");
         CONFIG_ITEMS.forEach(function (item) {
-            settings += item.factory(item);
+            settings.append(item.factory(item));
         });
-        $("#settings").prepend(settings);
         CONFIG_ITEMS.forEach(function (item) {
             registerConfigUi(item.name);
         });
