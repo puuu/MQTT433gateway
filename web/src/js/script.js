@@ -88,8 +88,35 @@ $(function () {
         return $('<legend>', { text: item.name });
     }
 
+    var protocols;
     function protocolInputField(item) {
-        return $('<div>', { id: 'cfg-' + item.name });
+        var container = $('<div>', { id: 'cfg-' + item.name });
+        function protocolListFactory(protos) {
+            protos.forEach(function (value) {
+                var element = $('<input>', {
+                    type: 'checkbox',
+                    class: 'config-item protocols-item',
+                    id: 'cfg-' + item.name + '-' + value,
+                    name: item.name,
+                    value: value,
+                });
+                container.append($('<label>', {
+                    class: 'pure-checkbox',
+                }).append([
+                    element,
+                    ' Protocol ' + value,
+                ]));
+                registerConfigUi('#cfg-' + item_id + '-' + value);
+            });
+            protocols = protos;
+        }
+        $.ajax({
+           url: "/protocols",
+           type: "GET",
+           contentType: 'application/json',
+           success: protocolListFactory
+        });
+        return container;
     }
 
     function inputApply(item_id, data) {
@@ -101,38 +128,16 @@ $(function () {
     }
 
     function protocolApply(item_id, data) {
-        function fillProtocolData(protos) {
-            $("#cfg-" + item_id).empty();
-            protos.forEach(function (value) {
-                var element = $('<input>', {
-                    type: 'checkbox',
-                    class: 'config-item protocols-item',
-                    id: 'cfg-' + item_id + '-' + value,
-                    name: item_id,
-                    value: value,
-                });
-                var elem = $('<label>', {
-                            class: 'pure-checkbox',
-                        }).append([
-                            element,
-                            ' Protocol ' + value,
-                        ]);
-                $("#cfg-" + item_id).append(elem);
-                registerConfigUi('#cfg-' + item_id + '-' + value);
-            });
-            if (data.length == 0) {
-                data = protos;
-            }
-            data.forEach(function (value) {
-                $('#cfg-' + item_id + '-' + value).prop('checked', true);
-            });
+        if (protocols === undefined) {
+            setTimeout(protocolApply(item_id, data), 100);
+            return;
         }
-        $.ajax({
-                   url: "/protocols",
-                   type: "GET",
-                   contentType: 'application/json',
-                   success: fillProtocolData
-               });
+        if (data.length == 0) {
+            data = protocols;
+        }
+        data.forEach(function (value) {
+            $('#cfg-' + item_id + '-' + value).prop('checked', true);
+        });
     }
 
     function inputGet(item_id) {
