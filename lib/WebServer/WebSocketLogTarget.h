@@ -43,12 +43,11 @@ class WebSocketLogTarget : public LineBufferProxy<64> {
   void loop() { server.loop(); }
   void begin();
 
-  void handleEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
-
  protected:
   void flush(const char* data) override;
 
  private:
+  void handleEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
   WebSocketsServer server;
 };
 
