@@ -251,49 +251,6 @@ $(function () {
         this.factory = factory;
     }
 
-    function openWebSocket() {
-        var container = $('#log-container');
-        var pre = container.find('pre');
-
-        var webSocket = new WebSocket("ws://" + location.hostname + ":81");
-        var tm;
-
-        function ping() {
-            clearTimeout(tm);
-            tm = setTimeout(function () {
-                webSocket.send("__PING__");
-                tm = setTimeout(function () {
-                    webSocket.close();
-                    openWebSocket();
-                }, 2000);
-            }, 5000);
-        }
-
-        webSocket.onmessage = function (event) {
-            var message = event.data;
-
-            if (message === "__PONG__") {
-                ping();
-                return;
-            }
-
-            pre.append(message);
-            if (message === '\n' || (typeof message === "string" && message.indexOf('\n') !== -1)) {
-                container.scrollTop(pre.get(0).scrollHeight);
-            }
-        };
-
-        webSocket.onerror = function (event) {
-            webSocket.close();
-            if (tm === undefined) {
-                openWebSocket();
-            }
-        };
-
-        webSocket.onopen = function (event) {
-            ping();
-        };
-    }
 
     var lastConfig = {};
     var changes = {};
@@ -447,6 +404,49 @@ $(function () {
         });
     }
 
+    function openWebSocket() {
+        var container = $('#log-container');
+        var pre = container.find('pre');
+
+        var webSocket = new WebSocket("ws://" + location.hostname + ":81");
+        var tm;
+
+        function ping() {
+            clearTimeout(tm);
+            tm = setTimeout(function () {
+                webSocket.send("__PING__");
+                tm = setTimeout(function () {
+                    webSocket.close();
+                    openWebSocket();
+                }, 2000);
+            }, 5000);
+        }
+
+        webSocket.onmessage = function (event) {
+            var message = event.data;
+
+            if (message === "__PONG__") {
+                ping();
+                return;
+            }
+
+            pre.append(message);
+            if (message === '\n' || (typeof message === "string" && message.indexOf('\n') !== -1)) {
+                container.scrollTop(pre.get(0).scrollHeight);
+            }
+        };
+
+        webSocket.onerror = function (event) {
+            webSocket.close();
+            if (tm === undefined) {
+                openWebSocket();
+            }
+        };
+
+        webSocket.onopen = function (event) {
+            ping();
+        };
+    }
     // Clear log
     $('#btn-clear-log').click(function (event) {
         $('#log-container').find('pre').empty();
