@@ -251,9 +251,20 @@ $(function () {
         this.factory = factory;
     }
 
-
     var lastConfig = {};
     var changes = {};
+    function registerConfigUi(element, item) {
+        element.change(function (event) {
+            var newData = item.fetch(element);
+            if (newData !== undefined) {
+                if (JSON.stringify(lastConfig[item.name]) !== JSON.stringify(newData)) {
+                    changes[item.name] = newData;
+                } else {
+                    delete changes[item.name];
+                }
+            }
+        });
+    }
 
     function throttle(callback, limit) {
         var wait = false;
@@ -266,19 +277,6 @@ $(function () {
                 }, limit);
             }
         };
-    }
-
-    function registerConfigUi(element, item) {
-        element.change(function (event) {
-            var newData = item.fetch(element);
-            if (newData !== undefined) {
-                if (JSON.stringify(lastConfig[item.name]) !== JSON.stringify(newData)) {
-                    changes[item.name] = newData;
-                } else {
-                    delete changes[item.name];
-                }
-            }
-        });
     }
 
     function initConfigUi() {
