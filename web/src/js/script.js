@@ -210,9 +210,9 @@ $(function () {
 
         webSocket.onerror = function (ev) {
             webSocket.close();
-            setTimeout(function () {
+            if (tm === undefined) {
                 openWebSocket();
-            });
+            }
         };
 
         webSocket.onopen = function (ev) {
