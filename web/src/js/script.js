@@ -324,22 +324,6 @@ $(function () {
         });
     }
 
-    var sendCommand = throttle(
-        function (params) {
-            $.ajax({
-                       url: '/system',
-                       type: 'POST',
-                       data: JSON.stringify(params),
-                       contentType: 'application/json',
-                       success: function () {
-                           SystemCommandActions[params.command]();
-                       }
-                   }
-            );
-        },
-        1000
-    );
-
     function initConfigUi() {
         function applyConfig(data) {
             CONFIG_ITEMS.forEach(function (item) {
@@ -433,20 +417,35 @@ $(function () {
         });
     }
 
-    function loadFwVersion() {
-        $.ajax({
-                   url: "/firmware",
-                   type: "GET",
-                   contentType: 'application/json',
-                   success: function (data) {
-                       $('#current-fw-version').append('Current version: ' + data.version);
-                   }
-               });
-    }
+    var sendCommand = throttle(
+        function (params) {
+            $.ajax({
+                url: '/system',
+                type: 'POST',
+                data: JSON.stringify(params),
+                contentType: 'application/json',
+                success: function () {
+                    SystemCommandActions[params.command]();
+                }
+            });
+        },
+        1000
+    );
 
     $('.system-btn').click(function (event) {
         sendCommand({command: $(this).data('command')});
     });
+
+    function loadFwVersion() {
+        $.ajax({
+            url: "/firmware",
+            type: "GET",
+            contentType: 'application/json',
+            success: function (data) {
+                $('#current-fw-version').append('Current version: ' + data.version);
+            }
+        });
+    }
 
     // Clear log
     $('#btn-clear-log').click(function (event) {
