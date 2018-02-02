@@ -183,9 +183,9 @@ $(function () {
         var tm;
 
         var ping = function () {
+            clearTimeout(tm);
             tm = setTimeout(function () {
                 webSocket.send("__PING__");
-
                 tm = setTimeout(function () {
                     webSocket.close();
                     openWebSocket();
@@ -197,7 +197,6 @@ $(function () {
             var message = event.data;
 
             if (message === "__PONG__") {
-                clearTimeout(tm);
                 ping();
                 return;
             }
