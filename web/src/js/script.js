@@ -3,25 +3,25 @@ $(function () {
 
     var CONFIG_ITEMS = [
         new GroupItem("General Config", legendFactory),
-        new ConfigItem("deviceName", inputFieldFactory, inputApply, inputGet, "The general name of the device"),
-        new ConfigItem("configPassword", passwordFieldFactory, inputApply, passwordGet, "The admin password for the web UI (min. 8 characters)"),
+        new ConfigItem("deviceName", deviceNameInputFactory, inputApply, inputGet, "The general name of the device"),
+        new ConfigItem("configPassword", devicePasswordInputFactory, inputApply, inputGet, "The admin password for the web UI (min. 8 characters)"),
 
         new GroupItem("MQTT Config", legendFactory),
-        new ConfigItem("mqttBroker", inputFieldFactory, inputApply, inputGet, "MQTT Broker host"),
-        new ConfigItem("mqttBrokerPort", inputFieldFactory, inputApply, inputGetInt, "MQTT Broker port"),
+        new ConfigItem("mqttBroker", hostNameInputFactory, inputApply, inputGet, "MQTT Broker host"),
+        new ConfigItem("mqttBrokerPort", portNumberInputFactory, inputApply, inputGetInt, "MQTT Broker port"),
         new ConfigItem("mqttUser", inputFieldFactory, inputApply, inputGet, "MQTT username (optional)"),
         new ConfigItem("mqttPassword", passwordFieldFactory, inputApply, inputGet, "MQTT password (optional)"),
         new ConfigItem("mqttRetain", checkboxFactory, checkboxApply, checkboxGet, "Retain MQTT messages"),
 
         new GroupItem("MQTT Topic Config", legendFactory),
-        new ConfigItem("mqttReceiveTopic", inputFieldFactory, inputApply, inputGet, "Topic to publish received signal"),
-        new ConfigItem("mqttSendTopic", inputFieldFactory, inputApply, inputGet, "Topic to get signals to send from"),
+        new ConfigItem("mqttReceiveTopic", mqttTopicInputFactory, inputApply, inputGet, "Topic to publish received signal"),
+        new ConfigItem("mqttSendTopic", mqttTopicInputFactory, inputApply, inputGet, "Topic to get signals to send from"),
 
         new GroupItem("433MHz RF Config", legendFactory),
         new ConfigItem("rfEchoMessages", checkboxFactory, checkboxApply, checkboxGet, "Echo sent rf messages back"),
-        new ConfigItem("rfReceiverPin", inputFieldFactory, inputApply, inputGetInt, "The GPIO pin used for the rf receiver"),
+        new ConfigItem("rfReceiverPin", pinNumberInputFactory, inputApply, inputGetInt, "The GPIO pin used for the rf receiver"),
         new ConfigItem("rfReceiverPinPullUp", checkboxFactory, checkboxApply, checkboxGet, "Activate pullup on rf receiver pin (required for 5V protection with reverse diode)"),
-        new ConfigItem("rfTransmitterPin", inputFieldFactory, inputApply, inputGetInt, "The GPIO pin used for the RF transmitter"),
+        new ConfigItem("rfTransmitterPin", pinNumberInputFactory, inputApply, inputGetInt, "The GPIO pin used for the RF transmitter"),
 
         new GroupItem("Enabled RF protocols", legendFactory),
         new ConfigItem("rfProtocols", protocolInputField, protocolApply, protocolGet, ""),
@@ -30,11 +30,11 @@ $(function () {
         new ConfigItem("serialLogLevel", logLevelInputFactory, inputApply, inputGet, "Level for serial logging"),
         new ConfigItem("webLogLevel", logLevelInputFactory, inputApply, inputGet, "Level for logging to the web UI"),
         new ConfigItem("syslogLevel", logLevelInputFactory, inputApply, inputGet, "Level for syslog logging"),
-        new ConfigItem("syslogHost", inputFieldFactory, inputApply, inputGet, "Syslog server (optional)"),
-        new ConfigItem("syslogPort", inputFieldFactory, inputApply, inputGetInt, "Syslog port (optional)"),
+        new ConfigItem("syslogHost", hostNameInputFactory, inputApply, inputGet, "Syslog server (optional)"),
+        new ConfigItem("syslogPort", portNumberInputFactory, inputApply, inputGetInt, "Syslog port (optional)"),
 
         new GroupItem("Status LED", legendFactory),
-        new ConfigItem("ledPin", inputFieldFactory, inputApply, inputGetInt, "The GPIO pin used for the status LED"),
+        new ConfigItem("ledPin", pinNumberInputFactory, inputApply, inputGetInt, "The GPIO pin used for the status LED"),
         new ConfigItem("ledActiveHigh", checkboxFactory, checkboxApply, checkboxGet, "The way how the LED is connected to the pin (false for built-in led)")
     ];
 
@@ -117,11 +117,13 @@ $(function () {
         ];
     }
 
-    function inputFieldFactory(item) {
+    function inputFieldFactory(item, pattern, required) {
         var element = $('<input>', {
             type: 'text',
             class: 'pure-input-1 config-item',
             id: 'cfg-' + item.name,
+            pattern: pattern,
+            required: required,
             name: item.name,
         });
         registerConfigUi(element, item);
@@ -132,12 +134,26 @@ $(function () {
         ];
     }
 
-    function passwordFieldFactory(item) {
+    function deviceNameInputFactory(item) {
+        return inputFieldFactory(item, '[.-_A-Za-z0-9]+', true);
+    }
+
+    function hostNameInputFactory(item) {
+        return inputFieldFactory(item, '[.-_A-Za-z0-9]*');
+    }
+
+    function mqttTopicInputFactory(item) {
+        return inputFieldFactory(item, undefined, true);
+    }
+
+    function inputFieldNumberFactory(item, min, max) {
         var element = $('<input>', {
-            type: 'password',
+            type: 'number',
             class: 'pure-input-1 config-item',
             id: 'cfg-' + item.name,
             name: item.name,
+            min: min,
+            max: max,
         });
         registerConfigUi(element, item);
         return [
@@ -145,6 +161,34 @@ $(function () {
             element,
             inputHelpFactory(item),
         ];
+    }
+
+    function portNumberInputFactory(item) {
+        return inputFieldNumberFactory(item, 1, 65535);
+    }
+
+    function pinNumberInputFactory(item) {
+        return inputFieldNumberFactory(item, 0, 16);
+    }
+
+    function passwordFieldFactory(item, minlength) {
+        var element = $('<input>', {
+            type: 'password',
+            class: 'pure-input-1 config-item',
+            id: 'cfg-' + item.name,
+            name: item.name,
+            minlength: minlength,
+        });
+        registerConfigUi(element, item);
+        return [
+            inputLabelFactory(item),
+            element,
+            inputHelpFactory(item),
+        ];
+    }
+
+    function devicePasswordInputFactory(item) {
+        return passwordFieldFactory(item, 8);
     }
 
     function checkboxFactory(item) {
@@ -226,16 +270,10 @@ $(function () {
     }
 
     function inputGet(element) {
-        return element.val();
-    }
-
-    function passwordGet(element) {
-        var pwd = element.val();
-        if (pwd.length < 8) {
-            alert("Password must have at least 8 characters");
+        if (! element.get(0).checkValidity()) {
             return undefined;
         }
-        return pwd;
+        return element.val();
     }
 
     function inputGetInt(element) {
