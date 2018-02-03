@@ -144,12 +144,12 @@ $(function () {
         });
     }
 
-    function inputGet(item_id) {
-        return $('#cfg-' + item_id).val();
+    function inputGet(element) {
+        return element.val();
     }
 
-    function passwordGet(item_id) {
-        var pwd = $('#cfg-' + item_id).val();
+    function passwordGet(element) {
+        var pwd = element.val();
         if (pwd.length < 8) {
             alert("Password must have at least 8 characters");
             return undefined;
@@ -157,15 +157,15 @@ $(function () {
         return pwd;
     }
 
-    function inputGetInt(item_id) {
-        return parseInt(inputGet(item_id));
+    function inputGetInt(element) {
+        return parseInt(inputGet(element));
     }
 
-    function checkboxGet(item_id) {
-        return $('#cfg-' + item_id).prop("checked");
+    function checkboxGet(element) {
+        return element.prop("checked");
     }
 
-    function protocolGet(item_id) {
+    function protocolGet(element) {
         var checked = $('.protocols-item:checked');
         if ($('.protocols-item').length === checked.length) {
             return [];
@@ -294,7 +294,7 @@ $(function () {
 
     function registerConfigUi(element, item) {
         element.change(function (event) {
-            var new_data = item.fetch(item.name);
+            var new_data = item.fetch(element);
             if (new_data !== undefined && JSON.stringify(last_cfg[item.name]) !== JSON.stringify(new_data)) {
                 changes[item.name] = new_data;
             }
