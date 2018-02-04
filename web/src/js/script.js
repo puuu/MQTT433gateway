@@ -80,6 +80,7 @@ $(function () {
 
     function GroupItem(name, factory) {
         this.name = name;
+        this.container = true;
         this.factory = factory;
     }
 
@@ -209,7 +210,9 @@ $(function () {
     }
 
     function legendFactory(item) {
-        return $('<legend>', { text: item.name });
+        return $('<fieldset>', {class: 'config-group'}).append(
+            $('<legend>', { text: item.name })
+        );
     }
 
     var protocols;
@@ -344,7 +347,13 @@ $(function () {
 
         var settings = $("#settings");
         CONFIG_ITEMS.forEach(function (item) {
-            settings.append(item.factory(item));
+            var result = item.factory(item);
+            if (item.container) {
+                result.appendTo(settings);
+                container = result;
+            } else {
+                container.append(result);
+            }
         });
         loadConfig();
         $('#settings-form').submit(function (event) {
