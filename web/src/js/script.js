@@ -70,6 +70,19 @@ $(function () {
         }
     };
 
+    function ConfigItem(name, factory, apply, fetch, help) {
+        this.name = name;
+        this.factory = factory;
+        this.apply = apply;
+        this.fetch = fetch;
+        this.help = help;
+    }
+
+    function GroupItem(name, factory) {
+        this.name = name;
+        this.factory = factory;
+    }
+
     function inputLabelFactory(item) {
         return $('<label>', {
             text: item.name,
@@ -236,19 +249,6 @@ $(function () {
         return $.map(checked, function (x) {
             return $(x).val();
         });
-    }
-
-    function ConfigItem(name, factory, apply, fetch, help) {
-        this.name = name;
-        this.factory = factory;
-        this.apply = apply;
-        this.fetch = fetch;
-        this.help = help;
-    }
-
-    function GroupItem(name, factory) {
-        this.name = name;
-        this.factory = factory;
     }
 
     var lastConfig = {};
