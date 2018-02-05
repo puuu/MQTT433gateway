@@ -189,6 +189,7 @@ void setupMdns() {
   }
   if (!MDNS.begin(settings.deviceName.c_str())) {
     Logger.error.println(F("Error setting up MDNS responder"));
+    return;
   }
   MDNS.addService("http", "tcp", 80);
   Logger.info.println(F("MDNS service registered."));
