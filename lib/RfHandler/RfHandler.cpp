@@ -32,7 +32,6 @@
 
 RfHandler::RfHandler(const Settings &settings)
     : settings(settings), rf(settings.rfTransmitterPin) {
-  rf.setEchoEnabled(settings.rfEchoMessages);
   rf.setErrorOutput(Logger.error);
 }
 
