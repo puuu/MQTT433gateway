@@ -183,7 +183,7 @@ void setupWebServer() {
   setupWebLog();
 }
 
-void setupMdns() {
+void setupMdns(const Settings &s) {
   if (0 == settings.deviceName.length()) {
     return;
   }
@@ -234,6 +234,7 @@ void setup() {
   }
 
   settings.registerChangeHandler(STATUSLED, setupStatusLED);
+  settings.registerChangeHandler(BASE, setupMdns);
   settings.registerChangeHandler(MQTT, setupMqtt);
   settings.registerChangeHandler(RF_ECHO, [](const Settings &s) {
     Logger.debug.println(F("Configure rfEchoMessages."));
@@ -298,9 +299,6 @@ void setup() {
   Logger.debug.println(F("Current configuration:"));
   settings.serialize(Logger.debug, true, false);
   Logger.debug.println();
-
-  setupMdns();
-
   Logger.info.print(F("Listen on IP: "));
   Logger.info.println(WiFi.localIP());
 }
