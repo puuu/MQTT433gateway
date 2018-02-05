@@ -464,11 +464,16 @@ $(function () {
         var webSocket = new WebSocket("ws://" + location.hostname + ":81");
         var tm;
 
+        function showState(state) {
+            $('#log-status').text(state);
+        }
+
         function ping() {
             clearTimeout(tm);
             tm = setTimeout(function () {
                 webSocket.send("__PING__");
                 tm = setTimeout(function () {
+                    showState("Broken!");
                     webSocket.close();
                     openWebSocket();
                 }, 2000);
@@ -492,11 +497,13 @@ $(function () {
         webSocket.onerror = function (event) {
             webSocket.close();
             if (tm === undefined) {
+                showState("Error");
                 openWebSocket();
             }
         };
 
         webSocket.onopen = function (event) {
+            showState("Connected!");
             ping();
         };
     }
