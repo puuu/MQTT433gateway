@@ -205,7 +205,8 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
                            configPassword, notEmpty()));
   changed.set(
       MQTT,
-      any({setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBroker), mqttBroker,
+      any({changed[BASE],
+           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBroker), mqttBroker,
                         notEmpty()),
            setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBrokerPort),
                         mqttBrokerPort, notZero<uint16_t>()),
