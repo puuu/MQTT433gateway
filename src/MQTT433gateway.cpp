@@ -97,6 +97,8 @@ void setupRf(const Settings &) {
       mqttClient->publishCode(protocol, data);
     }
   });
+  rf->setEchoEnabled(settings.rfEchoMessages);
+  rf->filterProtocols(settings.rfProtocols);
   rf->begin();
   Logger.info.println(F("RfHandler Instance created."));
 }
