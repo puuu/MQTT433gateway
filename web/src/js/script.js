@@ -452,6 +452,7 @@ $(function () {
             contentType: 'application/json',
             success: function (data) {
                 $('#current-fw-version').text(data.version);
+                $('#chip-id').text(data.chipId);
             }
         });
     }
