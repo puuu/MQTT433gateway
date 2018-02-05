@@ -451,7 +451,7 @@ $(function () {
             type: "GET",
             contentType: 'application/json',
             success: function (data) {
-                $('#current-fw-version').append('Current version: ' + data.version);
+                $('#current-fw-version').text(data.version);
             }
         });
     }
