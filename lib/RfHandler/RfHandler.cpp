@@ -120,10 +120,10 @@ void RfHandler::onRfRaw(const uint16_t *pulses, size_t length) {
   if (rawMode) {
     String data = rf.pulseTrainToString(pulses, length);
     if (data.length() > 0) {
-      Logger.debug.print(F("RAW RF signal ("));
-      Logger.debug.print(length);
-      Logger.debug.print(F("): "));
-      Logger.debug.println(data);
+      Logger.info.print(F("RAW RF signal ("));
+      Logger.info.print(length);
+      Logger.info.print(F("): "));
+      Logger.info.println(data);
     }
   }
 }
