@@ -4,7 +4,7 @@ $(function () {
     var CONFIG_ITEMS = [
         new GroupItem("General Config", legendFactory),
         new ConfigItem("deviceName", deviceNameInputFactory, inputApply, inputGet, "The general name of the device"),
-        new ConfigItem("configPassword", devicePasswordInputFactory, inputApply, inputGet, "The admin password for the web UI (min. 8 characters)"),
+        new ConfigItem("configPassword", devicePasswordInputFactory, devicePasswordApply, inputGet, "The admin password for the web UI (min. 8 characters)"),
 
         new GroupItem("MQTT Config", legendFactory),
         new ConfigItem("mqttBroker", hostNameInputFactory, inputApply, inputGet, "MQTT Broker host"),
@@ -284,6 +284,11 @@ $(function () {
 
     function inputApply(itemName, data) {
         $('#cfg-' + itemName).val(data);
+    }
+
+    function devicePasswordApply(itemName, data) {
+        $('#cfg-' + itemName).val(data);
+        $('#cfg-' + itemName + '-confirm').val(data);
     }
 
     function checkboxApply(itemName, data) {
