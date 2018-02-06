@@ -213,12 +213,14 @@ void ConfigWebServer::onFirmwareFinish() {
 
 void ConfigWebServer::onFirmwareUpload() {
   static bool authenticate = false;
+  static bool error = false;
   HTTPUpload& upload = server.upload();
   wsLogTarget.loop();
 
   if (upload.status == UPLOAD_FILE_START) {
     authenticate = server.authenticate(ADMIN_USERNAME,
                                        this->settings.configPassword.c_str());
+    error = false;
     if (!authenticate) {
       return;
     }
@@ -237,11 +239,12 @@ void ConfigWebServer::onFirmwareUpload() {
     if (!Update.begin(maxSketchSpace)) {  // start with max available size
       Update.printError(Serial);
     }
-  } else if (upload.status == UPLOAD_FILE_WRITE && authenticate) {
+  } else if (upload.status == UPLOAD_FILE_WRITE && authenticate && !error) {
     if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+      error = true;
       Update.printError(Serial);
     }
-  } else if (upload.status == UPLOAD_FILE_END && authenticate) {
+  } else if (upload.status == UPLOAD_FILE_END && authenticate && !error) {
     if (Update.end(true)) {  // true to set the size to the current progress
       Logger.debug.print(F("Update Success: "));
       Logger.debug.println(upload.totalSize);
