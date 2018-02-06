@@ -144,6 +144,7 @@ void setupWebServer() {
     Logger.debug.println(F("Prepare for oat update."));
     if (statusLED) statusLED->setState(StatusLED::ota);
     if (rf) {
+      rf->filterProtocols(F("[]"));
       delete rf;
       rf = nullptr;
     }
