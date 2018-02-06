@@ -158,7 +158,7 @@ void setupWebServer() {
       F("systemLoad"), []() { return systemLoad != nullptr; },
       [](bool state) {
         if (state) {
-          systemLoad = new SystemLoad(Logger.debug);
+          systemLoad = new SystemLoad(Logger.info);
         } else if (systemLoad) {
           delete systemLoad;
           systemLoad = nullptr;
@@ -168,7 +168,7 @@ void setupWebServer() {
       F("freeHeap"), []() { return systemHeap != nullptr; },
       [](bool state) {
         if (state) {
-          systemHeap = new SystemHeap(Logger.debug);
+          systemHeap = new SystemHeap(Logger.info);
         } else if (systemHeap) {
           delete systemHeap;
           systemHeap = nullptr;
