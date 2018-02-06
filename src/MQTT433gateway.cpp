@@ -134,12 +134,7 @@ void setupWebServer() {
     delay(100);
     ESP.restart();
   });
-  webServer->registerProtocolProvider([]() {
-    if (rf) {
-      return rf->availableProtocols();
-    }
-    return String(F("[]"));
-  });
+  webServer->registerProtocolProvider(RfHandler::availableProtocols);
   webServer->registerOtaHook([]() {
     Logger.debug.println(F("Prepare for oat update."));
     if (statusLED) statusLED->setState(StatusLED::ota);
