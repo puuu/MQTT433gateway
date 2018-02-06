@@ -189,7 +189,38 @@ $(function () {
     }
 
     function devicePasswordInputFactory(item) {
-        return passwordFieldFactory(item, 8);
+        var properties = {
+            type: 'password',
+            class: 'pure-input-1 config-item',
+            minlength: 8,
+        };
+        var element1 = $('<input>', $.extend(properties, {
+            id: 'cfg-' + item.name,
+            name: item.name,
+        }));
+        var element2 = $('<input>', $.extend(properties, {
+            id: 'cfg-' + item.name + '-confirm',
+            name: item.name + '-confirm',
+        }));
+        function validatePassword(event) {
+            var message = '';
+            if(element1.val() != element2.val()) {
+                message = "Passwords don't match!";
+            }
+            element1.get(0).setCustomValidity(message);
+            element2.get(0).setCustomValidity(message);
+        }
+        registerConfigUi(element1, item);
+        registerConfigUi(element2, item);
+        element1.on('input', validatePassword);
+        element2.on('input', validatePassword);
+        return [
+            inputLabelFactory(item),
+            element1,
+            inputLabelFactory({name: item.name + ' (confirm)',}),
+            element2,
+            inputHelpFactory(item),
+        ];
     }
 
     function checkboxFactory(item) {
