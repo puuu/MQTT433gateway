@@ -151,7 +151,9 @@ void RfHandler::filterProtocols(const String &protocols) {
   rf.limitProtocols(protocols);
 }
 
-String RfHandler::availableProtocols() const { return rf.availableProtocols(); }
+String RfHandler::availableProtocols() {
+  return ESPiLight::availableProtocols();
+}
 
 void RfHandler::loop() { rf.loop(); }
 

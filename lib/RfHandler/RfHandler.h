@@ -55,7 +55,8 @@ class RfHandler {
   void disableReceiver();
   void setEchoEnabled(bool enabled);
   void filterProtocols(const String &protocols);
-  String availableProtocols() const;
+
+  static String availableProtocols();
 
  private:
   void onRfCode(const String &protocol, const String &message, int status,
