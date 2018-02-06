@@ -108,7 +108,7 @@ void ConfigWebServer::begin() {
   server.on(
       FPSTR(URL_FIRMWARE), HTTP_POST,
       authenticated(std::bind(&::ConfigWebServer::onFirmwareFinish, this)),
-      authenticated(std::bind(&::ConfigWebServer::onFirmwareUpload, this)));
+      std::bind(&::ConfigWebServer::onFirmwareUpload, this));
 
   Logger.debug.println(F("Starting webserver and websocket server."));
   wsLogTarget.begin();
@@ -212,9 +212,16 @@ void ConfigWebServer::onFirmwareFinish() {
 }
 
 void ConfigWebServer::onFirmwareUpload() {
+  static bool authenticate = false;
   HTTPUpload& upload = server.upload();
   wsLogTarget.loop();
+
   if (upload.status == UPLOAD_FILE_START) {
+    authenticate = server.authenticate(ADMIN_USERNAME,
+                                       this->settings.configPassword.c_str());
+    if (!authenticate) {
+      return;
+    }
     Logger.info.println(F("Webserver: firmware upload started"));
     Serial.setDebugOutput(true);
 
@@ -230,11 +237,11 @@ void ConfigWebServer::onFirmwareUpload() {
     if (!Update.begin(maxSketchSpace)) {  // start with max available size
       Update.printError(Serial);
     }
-  } else if (upload.status == UPLOAD_FILE_WRITE) {
+  } else if (upload.status == UPLOAD_FILE_WRITE && authenticate) {
     if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
       Update.printError(Serial);
     }
-  } else if (upload.status == UPLOAD_FILE_END) {
+  } else if (upload.status == UPLOAD_FILE_END && authenticate) {
     if (Update.end(true)) {  // true to set the size to the current progress
       Logger.debug.print(F("Update Success: "));
       Logger.debug.println(upload.totalSize);
