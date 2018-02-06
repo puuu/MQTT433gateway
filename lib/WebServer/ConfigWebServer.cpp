@@ -252,8 +252,11 @@ void ConfigWebServer::onFirmwareUpload() {
       Update.printError(Serial);
     }
     Serial.setDebugOutput(false);
+  } else if (upload.status == UPLOAD_FILE_ABORTED && authenticate) {
+    Update.end();
+    Logger.warning.print(F("Update was aborted!"));
   }
-  yield();
+  delay(0);
 }
 
 void ConfigWebServer::loop() {
