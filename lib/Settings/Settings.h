@@ -55,6 +55,7 @@ const char PROGMEM DEFAULT_RECEIVE_TOPIC_SUFFIX[] = "/recv/";
 const char PROGMEM DEFAULT_SEND_TOPIC_SUFFIX[] = "/send/";
 const char PROGMEM DEFAULT_RF_PROTOCOLS[] = "[]";
 const char PROGMEM DEFAULT_SERIAL_LOG_LEVEL[] = "debug";
+const char PROGMEM DEFAULT_WEB_LOG_LEVEL[] = "info";
 
 enum SettingType {
   BASE,
@@ -90,7 +91,7 @@ class Settings {
         rfReceiverPinPullUp(true),
         rfProtocols(FPSTR(DEFAULT_RF_PROTOCOLS)),
         serialLogLevel(FPSTR(DEFAULT_SERIAL_LOG_LEVEL)),
-        webLogLevel(""),
+        webLogLevel(DEFAULT_WEB_LOG_LEVEL),
         syslogLevel(""),
         syslogHost(""),
         syslogPort(514),
