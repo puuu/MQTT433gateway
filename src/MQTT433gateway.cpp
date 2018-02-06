@@ -293,6 +293,8 @@ void setup() {
   setupStatusLED(settings);
   if (statusLED) statusLED->setState(StatusLED::wifiConnect);
 
+  Serial.print(F("configPassword: "));
+  Serial.println(settings.configPassword);
   setupWifi();
 
   // Notify all setting listeners
