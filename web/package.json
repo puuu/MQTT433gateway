@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "MQTT433gateway frontend",
   "scripts": {
+    "prepare": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
