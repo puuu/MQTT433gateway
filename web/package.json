@@ -1,25 +1,33 @@
 {
-  "name": "mqtt-433-gateway",
-  "version": "1.0.0",
-  "description": "",
-  "main": "gulpfile.js",
+  "name": "mqtt433gateway",
+  "version": "0.1.0",
+  "description": "MQTT433gateway frontend",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puuu/MQTT433gateway.git"
+  },
+  "author": "Puuu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/puuu/MQTT433gateway/issues"
+  },
+  "homepage": "https://github.com/puuu/MQTT433gateway#readme",
+  "dependencies": {
+    "purecss": "^1.0.0",
+    "zepto": "^1.2.0"
+  },
   "devDependencies": {
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-base64-favicon": "^1.0.2",
     "gulp-clean-css": "^3.9.2",
     "gulp-css-base64": "^1.3.4",
-    "gulp-gzip": "^1.4.1",
-    "gulp-htmlmin": "^3.0.0",
+    "gulp-gzip": "^1.4.2",
+    "gulp-htmlmin": "^4.0.0",
     "gulp-inline": "^0.1.3",
-    "gulp-uglify": "^3.0.0",
-    "purecss": "^1.0.0",
-    "zepto": "^1.2.0"
+    "gulp-uglify": "^3.0.0"
   }
 }
