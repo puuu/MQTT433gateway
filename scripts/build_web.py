@@ -27,7 +27,6 @@ def build_web():
     os.chdir("web")
     print("Attempting to build webpage...")
     print(check_output(["npm", "install"]))
-    print(check_output(["node_modules/.bin/gulp"]))
     copyfile("build/index.html.gz.h", "../dist/index.html.gz.h")
     os.chdir("..")
 
