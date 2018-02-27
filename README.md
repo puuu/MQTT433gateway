@@ -20,47 +20,36 @@ A list of supported protocols can be found in the pilight manual:
 https://manual.pilight.org/protocols/433.92/index.html
 
 
-## Software/Requirements
+## Installation
 
-The software is using the [PlatformIO](http://platformio.org/) ecosystem. See their
-[install instructions](http://docs.platformio.org/en/latest/installation.html) or get
-their [IDE](http://docs.platformio.org/en/latest/ide/pioide.html) to get the
-software. More information can be found in their [documentation](http://docs.platformio.org/en/latest/).
+Firmware binary are provided under
+[releases](https://github.com/puuu/MQTT433gateway/releases). If you
+want to build from source please have a look at
+[Development](#development).  For the first flash you have multiple
+possibilities, some of them are:
 
-1. Open a terminal and go to the MQTT433Gateway project folder.
+- Build and flash with PlatformIO (see [Development](#development))
+- Flash with [esptool.py](https://github.com/espressif/esptool)
+  ```console
+  $ esptool.py --port <serialport> write_flash 0 mqtt433gateway_<env>-<version>.bin
+  ```
+- Flashing the `WebUpdater` example from
+  [Arduino](https://github.com/esp8266/Arduino#installing-with-boards-manager)
+  (File -> Examples -> ESP8266HTTPUpdateServer) and uploading the
+  MQTT433gateway binary via browser.
 
-2. After that, decide for which board to create the firmware and give
-   this as `--environment` to the platformio `run` command:
-   ```console
-   $ platformio run --environment <board>
-   ```
-   The available boards are defined in `platformio.ini`. Currently, this are
-   + `esp12e` for ESP8266-12e/f models,
-   + `esp12e_160` for ESP8266-12e/f models with cpu clock set to 160MHz,
-   + `nodemcu` for NodeMCU 0.9 boards,
-   + `nodemcuv2` for NodeMCU 1.0 boards,
-   + `d1_mini`for D1 Mini boards,
-   + `huzzah` for the Huzzah boards.
+At the moment two binaries are provided:
+- `mqtt433gateway_esp12e-*.bin` generic ESP8266 module with cpu clock
+  = 80 MHz (recommend)
+- `mqtt433gateway_esp12e_160-*.bin` generic ESP8266 module with cpu
+  clock = 160 MHz
 
-3. To flash the firmware to the board, connect the board to the PC via
-   USB or a serial adapter. Make sure, it is the only device currently
-   connected, as otherwise you might flash the wrong unit
-   accidentally. Some boards need to be set manually into a programming
-   mode, please check the manual of the board to get more details about
-   how to do that.  The `platformio run` has the upload target to
-   initialize flashing:
-   ```console
-   $ platformio run --environment <board> --target upload
-   ```
-   this will try to autodetect the serial port. If this is not
-   successful, try
-   ```console
-   $ platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
-   ```
-
-Older versions of MQTT433gateway were developed with the Arduino
-IDE. You can find the old sources in the departed
-[`arduino`](../../tree/arduino) branch.
+The `platformio.ini` provides more environments, but the main
+different between these are the way how they are flashed via serial
+connector and how additional components (like LEDs) are
+connected. Since MQTT433gateway can be fully configured by the web
+frontend and provided [over-the-air programming](#ota-update), these
+binaries should be sufficient.
 
 
 ## Hardware
@@ -273,9 +262,12 @@ switch:
 
 ## OTA Update
 
-Updates of the MQTT433gateway can be preformed by OTA (Over-the-air programming)
-via the web frontend.  To do this, you need the binary file that can be found at
-`<BUILD_DIR>/firmware.bin`, e.g. `.pioenvs/huzzah/firmware.bin`.
+Updates of the MQTT433gateway can be preformed by OTA (Over-the-air
+programming) via the web frontend.  To do this, you need the binary
+file that can be found under
+[releases](https://github.com/puuu/MQTT433gateway/releases) or, if you
+build with PlatformIO, at `<BUILD_DIR>/firmware.bin`,
+e.g. `.pioenvs/huzzah/firmware.bin`.
 
 
 ## Debugging/RF-protocol analyzing
@@ -293,6 +285,49 @@ analyzing can be enabled with the `protocolRaw` debug flag.
 If you have the situation that there is a lot of noise in the air
 and/or your device matches multiple protocols, you can limit the
 available protocols.  This is easily possible with via the web frontend.
+
+
+## Development
+
+The software is using the [PlatformIO](http://platformio.org/) ecosystem. See their
+[install instructions](http://docs.platformio.org/en/latest/installation.html) or get
+their [IDE](http://docs.platformio.org/en/latest/ide/pioide.html) to get the
+software. More information can be found in their [documentation](http://docs.platformio.org/en/latest/).
+
+1. Open a terminal and go to the MQTT433Gateway project folder.
+
+2. After that, decide for which board to create the firmware and give
+   this as `--environment` to the platformio `run` command:
+   ```console
+   $ platformio run --environment <board>
+   ```
+   The available boards are defined in `platformio.ini`. Currently, this are
+   + `esp12e` for ESP8266-12e/f models,
+   + `esp12e_160` for ESP8266-12e/f models with cpu clock set to 160MHz,
+   + `nodemcu` for NodeMCU 0.9 boards,
+   + `nodemcuv2` for NodeMCU 1.0 boards,
+   + `d1_mini`for D1 Mini boards,
+   + `huzzah` for the Huzzah boards.
+
+3. To flash the firmware to the board, connect the board to the PC via
+   USB or a serial adapter. Make sure, it is the only device currently
+   connected, as otherwise you might flash the wrong unit
+   accidentally. Some boards need to be set manually into a programming
+   mode, please check the manual of the board to get more details about
+   how to do that.  The `platformio run` has the upload target to
+   initialize flashing:
+   ```console
+   $ platformio run --environment <board> --target upload
+   ```
+   this will try to autodetect the serial port. If this is not
+   successful, try
+   ```console
+   $ platformio run --environment <board> --target upload --upload-port <path-to-serial-port>
+   ```
+
+Older versions of MQTT433gateway were developed with the Arduino
+IDE. You can find the old sources in the departed
+[`arduino`](../../tree/arduino) branch.
 
 
 ## Contributions
