@@ -12,7 +12,6 @@ cache:
 env:
   - PLATFORMIO_ENV=esp12e
   - PLATFORMIO_ENV=esp12e_160
-  - PLATFORMIO_ENV=nodemcuv2
 
 install:
   # PlatformIO
