@@ -95,7 +95,7 @@ class Settings {
         syslogLevel(""),
         syslogHost(""),
         syslogPort(514),
-        ledPin(BUILTIN_LED),
+        ledPin(LED_BUILTIN),
         ledActiveHigh(false) {}
   ~Settings();
   void load();
