@@ -11,12 +11,13 @@ const favicon = require('gulp-base64-favicon');
 
 const dataFolder = 'build/';
 
-gulp.task('clean', function() {
+gulp.task('clean', function(done) {
     del([ dataFolder + '*']);
+    done();
     return true;
 });
 
-gulp.task('buildfs_embeded', ['buildfs_inline'], function() {
+gulp.task('buildfs_embeded', function(done) {
 
     var source = dataFolder + 'index.html.gz';
     var destination = dataFolder + 'index.html.gz.h';
@@ -39,9 +40,10 @@ gulp.task('buildfs_embeded', ['buildfs_inline'], function() {
     wstream.write('};');
     wstream.end();
 
+    done();
 });
 
-gulp.task('buildfs_inline', ['clean'], function() {
+gulp.task('buildfs_inline', function() {
     return gulp.src('src/*.html')
         // .pipe(favicon())
         .pipe(inline({
@@ -60,4 +62,4 @@ gulp.task('buildfs_inline', ['clean'], function() {
         .pipe(gulp.dest(dataFolder));
 });
 
-gulp.task('default', ['buildfs_embeded']);
+gulp.task('default', gulp.series('clean', 'buildfs_inline', 'buildfs_embeded'));
