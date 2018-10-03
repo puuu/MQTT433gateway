@@ -7,8 +7,8 @@ Project home: https://github.com/puuu/MQTT433gateway/
 
 import os
 import platform
-from shutil import copyfile
 from subprocess import check_output, check_call, CalledProcessError
+from xxd_i import dump
 
 
 def is_tool(name):
@@ -27,8 +27,8 @@ def build_web():
     os.chdir("web")
     print("Attempting to build webpage...")
     check_call(["npm", "install"])
-    copyfile("build/index.html.gz.h", "../dist/index.html.gz.h")
     os.chdir("..")
+    dump("web/build/index.html.gz", "dist/index.html.gz.h", "index_html_gz")
 
 
 build_web()
