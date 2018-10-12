@@ -29,15 +29,27 @@ gulp.task('buildfs_embeded', function(done) {
 
     var data = fs.readFileSync(source);
 
-    wstream.write('#define index_html_gz_len ' + data.length + '\n');
-    wstream.write('static const char index_html_gz[] PROGMEM = {');
+    wstream.write('static const unsigned int index_html_gz_len = ' + data.length + ';\n');
+    wstream.write('static const char index_html_gz[] PROGMEM = {\n    ');
 
-    for (i=0; i<data.length; i++) {
-        wstream.write(data[i].toString());
-        if (i<data.length-1) wstream.write(',');
+    function toHex(x) {
+        var prefix = '0x';
+        if (x < 16) prefix = '0x0';
+        return prefix + x.toString(16);
     }
 
-    wstream.write('};');
+    for (var i = 0; i < data.length; i++) {
+        wstream.write(toHex(data[i]));
+        if (i < data.length-1) {
+            if (i % 12 >= 11) {
+                wstream.write(',\n    ');
+            } else {
+                wstream.write(', ');
+            }
+        }
+    }
+
+    wstream.write('};\n');
     wstream.end();
 
     done();
