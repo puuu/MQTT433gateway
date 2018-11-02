@@ -91,7 +91,7 @@ class Settings {
         rfReceiverPinPullUp(true),
         rfProtocols(FPSTR(DEFAULT_RF_PROTOCOLS)),
         serialLogLevel(FPSTR(DEFAULT_SERIAL_LOG_LEVEL)),
-        webLogLevel(DEFAULT_WEB_LOG_LEVEL),
+        webLogLevel(FPSTR(DEFAULT_WEB_LOG_LEVEL)),
         syslogLevel(""),
         syslogHost(""),
         syslogPort(514),
