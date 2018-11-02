@@ -37,27 +37,27 @@
 #include "Settings.h"
 
 namespace JsonKey {
-const char PROGMEM deviceName[] = "deviceName";
-const char PROGMEM configPassword[] = "configPassword";
-const char PROGMEM mqttBroker[] = "mqttBroker";
-const char PROGMEM mqttBrokerPort[] = "mqttBrokerPort";
-const char PROGMEM mqttUser[] = "mqttUser";
-const char PROGMEM mqttPassword[] = "mqttPassword";
-const char PROGMEM mqttRetain[] = "mqttRetain";
-const char PROGMEM mqttReceiveTopic[] = "mqttReceiveTopic";
-const char PROGMEM mqttSendTopic[] = "mqttSendTopic";
-const char PROGMEM rfEchoMessages[] = "rfEchoMessages";
-const char PROGMEM rfReceiverPin[] = "rfReceiverPin";
-const char PROGMEM rfTransmitterPin[] = "rfTransmitterPin";
-const char PROGMEM rfReceiverPinPullUp[] = "rfReceiverPinPullUp";
-const char PROGMEM rfProtocols[] = "rfProtocols";
-const char PROGMEM serialLogLevel[] = "serialLogLevel";
-const char PROGMEM webLogLevel[] = "webLogLevel";
-const char PROGMEM syslogLevel[] = "syslogLevel";
-const char PROGMEM syslogHost[] = "syslogHost";
-const char PROGMEM syslogPort[] = "syslogPort";
-const char PROGMEM ledPin[] = "ledPin";
-const char PROGMEM ledActiveHigh[] = "ledActiveHigh";
+char deviceName[] = "deviceName";
+char configPassword[] = "configPassword";
+char mqttBroker[] = "mqttBroker";
+char mqttBrokerPort[] = "mqttBrokerPort";
+char mqttUser[] = "mqttUser";
+char mqttPassword[] = "mqttPassword";
+char mqttRetain[] = "mqttRetain";
+char mqttReceiveTopic[] = "mqttReceiveTopic";
+char mqttSendTopic[] = "mqttSendTopic";
+char rfEchoMessages[] = "rfEchoMessages";
+char rfReceiverPin[] = "rfReceiverPin";
+char rfTransmitterPin[] = "rfTransmitterPin";
+char rfReceiverPinPullUp[] = "rfReceiverPinPullUp";
+char rfProtocols[] = "rfProtocols";
+char serialLogLevel[] = "serialLogLevel";
+char webLogLevel[] = "webLogLevel";
+char syslogLevel[] = "syslogLevel";
+char syslogHost[] = "syslogHost";
+char syslogPort[] = "syslogPort";
+char ledPin[] = "ledPin";
+char ledActiveHigh[] = "ledActiveHigh";
 }  // namespace JsonKey
 
 static inline bool any(std::initializer_list<bool> items) {
@@ -148,36 +148,36 @@ void Settings::save() {
 Settings::~Settings() = default;
 
 void Settings::doSerialize(JsonObject &root, bool sensible) const {
-  root[FPSTR(JsonKey::deviceName)] = this->deviceName;
-  root[FPSTR(JsonKey::mqttBroker)] = this->mqttBroker;
-  root[FPSTR(JsonKey::mqttBrokerPort)] = this->mqttBrokerPort;
-  root[FPSTR(JsonKey::mqttUser)] = this->mqttUser;
-  root[FPSTR(JsonKey::mqttRetain)] = this->mqttRetain;
-  root[FPSTR(JsonKey::mqttReceiveTopic)] = this->mqttReceiveTopic;
-  root[FPSTR(JsonKey::mqttSendTopic)] = this->mqttSendTopic;
-  root[FPSTR(JsonKey::rfEchoMessages)] = this->rfEchoMessages;
-  root[FPSTR(JsonKey::rfReceiverPin)] = this->rfReceiverPin;
-  root[FPSTR(JsonKey::rfTransmitterPin)] = this->rfTransmitterPin;
-  root[FPSTR(JsonKey::rfReceiverPinPullUp)] = this->rfReceiverPinPullUp;
+  root[JsonKey::deviceName] = this->deviceName;
+  root[JsonKey::mqttBroker] = this->mqttBroker;
+  root[JsonKey::mqttBrokerPort] = this->mqttBrokerPort;
+  root[JsonKey::mqttUser] = this->mqttUser;
+  root[JsonKey::mqttRetain] = this->mqttRetain;
+  root[JsonKey::mqttReceiveTopic] = this->mqttReceiveTopic;
+  root[JsonKey::mqttSendTopic] = this->mqttSendTopic;
+  root[JsonKey::rfEchoMessages] = this->rfEchoMessages;
+  root[JsonKey::rfReceiverPin] = this->rfReceiverPin;
+  root[JsonKey::rfTransmitterPin] = this->rfTransmitterPin;
+  root[JsonKey::rfReceiverPinPullUp] = this->rfReceiverPinPullUp;
   {
     DynamicJsonBuffer protoBuffer;
     JsonArray &parsedProtocols = protoBuffer.parseArray(this->rfProtocols);
-    JsonArray &protos = root.createNestedArray(FPSTR(JsonKey::rfProtocols));
+    JsonArray &protos = root.createNestedArray(JsonKey::rfProtocols);
     for (const auto proto : parsedProtocols) {
       protos.add(proto.as<String>());
     }
   }
-  root[FPSTR(JsonKey::serialLogLevel)] = this->serialLogLevel;
-  root[FPSTR(JsonKey::webLogLevel)] = this->webLogLevel;
-  root[FPSTR(JsonKey::syslogLevel)] = this->syslogLevel;
-  root[FPSTR(JsonKey::syslogHost)] = this->syslogHost;
-  root[FPSTR(JsonKey::syslogPort)] = this->syslogPort;
-  root[FPSTR(JsonKey::ledPin)] = this->ledPin;
-  root[FPSTR(JsonKey::ledActiveHigh)] = this->ledActiveHigh;
+  root[JsonKey::serialLogLevel] = this->serialLogLevel;
+  root[JsonKey::webLogLevel] = this->webLogLevel;
+  root[JsonKey::syslogLevel] = this->syslogLevel;
+  root[JsonKey::syslogHost] = this->syslogHost;
+  root[JsonKey::syslogPort] = this->syslogPort;
+  root[JsonKey::ledPin] = this->ledPin;
+  root[JsonKey::ledActiveHigh] = this->ledActiveHigh;
 
   if (sensible) {
-    root[FPSTR(JsonKey::configPassword)] = this->configPassword;
-    root[FPSTR(JsonKey::mqttPassword)] = this->mqttPassword;
+    root[JsonKey::configPassword] = this->configPassword;
+    root[JsonKey::mqttPassword] = this->mqttPassword;
   }
 }
 
@@ -197,61 +197,56 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
     return changed;
   }
 
-  changed.set(BASE, setIfPresent(parsedSettings, FPSTR(JsonKey::deviceName),
+  changed.set(BASE, setIfPresent(parsedSettings, JsonKey::deviceName,
                                  deviceName, notEmpty()));
   bool pass_before = hasValidPassword();
-  changed.set(WEB_CONFIG,
-              setIfPresent(parsedSettings, FPSTR(JsonKey::configPassword),
-                           configPassword, notEmpty()));
+  changed.set(WEB_CONFIG, setIfPresent(parsedSettings, JsonKey::configPassword,
+                                       configPassword, notEmpty()));
   changed.set(
-      MQTT,
-      any({changed[BASE],
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBroker), mqttBroker,
-                        notEmpty()),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttBrokerPort),
-                        mqttBrokerPort, notZero<uint16_t>()),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttUser), mqttUser),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttPassword),
-                        mqttPassword, notEmpty()),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttRetain), mqttRetain),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttReceiveTopic),
-                        mqttReceiveTopic, notEmpty()),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::mqttSendTopic),
-                        mqttSendTopic, notEmpty())}));
-  changed.set(RF_ECHO,
-              (setIfPresent(parsedSettings, FPSTR(JsonKey::rfEchoMessages),
-                            rfEchoMessages)));
+      MQTT, any({changed[BASE],
+                 setIfPresent(parsedSettings, JsonKey::mqttBroker, mqttBroker,
+                              notEmpty()),
+                 setIfPresent(parsedSettings, JsonKey::mqttBrokerPort,
+                              mqttBrokerPort, notZero<uint16_t>()),
+                 setIfPresent(parsedSettings, JsonKey::mqttUser, mqttUser),
+                 setIfPresent(parsedSettings, JsonKey::mqttPassword,
+                              mqttPassword, notEmpty()),
+                 setIfPresent(parsedSettings, JsonKey::mqttRetain, mqttRetain),
+                 setIfPresent(parsedSettings, JsonKey::mqttReceiveTopic,
+                              mqttReceiveTopic, notEmpty()),
+                 setIfPresent(parsedSettings, JsonKey::mqttSendTopic,
+                              mqttSendTopic, notEmpty())}));
+  changed.set(RF_ECHO, (setIfPresent(parsedSettings, JsonKey::rfEchoMessages,
+                                     rfEchoMessages)));
   changed.set(
       RF_CONFIG,
-      any({setIfPresent(parsedSettings, FPSTR(JsonKey::rfReceiverPin),
-                        rfReceiverPin),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::rfTransmitterPin),
+      any({setIfPresent(parsedSettings, JsonKey::rfReceiverPin, rfReceiverPin),
+           setIfPresent(parsedSettings, JsonKey::rfTransmitterPin,
                         rfTransmitterPin),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::rfReceiverPinPullUp),
+           setIfPresent(parsedSettings, JsonKey::rfReceiverPinPullUp,
                         rfReceiverPinPullUp)}));
-  if (parsedSettings.containsKey(FPSTR(JsonKey::rfProtocols))) {
+  if (parsedSettings.containsKey(JsonKey::rfProtocols)) {
     String buff;
-    parsedSettings[FPSTR(JsonKey::rfProtocols)].printTo(buff);
+    parsedSettings[JsonKey::rfProtocols].printTo(buff);
     if (buff != rfProtocols) {
       rfProtocols = buff;
       changed.set(RF_PROTOCOL, true);
     }
   }
-  changed.set(LOGGING,
-              any({setIfPresent(parsedSettings, FPSTR(JsonKey::serialLogLevel),
-                                serialLogLevel),
-                   setIfPresent(parsedSettings, FPSTR(JsonKey::webLogLevel),
-                                webLogLevel)}));
+  changed.set(
+      LOGGING,
+      any({setIfPresent(parsedSettings, JsonKey::serialLogLevel,
+                        serialLogLevel),
+           setIfPresent(parsedSettings, JsonKey::webLogLevel, webLogLevel)}));
   changed.set(
       SYSLOG,
-      any({setIfPresent(parsedSettings, FPSTR(JsonKey::syslogLevel),
-                        syslogLevel),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::syslogHost), syslogHost),
-           setIfPresent(parsedSettings, FPSTR(JsonKey::syslogPort), syslogPort,
+      any({setIfPresent(parsedSettings, JsonKey::syslogLevel, syslogLevel),
+           setIfPresent(parsedSettings, JsonKey::syslogHost, syslogHost),
+           setIfPresent(parsedSettings, JsonKey::syslogPort, syslogPort,
                         notZero<uint16_t>())}));
   changed.set(STATUSLED,
-              any({setIfPresent(parsedSettings, FPSTR(JsonKey::ledPin), ledPin),
-                   setIfPresent(parsedSettings, FPSTR(JsonKey::ledActiveHigh),
+              any({setIfPresent(parsedSettings, JsonKey::ledPin, ledPin),
+                   setIfPresent(parsedSettings, JsonKey::ledActiveHigh,
                                 ledActiveHigh)}));
 
   if (hasValidPassword() != pass_before) {
