@@ -237,19 +237,19 @@ void ConfigWebServer::onFirmwareUpload() {
     Logger.debug.println(ESP.getFreeHeap());
     uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     if (!Update.begin(maxSketchSpace)) {  // start with max available size
-      Update.printError(Serial);
+      Update.printError(Logger.info);
     }
   } else if (upload.status == UPLOAD_FILE_WRITE && authenticate && !error) {
     if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
       error = true;
-      Update.printError(Serial);
+      Update.printError(Logger.info);
     }
   } else if (upload.status == UPLOAD_FILE_END && authenticate && !error) {
     if (Update.end(true)) {  // true to set the size to the current progress
       Logger.debug.print(F("Update Success: "));
       Logger.debug.println(upload.totalSize);
     } else {
-      Update.printError(Serial);
+      Update.printError(Logger.info);
     }
     Serial.setDebugOutput(false);
   } else if (upload.status == UPLOAD_FILE_ABORTED && authenticate) {
