@@ -105,7 +105,7 @@ void RfHandler::onRfCode(const String &protocol, const String &message,
   } else {
     Logger.debug.print(F("rf signal received: "));
     Logger.debug.print(message);
-    Logger.debug.print(F(" protocol= "));
+    Logger.debug.print(F(" protocol="));
     Logger.debug.print(protocol);
     Logger.debug.print(F(" status="));
     Logger.debug.print(status);
