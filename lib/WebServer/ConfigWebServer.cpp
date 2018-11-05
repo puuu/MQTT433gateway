@@ -200,16 +200,9 @@ void ConfigWebServer::onFirmwareFinish() {
 
   Logger.info.println(F("Got an update. Rebooting..."));
   if (Update.hasError()) {
-    server.send_P(
-        200, TEXT_PLAIN,
-        PSTR("Update failed. More information can be found on the serial "
-             "console. \n\nDevice will reboot with old firmware. Please "
-             "reconnect and try to flash again."));
+    server.send_P(200, APPLICATION_JSON, PSTR("{\"success\":false}"));
   } else {
-    server.sendHeader(F("Refresh"), F("20; URL=/"));
-    server.send_P(200, TEXT_PLAIN,
-                  PSTR("Update successful.\n\nDevice will reboot and try "
-                       "to reconnect in 20 seconds."));
+    server.send_P(200, APPLICATION_JSON, PSTR("{\"success\":true}"));
   }
   delay(500);
   ESP.restart();
