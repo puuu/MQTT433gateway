@@ -523,8 +523,7 @@ $(function () {
     }
 
     function openWebSocket() {
-        var container = $('#log-container');
-        var pre = container.find('pre');
+        var pre = $('#log-container');
 
         var webSocket = new WebSocket("ws://" + location.hostname + ":81");
         var tm;
@@ -578,7 +577,7 @@ $(function () {
     }
     // Clear log
     $('#btn-clear-log').click(function (event) {
-        $('#log-container').find('pre').empty();
+        $('#log-container').empty();
     });
 
     initConfigUi();
