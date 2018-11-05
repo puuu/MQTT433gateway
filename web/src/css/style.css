@@ -17,6 +17,9 @@ legend {
 .log-container {
     background: #cfcfcf;
     height: 40em;
+    resize: vertical;
+    padding: 0.4em;
+    white-space: pre-wrap;
     overflow: auto;
 }
 
