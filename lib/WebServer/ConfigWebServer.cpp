@@ -150,7 +150,9 @@ void ConfigWebServer::onSystemCommand() {
 
   for (const auto& systemCommandHandler : systemCommandHandlers) {
     if (systemCommandHandler.command == command) {
-      server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
+      String result;
+      serializeJson(jsonDoc, result);
+      server.send(200, FPSTR(APPLICATION_JSON), result);
       systemCommandHandler.cb();
       return;
     }
