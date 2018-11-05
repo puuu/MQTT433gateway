@@ -554,9 +554,12 @@ $(function () {
                 return;
             }
 
+            var element = pre.get(0);
+            var isScrollDown = (element.scrollTop === element.scrollHeight - element.clientHeight);
             pre.append(message);
-            if (message === '\n' || (typeof message === "string" && message.indexOf('\n') !== -1)) {
-                container.scrollTop(pre.get(0).scrollHeight);
+            if (isScrollDown) {
+                // scroll down if current bottom is shown
+                element.scrollTop = element.scrollHeight - element.clientHeight;
             }
         };
 
