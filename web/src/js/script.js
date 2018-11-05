@@ -540,6 +540,7 @@ $(function () {
                 tm = setTimeout(function () {
                     showState("Broken!");
                     webSocket.close();
+                    webSocket.onerror = undefined;
                     openWebSocket();
                 }, 2000);
             }, 5000);
