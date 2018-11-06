@@ -1,3 +1,7 @@
+"""MQTT433gateway git firmware extractor
+
+Project home: https://github.com/puuu/MQTT433gateway/
+"""
 import subprocess
 Import("env")
 
