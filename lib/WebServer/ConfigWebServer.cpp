@@ -102,7 +102,7 @@ void ConfigWebServer::begin() {
                   200, FPSTR(APPLICATION_JSON),
                   String(F("{\"version\":\"" QUOTE(FIRMWARE_VERSION) "\",")) +
                       F("\"chipId\":\"") + String(ESP.getChipId(), HEX) +
-                      F("\"}"));
+                      F("\",\"build_with\":" QUOTE(FW_BUILD_WITH) "}"));
             }));
 
   server.on(
