@@ -34,7 +34,7 @@
 #define FIRMWARE_VERSION unknown
 #endif
 
-#define X_QUOTE(x) #x
+#define X_QUOTE(x...) #x
 #define QUOTE(x) X_QUOTE(x)
 
 #include <bitset>
