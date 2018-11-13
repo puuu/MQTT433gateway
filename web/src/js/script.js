@@ -411,6 +411,7 @@ $(function () {
         }
 
         var settings = $("#settings");
+        var container;
         CONFIG_ITEMS.forEach(function (item) {
             var result = item.factory(item);
             if (item.container) {
