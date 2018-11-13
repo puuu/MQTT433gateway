@@ -34,6 +34,11 @@
 #define FIRMWARE_VERSION unknown
 #endif
 
+#ifndef FW_BUILD_WITH
+#define FW_BUILD_WITH \
+  {}
+#endif
+
 #define X_QUOTE(x...) #x
 #define QUOTE(x) X_QUOTE(x)
 
