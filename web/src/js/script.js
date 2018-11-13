@@ -539,6 +539,11 @@ $(function () {
             success: function (data) {
                 $('#current-fw-version').text(data.version);
                 $('#chip-id').text(data.chipId);
+                var container = $('#fw-build-with');
+                container.empty();
+                $.each(data.build_with, function(dependency, version) {
+                    container.append($('<li>', {text: dependency + ': ' + version}));
+                });
             }
         });
     }

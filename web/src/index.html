@@ -50,10 +50,11 @@
     </p>
 
     <h2>System update</h2>
-    <p>
-        Current version: <span id="current-fw-version"></span><br>
-        Chip ID: <span id="chip-id"></span>
-    </p>
+    <ul>
+        <li>Current version: <span id="current-fw-version"></span></li>
+        <li>Build with: <ul id="fw-build-with"></ul></li>
+        <li>Chip ID: <span id="chip-id"></span></li>
+    </ul>
     <form action="/firmware" method="post" enctype="multipart/form-data" id="update-form" class="pure-form">
         <input type="file" name="file" accept=".bin"/>
         <input type="submit" name="submit" value="Upload Firmware" class="pure-button pure-button-primary"/>
