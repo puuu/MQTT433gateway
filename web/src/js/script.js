@@ -571,6 +571,7 @@ $(function () {
         };
 
         webSocket.onopen = function (event) {
+            loadFwVersion();
             showState("Connected!");
             ping();
         };
@@ -582,6 +583,5 @@ $(function () {
 
     initConfigUi();
     initDebugUi(DEBUG_FLAGS, $("#debugflags"));
-    loadFwVersion();
     openWebSocket();
 });
