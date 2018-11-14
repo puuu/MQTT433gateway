@@ -5,7 +5,7 @@
 .piolibdeps
 .clang_complete
 .gcc-flags.json
-web/build/
+web/dist/
 web/node_modules/
 src/config.h
 dist/version_build.h
