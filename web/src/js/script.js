@@ -423,12 +423,17 @@ $(function () {
         loadConfig();
         $('#settings-form').submit(function (event) {
             event.preventDefault();
+            var on_success = applyConfig;
+            if ('configPassword' in changes) {
+                // reload after new password to force password question
+                on_success = loadConfig;
+            }
             $.ajax({
                 url: "/config",
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify(changes),
-                success: applyConfig
+                success: on_success
             });
             return false;
         });
