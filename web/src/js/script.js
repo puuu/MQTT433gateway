@@ -428,6 +428,21 @@ $(function () {
                 // reload after new password to force password question
                 on_success = loadConfig;
             }
+            if (('deviceName' in changes) &&
+                (window.location.hostname.toLowerCase() === lastConfig.deviceName.toLowerCase() + '.local')) {
+                var on_success_old = on_success;
+                on_success = function(data) {
+                    if (confirm('deviceName was changed. Did you like to reload with new deviceName?')) {
+                        var mdnsname = changes.deviceName + '.local';
+                        var url = window.location.protocol + '//' + mdnsname;
+                        location.assign(url);
+                        body.empty();
+                        body.append('<a href="' + url + '">' + mdnsname + '</a>');
+                    } else {
+                        return on_success_old(data);
+                    }
+                }
+            }
             $.ajax({
                 url: "/config",
                 type: 'PUT',
