@@ -63,20 +63,16 @@ static String stateMessage(const bool online) {
          String(online ? F("online") : F("offline")) + String(F("\"}"));
 }
 
-static String stateTopic(const String &devName) {
-  return devName + F("/state");
-}
-
 bool MqttClient::connect() {
   if (0 == settings.mqttUser.length()) {
     return mqttClient.connect(settings.deviceName.c_str(),
-                              stateTopic(settings.deviceName).c_str(), 0, true,
+                              settings.mqttStateTopic.c_str(), 0, true,
                               stateMessage(false).c_str());
   } else {
     return mqttClient.connect(
         settings.deviceName.c_str(), settings.mqttUser.c_str(),
-        settings.mqttPassword.c_str(), stateTopic(settings.deviceName).c_str(),
-        0, true, stateMessage(false).c_str());
+        settings.mqttPassword.c_str(), settings.mqttStateTopic.c_str(), 0, true,
+        stateMessage(false).c_str());
   }
 }
 
@@ -91,7 +87,7 @@ void MqttClient::reconnect() {
     if (connect()) {
       Logger.info.println(F("MQTT connected."));
       if (subsrcibe()) {
-        mqttClient.publish(stateTopic(settings.deviceName).c_str(),
+        mqttClient.publish(settings.mqttStateTopic.c_str(),
                            stateMessage(true).c_str(), true);
         Logger.info.println(F("MQTT subscribed."));
       } else {
