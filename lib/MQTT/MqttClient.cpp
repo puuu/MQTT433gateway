@@ -89,6 +89,8 @@ void MqttClient::reconnect() {
       if (subsrcibe()) {
         mqttClient.publish(settings.mqttStateTopic.c_str(),
                            stateMessage(true).c_str(), true);
+        mqttClient.publish(settings.mqttVersionTopic.c_str(),
+                           fwJsonVersion(false).c_str(), true);
         Logger.info.println(F("MQTT subscribed."));
       } else {
         Logger.error.println(F("MQTT subsrcibe failed!"));
