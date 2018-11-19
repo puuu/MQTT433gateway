@@ -58,9 +58,7 @@ void MqttClient::begin() {
 }
 
 static String stateMessage(const bool online) {
-  return String(F("{\"chipId\":\"")) + chipId() +
-         String(F("\",\"firmware\":\"")) + fwVersion() + F("\",\"state\":\"") +
-         String(online ? F("online") : F("offline")) + String(F("\"}"));
+  return String(online ? F("online") : F("offline"));
 }
 
 bool MqttClient::connect() {
