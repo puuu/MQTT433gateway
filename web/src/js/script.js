@@ -46,6 +46,7 @@ $(function () {
         new ConfigItem("mqttReceiveTopic", mqttTopicInputFactory, inputApply, inputGet, "Topic to publish received signal"),
         new ConfigItem("mqttSendTopic", mqttTopicInputFactory, inputApply, inputGet, "Topic to get signals to send from"),
         new ConfigItem("mqttStateTopic", mqttTopicInputFactory, inputApply, inputGet, "Topic to publish the device state"),
+        new ConfigItem("mqttVersionTopic", mqttTopicInputFactory, inputApply, inputGet, "Topic to publish the current device version"),
 
         new GroupItem("433MHz RF Config", legendFactory),
         new ConfigItem("rfEchoMessages", checkboxFactory, checkboxApply, checkboxGet, "Echo sent rf messages back"),
