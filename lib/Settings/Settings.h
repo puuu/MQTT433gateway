@@ -46,6 +46,7 @@ const char PROGMEM DEFAULT_PASSWORD[] = "MQTT433gateway";
 const char PROGMEM DEFAULT_RECEIVE_TOPIC_SUFFIX[] = "/recv/";
 const char PROGMEM DEFAULT_SEND_TOPIC_SUFFIX[] = "/send/";
 const char PROGMEM DEFAULT_STATE_TOPIC_SUFFIX[] = "/state";
+const char PROGMEM DEFAULT_VERSION_TOPIC_SUFFIX[] = "/version";
 const char PROGMEM DEFAULT_RF_PROTOCOLS[] = "[]";
 const char PROGMEM DEFAULT_SERIAL_LOG_LEVEL[] = "debug";
 const char PROGMEM DEFAULT_WEB_LOG_LEVEL[] = "info";
@@ -79,6 +80,7 @@ class Settings {
         mqttReceiveTopic(deviceName + FPSTR(DEFAULT_RECEIVE_TOPIC_SUFFIX)),
         mqttSendTopic(deviceName + FPSTR(DEFAULT_SEND_TOPIC_SUFFIX)),
         mqttStateTopic(deviceName + FPSTR(DEFAULT_STATE_TOPIC_SUFFIX)),
+        mqttVersionTopic(deviceName + FPSTR(DEFAULT_VERSION_TOPIC_SUFFIX)),
         rfEchoMessages(false),
         rfReceiverPin(12),  // avoid 0, 2, 15, 16
         rfTransmitterPin(4),
@@ -122,6 +124,7 @@ class Settings {
   String mqttReceiveTopic;
   String mqttSendTopic;
   String mqttStateTopic;
+  String mqttVersionTopic;
   bool rfEchoMessages;
   int8_t rfReceiverPin;
   int8_t rfTransmitterPin;

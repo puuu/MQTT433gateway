@@ -47,6 +47,7 @@ char mqttRetain[] = "mqttRetain";
 char mqttReceiveTopic[] = "mqttReceiveTopic";
 char mqttSendTopic[] = "mqttSendTopic";
 char mqttStateTopic[] = "mqttStateTopic";
+char mqttVersionTopic[] = "mqttVersionTopic";
 char rfEchoMessages[] = "rfEchoMessages";
 char rfReceiverPin[] = "rfReceiverPin";
 char rfTransmitterPin[] = "rfTransmitterPin";
@@ -157,6 +158,7 @@ void Settings::doSerialize(JsonObject &root, bool sensible) const {
   root[JsonKey::mqttReceiveTopic] = this->mqttReceiveTopic;
   root[JsonKey::mqttSendTopic] = this->mqttSendTopic;
   root[JsonKey::mqttStateTopic] = this->mqttStateTopic;
+  root[JsonKey::mqttVersionTopic] = this->mqttVersionTopic;
   root[JsonKey::rfEchoMessages] = this->rfEchoMessages;
   root[JsonKey::rfReceiverPin] = this->rfReceiverPin;
   root[JsonKey::rfTransmitterPin] = this->rfTransmitterPin;
@@ -219,7 +221,9 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
                  setIfPresent(parsedSettings, JsonKey::mqttSendTopic,
                               mqttSendTopic, notEmpty()),
                  setIfPresent(parsedSettings, JsonKey::mqttStateTopic,
-                              mqttStateTopic, notEmpty())}));
+                              mqttStateTopic, notEmpty()),
+                 setIfPresent(parsedSettings, JsonKey::mqttVersionTopic,
+                              mqttVersionTopic, notEmpty())}));
   changed.set(RF_ECHO, (setIfPresent(parsedSettings, JsonKey::rfEchoMessages,
                                      rfEchoMessages)));
   changed.set(
