@@ -29,6 +29,8 @@
 
 #include <ArduinoSimpleLogging.h>
 
+#include <Version.h>
+
 #include "MqttClient.h"
 
 class PayloadString : public String {
@@ -56,9 +58,8 @@ void MqttClient::begin() {
 }
 
 static String stateMessage(const bool online) {
-  return String(F("{\"chipId\":\"")) + String(ESP.getChipId(), HEX) +
-         String(F(
-             "\",\"firmware\":\"" QUOTE(FIRMWARE_VERSION) "\",\"state\":\"")) +
+  return String(F("{\"chipId\":\"")) + chipId() +
+         String(F("\",\"firmware\":\"")) + fwVersion() + F("\",\"state\":\"") +
          String(online ? F("online") : F("offline")) + String(F("\"}"));
 }
 

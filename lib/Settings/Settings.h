@@ -30,23 +30,10 @@
 #ifndef MQTT433GATEWAY_SETTINGS_H
 #define MQTT433GATEWAY_SETTINGS_H
 
-#ifndef FIRMWARE_VERSION
-#define FIRMWARE_VERSION unknown
-#endif
-
-#ifndef FW_BUILD_WITH
-#define FW_BUILD_WITH \
-  {}
-#endif
-
-#define X_QUOTE(x...) #x
-#define QUOTE(x) X_QUOTE(x)
-
 #include <bitset>
 #include <forward_list>
 #include <functional>
 
-#include <Esp.h>
 #include <Stream.h>
 #include <WString.h>
 

@@ -33,6 +33,8 @@
 #include <ArduinoJson.h>
 #include <ArduinoSimpleLogging.h>
 
+#include <Version.h>
+
 #include "../../dist/index.html.gz.h"
 #include "ConfigWebServer.h"
 
@@ -98,11 +100,7 @@ void ConfigWebServer::begin() {
 
   server.on(FPSTR(URL_FIRMWARE), HTTP_GET, authenticated([this]() {
               Logger.debug.println(F("Webserver: firmware GET"));
-              server.send(
-                  200, FPSTR(APPLICATION_JSON),
-                  String(F("{\"version\":\"" QUOTE(FIRMWARE_VERSION) "\",")) +
-                      F("\"chipId\":\"") + String(ESP.getChipId(), HEX) +
-                      F("\",\"build_with\":" QUOTE(FW_BUILD_WITH) "}"));
+              server.send(200, FPSTR(APPLICATION_JSON), fwJsonVersion(true));
             }));
 
   server.on(
