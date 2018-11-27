@@ -36,6 +36,15 @@ module.exports = {
         test: require.resolve('zepto'),
         loader: 'imports-loader?this=>window',
       },
+      {
+        test: /\.m?js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
     ],
   },
   optimization: {
