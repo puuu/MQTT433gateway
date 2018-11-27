@@ -22,6 +22,7 @@ install:
   - cd web && npm install && cd ..
 
 script:
+  - npm --prefix web test
   - platformio run --environment=$PLATFORMIO_ENV
   - scripts/stylecheck
   - git diff --exit-code
