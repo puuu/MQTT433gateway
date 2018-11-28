@@ -352,7 +352,7 @@ $(() => {
   }
 
   function inputGetInt(element) {
-    return parseInt(inputGet(element));
+    return parseInt(inputGet(element), 10);
   }
 
   function checkboxGet(element) {
