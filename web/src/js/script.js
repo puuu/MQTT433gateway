@@ -438,7 +438,7 @@ $(() => {
       if (('deviceName' in changes)
                 && (window.location.hostname.toLowerCase() === `${lastConfig.deviceName.toLowerCase()}.local`)) {
         const onSuccessOld = onSuccess;
-        onSuccess = function (data) {
+        onSuccess = (data) => {
           if (window.confirm('deviceName was changed. Did you like to reload with new deviceName?')) {
             const mdnsname = `${changes.deviceName}.local`;
             const url = `${window.location.protocol}//${mdnsname}`;
@@ -475,7 +475,7 @@ $(() => {
         id: `debug-${debugFlag}`,
         name: debugFlag,
       });
-      checkbox.change(function () {
+      checkbox.change(function onDebugClick() {
         submit(this);
       });
       return $('<div>', {
@@ -534,7 +534,7 @@ $(() => {
     1000,
   );
 
-  $('.system-btn').click(function () {
+  $('.system-btn').click(function onSystemButtonClick() {
     sendCommand({ command: $(this).data('command') });
   });
 
@@ -578,7 +578,7 @@ $(() => {
       }, 5000);
     }
 
-    webSocket.onmessage = function (event) {
+    webSocket.onmessage = (event) => {
       const message = event.data;
 
       if (message === '__PONG__') {
@@ -595,7 +595,7 @@ $(() => {
       }
     };
 
-    webSocket.onerror = function () {
+    webSocket.onerror = () => {
       webSocket.close();
       if (tm === undefined) {
         showState('Error');
@@ -603,7 +603,7 @@ $(() => {
       }
     };
 
-    webSocket.onopen = function () {
+    webSocket.onopen = () => {
       loadFwVersion();
       showState('Connected!');
       ping();
