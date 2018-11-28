@@ -429,15 +429,15 @@ $(() => {
     loadConfig();
     $('#settings-form').submit((event) => {
       event.preventDefault();
-      let on_success = applyConfig;
+      let onSuccess = applyConfig;
       if ('configPassword' in changes) {
         // reload after new password to force password question
-        on_success = loadConfig;
+        onSuccess = loadConfig;
       }
       if (('deviceName' in changes)
                 && (window.location.hostname.toLowerCase() === `${lastConfig.deviceName.toLowerCase()}.local`)) {
-        const on_success_old = on_success;
-        on_success = function (data) {
+        const onSuccessOld = onSuccess;
+        onSuccess = function (data) {
           if (confirm('deviceName was changed. Did you like to reload with new deviceName?')) {
             const mdnsname = `${changes.deviceName}.local`;
             const url = `${window.location.protocol}//${mdnsname}`;
@@ -445,7 +445,7 @@ $(() => {
             body.empty();
             body.append(`<a href="${url}">${mdnsname}</a>`);
           } else {
-            return on_success_old(data);
+            return onSuccessOld(data);
           }
         };
       }
@@ -454,7 +454,7 @@ $(() => {
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(changes),
-        success: on_success,
+        success: onSuccess,
       });
       return false;
     });
