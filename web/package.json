@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "MQTT433gateway frontend",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "eslint *.js src/",
     "build": "webpack"
   },
   "repository": {
@@ -35,5 +35,11 @@
     "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2"
+  },
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "env": {
+      "browser": true
+    }
   }
 }
