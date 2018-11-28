@@ -446,9 +446,9 @@ $(() => {
             const body = $('body');
             body.empty();
             body.append(`<a href="${url}">${mdnsname}</a>`);
-          } else {
-            return onSuccessOld(data);
+            return undefined;
           }
+          return onSuccessOld(data);
         };
       }
       $.ajax({
