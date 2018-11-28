@@ -240,7 +240,7 @@ $(() => {
     }));
     function validatePassword(event) {
       let message = '';
-      if (element1.val() != element2.val()) {
+      if (element1.val() !== element2.val()) {
         message = "Passwords don't match!";
       }
       element1.get(0).setCustomValidity(message);
@@ -336,7 +336,7 @@ $(() => {
       setTimeout(protocolApply(itemName, data), 100);
       return;
     }
-    if (data.length == 0) {
+    if (data.length === 0) {
       data = protocols;
     }
     data.forEach((value) => {
