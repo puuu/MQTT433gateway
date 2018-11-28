@@ -27,6 +27,8 @@
   SOFTWARE.
 */
 
+import gateway from './gateway-api';
+
 require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
 require('../css/style.css');
@@ -310,12 +312,7 @@ $(() => {
       });
       protocols = protos;
     }
-    $.ajax({
-      url: '/protocols',
-      type: 'GET',
-      contentType: 'application/json',
-      success: protocolListFactory,
-    });
+    gateway.fetchProtocols().then(protocolListFactory);
     return container;
   }
 
@@ -409,12 +406,7 @@ $(() => {
     }
 
     function loadConfig() {
-      $.ajax({
-        url: '/config',
-        type: 'GET',
-        contentType: 'application/json',
-        success: applyConfig,
-      });
+      gateway.fetchConfig().then(applyConfig);
     }
 
     const settings = $('#settings');
@@ -452,13 +444,7 @@ $(() => {
           return onSuccessOld(data);
         };
       }
-      $.ajax({
-        url: '/config',
-        type: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify(changes),
-        success: onSuccess,
-      });
+      gateway.pushConfig(changes).then(onSuccess);
       return false;
     });
     $('#cfg-form-reset').click((event) => {
@@ -500,37 +486,18 @@ $(() => {
     function submit(item) {
       const data = {};
       data[item.name] = item.checked;
-      $.ajax({
-        url: '/debug',
-        type: 'PUT',
-        data: JSON.stringify(data),
-        contentType: 'application/json',
-        success: apply,
-      });
+      gateway.pushDebug(data).then(apply);
     }
 
     $.each(debugFlags, (debugFlag, helpText) => {
       container.append(create(debugFlag, helpText));
     });
-    $.ajax({
-      url: '/debug',
-      type: 'GET',
-      contentType: 'application/json',
-      success: apply,
-    });
+    gateway.fetchDebug().then(apply);
   }
 
   const sendCommand = throttle(
     (params) => {
-      $.ajax({
-        url: '/system',
-        type: 'POST',
-        data: JSON.stringify(params),
-        contentType: 'application/json',
-        success() {
-          SystemCommandActions[params.command]();
-        },
-      });
+      gateway.pushCommand(params).then(SystemCommandActions[params.command]);
     },
     1000,
   );
@@ -540,19 +507,14 @@ $(() => {
   });
 
   function loadFwVersion() {
-    $.ajax({
-      url: '/firmware',
-      type: 'GET',
-      contentType: 'application/json',
-      success(data) {
-        $('#current-fw-version').text(data.version);
-        $('#chip-id').text(data.chipId);
-        const container = $('#fw-build-with');
-        container.empty();
-        $.each(data.build_with, (dependency, version) => {
-          container.append($('<li>', { text: `${dependency}: ${version}` }));
-        });
-      },
+    gateway.fetchFirmware().then((data) => {
+      $('#current-fw-version').text(data.version);
+      $('#chip-id').text(data.chipId);
+      const container = $('#fw-build-with');
+      container.empty();
+      $.each(data.build_with, (dependency, version) => {
+        container.append($('<li>', { text: `${dependency}: ${version}` }));
+      });
     });
   }
 
