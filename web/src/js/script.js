@@ -518,37 +518,13 @@ $(() => {
     });
   }
 
-  function openWebSocket() {
-    const pre = $('#log-container');
-
-    const webSocket = new WebSocket(`ws://${window.location.hostname}:81`);
-    let tm;
-
-    function showState(state) {
+  function openLogListener() {
+    function onNewStatus(state) {
       $('#log-status').text(state);
     }
 
-    function ping() {
-      clearTimeout(tm);
-      tm = setTimeout(() => {
-        webSocket.send('__PING__');
-        tm = setTimeout(() => {
-          showState('Broken!');
-          webSocket.close();
-          webSocket.onerror = undefined;
-          openWebSocket();
-        }, 2000);
-      }, 5000);
-    }
-
-    webSocket.onmessage = (event) => {
-      const message = event.data;
-
-      if (message === '__PONG__') {
-        ping();
-        return;
-      }
-
+    function onMessage(message) {
+      const pre = $('#log-container');
       const element = pre.get(0);
       const isScrollDown = (element.scrollTop === element.scrollHeight - element.clientHeight);
       pre.append(message);
@@ -556,21 +532,13 @@ $(() => {
         // scroll down if current bottom is shown
         element.scrollTop = element.scrollHeight - element.clientHeight;
       }
-    };
+    }
 
-    webSocket.onerror = () => {
-      webSocket.close();
-      if (tm === undefined) {
-        showState('Error');
-        openWebSocket();
-      }
-    };
-
-    webSocket.onopen = () => {
+    function onConnect() {
       loadFwVersion();
-      showState('Connected!');
-      ping();
-    };
+    }
+
+    return new gateway.LogListener(onMessage, onNewStatus, onConnect);
   }
   // Clear log
   $('#btn-clear-log').click(() => {
@@ -579,5 +547,5 @@ $(() => {
 
   initConfigUi();
   initDebugUi(DEBUG_FLAGS, $('#debugflags'));
-  openWebSocket();
+  openLogListener();
 });
