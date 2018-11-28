@@ -336,10 +336,11 @@ $(() => {
       setTimeout(protocolApply(itemName, data), 100);
       return;
     }
-    if (data.length === 0) {
-      data = protocols;
+    let protocolList = data;
+    if (protocolList.length === 0) {
+      protocolList = protocols;
     }
-    data.forEach((value) => {
+    protocolList.forEach((value) => {
       $(`#cfg-${itemName}-${value}`).prop('checked', true);
     });
   }
