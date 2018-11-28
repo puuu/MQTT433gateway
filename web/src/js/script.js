@@ -238,7 +238,7 @@ $(() => {
       id: `cfg-${item.name}-confirm`,
       name: `${item.name}-confirm`,
     }));
-    function validatePassword(event) {
+    function validatePassword() {
       let message = '';
       if (element1.val() !== element2.val()) {
         message = "Passwords don't match!";
@@ -359,7 +359,7 @@ $(() => {
     return element.prop('checked');
   }
 
-  function protocolGet(element) {
+  function protocolGet() {
     const checked = $('.protocols-item:checked');
     if ($('.protocols-item').length === checked.length) {
       return [];
@@ -370,7 +370,7 @@ $(() => {
   let lastConfig = {};
   let changes = {};
   function registerConfigUi(element, item) {
-    element.change((event) => {
+    element.change(() => {
       const newData = item.fetch(element);
       if (newData !== undefined) {
         if (JSON.stringify(lastConfig[item.name]) !== JSON.stringify(newData)) {
@@ -473,7 +473,7 @@ $(() => {
         id: `debug-${debugFlag}`,
         name: debugFlag,
       });
-      checkbox.change(function (event) {
+      checkbox.change(function () {
         submit(this);
       });
       return $('<div>', {
@@ -532,7 +532,7 @@ $(() => {
     1000,
   );
 
-  $('.system-btn').click(function (event) {
+  $('.system-btn').click(function () {
     sendCommand({ command: $(this).data('command') });
   });
 
@@ -593,7 +593,7 @@ $(() => {
       }
     };
 
-    webSocket.onerror = function (event) {
+    webSocket.onerror = function () {
       webSocket.close();
       if (tm === undefined) {
         showState('Error');
@@ -601,14 +601,14 @@ $(() => {
       }
     };
 
-    webSocket.onopen = function (event) {
+    webSocket.onopen = function () {
       loadFwVersion();
       showState('Connected!');
       ping();
     };
   }
   // Clear log
-  $('#btn-clear-log').click((event) => {
+  $('#btn-clear-log').click(() => {
     $('#log-container').empty();
   });
 
