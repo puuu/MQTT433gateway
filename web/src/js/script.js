@@ -443,6 +443,7 @@ $(() => {
             const mdnsname = `${changes.deviceName}.local`;
             const url = `${window.location.protocol}//${mdnsname}`;
             location.assign(url);
+            const body = $('body');
             body.empty();
             body.append(`<a href="${url}">${mdnsname}</a>`);
           } else {
