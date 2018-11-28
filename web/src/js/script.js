@@ -439,10 +439,10 @@ $(() => {
                 && (window.location.hostname.toLowerCase() === `${lastConfig.deviceName.toLowerCase()}.local`)) {
         const onSuccessOld = onSuccess;
         onSuccess = function (data) {
-          if (confirm('deviceName was changed. Did you like to reload with new deviceName?')) {
+          if (window.confirm('deviceName was changed. Did you like to reload with new deviceName?')) {
             const mdnsname = `${changes.deviceName}.local`;
             const url = `${window.location.protocol}//${mdnsname}`;
-            location.assign(url);
+            window.location.assign(url);
             const body = $('body');
             body.empty();
             body.append(`<a href="${url}">${mdnsname}</a>`);
@@ -558,7 +558,7 @@ $(() => {
   function openWebSocket() {
     const pre = $('#log-container');
 
-    const webSocket = new WebSocket(`ws://${location.hostname}:81`);
+    const webSocket = new WebSocket(`ws://${window.location.hostname}:81`);
     let tm;
 
     function showState(state) {
