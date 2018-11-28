@@ -31,6 +31,7 @@ require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
 require('../css/style.css');
 /* global $ */
+/* eslint no-use-before-define: "warn" */
 
 $(() => {
   'strict mode';
