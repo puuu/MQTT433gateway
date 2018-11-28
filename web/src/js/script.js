@@ -384,9 +384,9 @@ $(() => {
 
   function throttle(callback, limit) {
     let wait = false;
-    return function () {
+    return (...args) => {
       if (!wait) {
-        callback.apply(this, arguments);
+        callback.apply(this, args);
         wait = true;
         setTimeout(() => {
           wait = false;
