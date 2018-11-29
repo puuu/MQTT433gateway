@@ -1,15 +1,12 @@
+/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-const CompressionPlugin = require('compression-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
   entry: './src/js/script.js',
-  mode: 'production',
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
@@ -17,7 +14,6 @@ module.exports = {
       inlineSource: '.(js|css)$',
     }),
     new HtmlWebpackInlineSourcePlugin(),
-    new CompressionPlugin(),
     new webpack.ProvidePlugin({
       $: 'zepto',
     }),
@@ -45,15 +41,6 @@ module.exports = {
           },
         },
       },
-    ],
-  },
-  optimization: {
-    minimizer: [
-      new UglifyJsPlugin({
-        cache: true,
-        parallel: true,
-      }),
-      new OptimizeCSSAssetsPlugin(),
     ],
   },
 };
