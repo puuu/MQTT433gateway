@@ -331,7 +331,7 @@ $(() => {
 
   function protocolApply(itemName, data) {
     if (protocols === undefined) {
-      setTimeout(protocolApply(itemName, data), 100);
+      setTimeout(() => protocolApply(itemName, data), 100);
       return;
     }
     let protocolList = data;
