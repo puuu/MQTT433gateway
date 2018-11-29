@@ -545,6 +545,26 @@ $(() => {
     $('#log-container').empty();
   });
 
+  $('#update-form').submit((formEvent) => {
+    formEvent.preventDefault();
+    $('#update-form').children('input').prop('disabled', true);
+    const file = $('#fw-file').get(0).files[0];
+    const statusElement = $('#upload-status');
+    gateway.uploadFirmware(file, (progressEvent) => {
+      const progress = Math.ceil(progressEvent.loaded / progressEvent.total * 100);
+      statusElement.text(`Uploading: ${progress} %`);
+    }).then((result) => {
+      if (result.success) {
+        statusElement.text('Update successful. Device will reboot and try to reconnect in 20 seconds.');
+        setTimeout(() => {
+          window.location.reload(true);
+        }, 20000);
+      } else {
+        statusElement.text('Update failed. More information can be found on the log console. Device will reboot with old firmware. Please reconnect and try to flash again.');
+      }
+    });
+  });
+
   initConfigUi();
   initDebugUi(DEBUG_FLAGS, $('#debugflags'));
   openLogListener();

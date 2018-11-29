@@ -48,9 +48,10 @@
         <li>Build with: <ul id="fw-build-with"></ul></li>
         <li>Chip ID: <span id="chip-id"></span></li>
     </ul>
-    <form action="/firmware" method="post" enctype="multipart/form-data" id="update-form" class="pure-form">
-        <input type="file" name="file" accept=".bin"/>
+    <form action="#" id="update-form" class="pure-form">
+        <input type="file" name="file" accept=".bin" id="fw-file"/>
         <input type="submit" name="submit" value="Upload Firmware" class="pure-button pure-button-primary"/>
+        <span id="upload-status"></span>
     </form>
 
     <h2>System Admin</h2>
