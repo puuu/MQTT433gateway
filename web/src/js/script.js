@@ -28,6 +28,7 @@
 */
 
 import gateway from './gateway';
+import settingUi from './setting-ui';
 
 require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
@@ -39,42 +40,42 @@ $(() => {
   'strict mode';
 
   const CONFIG_ITEMS = [
-    new GroupItem('General Config', legendFactory),
-    new ConfigItem('deviceName', deviceNameInputFactory, inputApply, inputGet, 'The general name of the device'),
-    new ConfigItem('configPassword', devicePasswordInputFactory, devicePasswordApply, inputGet, 'The admin password for the web UI (min. 8 characters)'),
+    new settingUi.GroupItem('General Config', settingUi.legendFactory),
+    new settingUi.ConfigItem('deviceName', settingUi.deviceNameInputFactory, settingUi.inputApply, settingUi.inputGet, 'The general name of the device'),
+    new settingUi.ConfigItem('configPassword', settingUi.devicePasswordInputFactory, settingUi.devicePasswordApply, settingUi.inputGet, 'The admin password for the web UI (min. 8 characters)'),
 
-    new GroupItem('MQTT Config', legendFactory),
-    new ConfigItem('mqttBroker', hostNameInputFactory, inputApply, inputGet, 'MQTT Broker host'),
-    new ConfigItem('mqttBrokerPort', portNumberInputFactory, inputApply, inputGetInt, 'MQTT Broker port'),
-    new ConfigItem('mqttUser', inputFieldFactory, inputApply, inputGet, 'MQTT username (optional)'),
-    new ConfigItem('mqttPassword', passwordFieldFactory, inputApply, inputGet, 'MQTT password (optional)'),
-    new ConfigItem('mqttRetain', checkboxFactory, checkboxApply, checkboxGet, 'Retain MQTT messages'),
+    new settingUi.GroupItem('MQTT Config', settingUi.legendFactory),
+    new settingUi.ConfigItem('mqttBroker', settingUi.hostNameInputFactory, settingUi.inputApply, settingUi.inputGet, 'MQTT Broker host'),
+    new settingUi.ConfigItem('mqttBrokerPort', settingUi.portNumberInputFactory, settingUi.inputApply, settingUi.inputGetInt, 'MQTT Broker port'),
+    new settingUi.ConfigItem('mqttUser', settingUi.inputFieldFactory, settingUi.inputApply, settingUi.inputGet, 'MQTT username (optional)'),
+    new settingUi.ConfigItem('mqttPassword', settingUi.passwordFieldFactory, settingUi.inputApply, settingUi.inputGet, 'MQTT password (optional)'),
+    new settingUi.ConfigItem('mqttRetain', settingUi.checkboxFactory, settingUi.checkboxApply, settingUi.checkboxGet, 'Retain MQTT messages'),
 
-    new GroupItem('MQTT Topic Config', legendFactory),
-    new ConfigItem('mqttReceiveTopic', mqttTopicInputFactory, inputApply, inputGet, 'Topic to publish received signal'),
-    new ConfigItem('mqttSendTopic', mqttTopicInputFactory, inputApply, inputGet, 'Topic to get signals to send from'),
-    new ConfigItem('mqttStateTopic', mqttTopicInputFactory, inputApply, inputGet, 'Topic to publish the device state'),
-    new ConfigItem('mqttVersionTopic', mqttTopicInputFactory, inputApply, inputGet, 'Topic to publish the current device version'),
+    new settingUi.GroupItem('MQTT Topic Config', settingUi.legendFactory),
+    new settingUi.ConfigItem('mqttReceiveTopic', settingUi.mqttTopicInputFactory, settingUi.inputApply, settingUi.inputGet, 'Topic to publish received signal'),
+    new settingUi.ConfigItem('mqttSendTopic', settingUi.mqttTopicInputFactory, settingUi.inputApply, settingUi.inputGet, 'Topic to get signals to send from'),
+    new settingUi.ConfigItem('mqttStateTopic', settingUi.mqttTopicInputFactory, settingUi.inputApply, settingUi.inputGet, 'Topic to publish the device state'),
+    new settingUi.ConfigItem('mqttVersionTopic', settingUi.mqttTopicInputFactory, settingUi.inputApply, settingUi.inputGet, 'Topic to publish the current device version'),
 
-    new GroupItem('433MHz RF Config', legendFactory),
-    new ConfigItem('rfEchoMessages', checkboxFactory, checkboxApply, checkboxGet, 'Echo sent rf messages back'),
-    new ConfigItem('rfReceiverPin', pinNumberInputFactory, inputApply, inputGetInt, 'The GPIO pin used for the rf receiver'),
-    new ConfigItem('rfReceiverPinPullUp', checkboxFactory, checkboxApply, checkboxGet, 'Activate pullup on rf receiver pin (required for 5V protection with reverse diode)'),
-    new ConfigItem('rfTransmitterPin', pinNumberInputFactory, inputApply, inputGetInt, 'The GPIO pin used for the RF transmitter'),
+    new settingUi.GroupItem('433MHz RF Config', settingUi.legendFactory),
+    new settingUi.ConfigItem('rfEchoMessages', settingUi.checkboxFactory, settingUi.checkboxApply, settingUi.checkboxGet, 'Echo sent rf messages back'),
+    new settingUi.ConfigItem('rfReceiverPin', settingUi.pinNumberInputFactory, settingUi.inputApply, settingUi.inputGetInt, 'The GPIO pin used for the rf receiver'),
+    new settingUi.ConfigItem('rfReceiverPinPullUp', settingUi.checkboxFactory, settingUi.checkboxApply, settingUi.checkboxGet, 'Activate pullup on rf receiver pin (required for 5V protection with reverse diode)'),
+    new settingUi.ConfigItem('rfTransmitterPin', settingUi.pinNumberInputFactory, settingUi.inputApply, settingUi.inputGetInt, 'The GPIO pin used for the RF transmitter'),
 
-    new GroupItem('Enabled RF protocols', legendFactory),
-    new ConfigItem('rfProtocols', protocolInputField, protocolApply, protocolGet, ''),
+    new settingUi.GroupItem('Enabled RF protocols', settingUi.legendFactory),
+    new settingUi.ConfigItem('rfProtocols', settingUi.protocolInputField, settingUi.protocolApply, settingUi.protocolGet, ''),
 
-    new GroupItem('Log Config', legendFactory),
-    new ConfigItem('serialLogLevel', logLevelInputFactory, inputApply, inputGet, 'Level for serial logging'),
-    new ConfigItem('webLogLevel', logLevelInputFactory, inputApply, inputGet, 'Level for logging to the web UI'),
-    new ConfigItem('syslogLevel', logLevelInputFactory, inputApply, inputGet, 'Level for syslog logging'),
-    new ConfigItem('syslogHost', hostNameInputFactory, inputApply, inputGet, 'Syslog server (optional)'),
-    new ConfigItem('syslogPort', portNumberInputFactory, inputApply, inputGetInt, 'Syslog port (optional)'),
+    new settingUi.GroupItem('Log Config', settingUi.legendFactory),
+    new settingUi.ConfigItem('serialLogLevel', settingUi.logLevelInputFactory, settingUi.inputApply, settingUi.inputGet, 'Level for serial logging'),
+    new settingUi.ConfigItem('webLogLevel', settingUi.logLevelInputFactory, settingUi.inputApply, settingUi.inputGet, 'Level for logging to the web UI'),
+    new settingUi.ConfigItem('syslogLevel', settingUi.logLevelInputFactory, settingUi.inputApply, settingUi.inputGet, 'Level for syslog logging'),
+    new settingUi.ConfigItem('syslogHost', settingUi.hostNameInputFactory, settingUi.inputApply, settingUi.inputGet, 'Syslog server (optional)'),
+    new settingUi.ConfigItem('syslogPort', settingUi.portNumberInputFactory, settingUi.inputApply, settingUi.inputGetInt, 'Syslog port (optional)'),
 
-    new GroupItem('Status LED', legendFactory),
-    new ConfigItem('ledPin', pinNumberInputFactory, inputApply, inputGetInt, 'The GPIO pin used for the status LED'),
-    new ConfigItem('ledActiveHigh', checkboxFactory, checkboxApply, checkboxGet, 'The way how the LED is connected to the pin (false for built-in led)'),
+    new settingUi.GroupItem('Status LED', settingUi.legendFactory),
+    new settingUi.ConfigItem('ledPin', settingUi.pinNumberInputFactory, settingUi.inputApply, settingUi.inputGetInt, 'The GPIO pin used for the status LED'),
+    new settingUi.ConfigItem('ledActiveHigh', settingUi.checkboxFactory, settingUi.checkboxApply, settingUi.checkboxGet, 'The way how the LED is connected to the pin (false for built-in led)'),
   ];
 
   const DEBUG_FLAGS = {
@@ -109,278 +110,6 @@ $(() => {
     },
   };
 
-  function ConfigItem(name, factory, apply, fetch, help) {
-    this.name = name;
-    this.factory = factory;
-    this.apply = apply;
-    this.fetch = fetch;
-    this.help = help;
-  }
-
-  function GroupItem(name, factory) {
-    this.name = name;
-    this.container = true;
-    this.factory = factory;
-  }
-
-  function inputLabelFactory(item) {
-    return $('<label>', {
-      text: item.name,
-      for: `cfg-${item.name}`,
-    });
-  }
-
-  function inputHelpFactory(item) {
-    return $('<span>', {
-      class: 'pure-form-message',
-      text: item.help,
-    });
-  }
-
-  function logLevelInputFactory(item) {
-    const element = $('<select>', {
-      class: 'config-item',
-      id: `cfg-${item.name}`,
-      name: item.name,
-    }).append([
-      $('<option>', { value: '', text: 'None' }),
-      $('<option>', { value: 'error', text: 'Error' }),
-      $('<option>', { value: 'warning', text: 'Warning' }),
-      $('<option>', { value: 'info', text: 'Info' }),
-      $('<option>', { value: 'debug', text: 'Debug' }),
-    ]);
-    registerConfigUi(element, item);
-    return [
-      inputLabelFactory(item),
-      element,
-      inputHelpFactory(item),
-    ];
-  }
-
-  function inputFieldFactory(item, pattern, required) {
-    const element = $('<input>', {
-      type: 'text',
-      class: 'pure-input-1 config-item',
-      id: `cfg-${item.name}`,
-      pattern,
-      required,
-      name: item.name,
-    });
-    registerConfigUi(element, item);
-    return [
-      inputLabelFactory(item),
-      element,
-      inputHelpFactory(item),
-    ];
-  }
-
-  function deviceNameInputFactory(item) {
-    return inputFieldFactory(item, '[.-_A-Za-z0-9]+', true);
-  }
-
-  function hostNameInputFactory(item) {
-    return inputFieldFactory(item, '[.-_A-Za-z0-9]*');
-  }
-
-  function mqttTopicInputFactory(item) {
-    return inputFieldFactory(item, undefined, true);
-  }
-
-  function inputFieldNumberFactory(item, min, max) {
-    const element = $('<input>', {
-      type: 'number',
-      class: 'pure-input-1 config-item',
-      id: `cfg-${item.name}`,
-      name: item.name,
-      min,
-      max,
-    });
-    registerConfigUi(element, item);
-    return [
-      inputLabelFactory(item),
-      element,
-      inputHelpFactory(item),
-    ];
-  }
-
-  function portNumberInputFactory(item) {
-    return inputFieldNumberFactory(item, 1, 65535);
-  }
-
-  function pinNumberInputFactory(item) {
-    return inputFieldNumberFactory(item, 0, 16);
-  }
-
-  function passwordFieldFactory(item, minlength) {
-    const element = $('<input>', {
-      type: 'password',
-      class: 'pure-input-1 config-item',
-      id: `cfg-${item.name}`,
-      name: item.name,
-      minlength,
-    });
-    registerConfigUi(element, item);
-    return [
-      inputLabelFactory(item),
-      element,
-      inputHelpFactory(item),
-    ];
-  }
-
-  function devicePasswordInputFactory(item) {
-    const properties = {
-      type: 'password',
-      class: 'pure-input-1 config-item',
-      minlength: 8,
-    };
-    const element1 = $('<input>', $.extend(properties, {
-      id: `cfg-${item.name}`,
-      name: item.name,
-    }));
-    const element2 = $('<input>', $.extend(properties, {
-      id: `cfg-${item.name}-confirm`,
-      name: `${item.name}-confirm`,
-    }));
-    function validatePassword() {
-      let message = '';
-      if (element1.val() !== element2.val()) {
-        message = "Passwords don't match!";
-      }
-      element1.get(0).setCustomValidity(message);
-      element2.get(0).setCustomValidity(message);
-    }
-    registerConfigUi(element1, item);
-    registerConfigUi(element2, item);
-    element1.on('input', validatePassword);
-    element2.on('input', validatePassword);
-    return [
-      inputLabelFactory(item),
-      element1,
-      inputLabelFactory({ name: `${item.name} (confirm)` }),
-      element2,
-      inputHelpFactory(item),
-    ];
-  }
-
-  function checkboxFactory(item) {
-    const element = $('<input>', {
-      type: 'checkbox',
-      class: 'config-item',
-      id: `cfg-${item.name}`,
-      name: item.name,
-    });
-    registerConfigUi(element, item);
-    return $('<label>', {
-      class: 'pure-checkbox',
-    }).append([
-      element,
-      ` ${item.name}`,
-      inputHelpFactory(item),
-    ]);
-  }
-
-  function legendFactory(item) {
-    return $('<fieldset>', { class: 'config-group' }).append(
-      $('<legend>', { text: item.name }),
-    );
-  }
-
-  let protocols;
-  function protocolInputField(item) {
-    const container = $('<div>', {
-      id: `cfg-${item.name}`,
-      class: 'pure-g',
-    });
-    registerConfigUi(container, item);
-    function protocolListFactory(protos) {
-      protos.forEach((value) => {
-        const element = $('<input>', {
-          type: 'checkbox',
-          class: 'config-item protocols-item',
-          id: `cfg-${item.name}-${value}`,
-          name: item.name,
-          value,
-        });
-        container.append($('<div>', {
-          class: 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-3 pure-u-xl-1-4',
-        }).append($('<label>', {
-          class: 'pure-checkbox',
-        }).append([
-          element,
-          ` Protocol ${value}`,
-        ])));
-      });
-      protocols = protos;
-    }
-    gateway.fetchProtocols().then(protocolListFactory);
-    return container;
-  }
-
-  function inputApply(itemName, data) {
-    $(`#cfg-${itemName}`).val(data);
-  }
-
-  function devicePasswordApply(itemName, data) {
-    $(`#cfg-${itemName}`).val(data);
-    $(`#cfg-${itemName}-confirm`).val(data);
-  }
-
-  function checkboxApply(itemName, data) {
-    $(`#cfg-${itemName}`).prop('checked', data);
-  }
-
-  function protocolApply(itemName, data) {
-    if (protocols === undefined) {
-      setTimeout(() => protocolApply(itemName, data), 100);
-      return;
-    }
-    let protocolList = data;
-    if (protocolList.length === 0) {
-      protocolList = protocols;
-    }
-    protocolList.forEach((value) => {
-      $(`#cfg-${itemName}-${value}`).prop('checked', true);
-    });
-  }
-
-  function inputGet(element) {
-    if (!element.get(0).checkValidity()) {
-      return undefined;
-    }
-    return element.val();
-  }
-
-  function inputGetInt(element) {
-    return parseInt(inputGet(element), 10);
-  }
-
-  function checkboxGet(element) {
-    return element.prop('checked');
-  }
-
-  function protocolGet() {
-    const checked = $('.protocols-item:checked');
-    if ($('.protocols-item').length === checked.length) {
-      return [];
-    }
-    return $.map(checked, x => $(x).val());
-  }
-
-  let lastConfig = {};
-  let changes = {};
-  function registerConfigUi(element, item) {
-    element.change(() => {
-      const newData = item.fetch(element);
-      if (newData !== undefined) {
-        if (JSON.stringify(lastConfig[item.name]) !== JSON.stringify(newData)) {
-          changes[item.name] = newData;
-        } else {
-          delete changes[item.name];
-        }
-      }
-    });
-  }
-
   function throttle(callback, limit) {
     let wait = false;
     return (...args) => {
@@ -392,66 +121,6 @@ $(() => {
         }, limit);
       }
     };
-  }
-
-  function initConfigUi() {
-    function applyConfig(data) {
-      CONFIG_ITEMS.forEach((item) => {
-        if (item.apply) {
-          item.apply(item.name, data[item.name]);
-        }
-      });
-      changes = {};
-      lastConfig = data;
-    }
-
-    function loadConfig() {
-      gateway.fetchConfig().then(applyConfig);
-    }
-
-    const settings = $('#settings');
-    let container;
-    CONFIG_ITEMS.forEach((item) => {
-      const result = item.factory(item);
-      if (item.container) {
-        result.appendTo(settings);
-        container = result;
-      } else {
-        container.append(result);
-      }
-    });
-    loadConfig();
-    $('#settings-form').submit((event) => {
-      event.preventDefault();
-      let onSuccess = applyConfig;
-      if ('configPassword' in changes) {
-        // reload after new password to force password question
-        onSuccess = loadConfig;
-      }
-      if (('deviceName' in changes)
-                && (window.location.hostname.toLowerCase() === `${lastConfig.deviceName.toLowerCase()}.local`)) {
-        const onSuccessOld = onSuccess;
-        onSuccess = (data) => {
-          if (window.confirm('deviceName was changed. Did you like to reload with new deviceName?')) {
-            const mdnsname = `${changes.deviceName}.local`;
-            const url = `${window.location.protocol}//${mdnsname}`;
-            window.location.assign(url);
-            const body = $('body');
-            body.empty();
-            body.append(`<a href="${url}">${mdnsname}</a>`);
-            return undefined;
-          }
-          return onSuccessOld(data);
-        };
-      }
-      gateway.pushConfig(changes).then(onSuccess);
-      return false;
-    });
-    $('#cfg-form-reset').click((event) => {
-      event.preventDefault();
-      loadConfig();
-      return false;
-    });
   }
 
   function initDebugUi(debugFlags, container) {
@@ -565,7 +234,7 @@ $(() => {
     });
   });
 
-  initConfigUi();
+  settingUi.init(CONFIG_ITEMS);
   initDebugUi(DEBUG_FLAGS, $('#debugflags'));
   openLogListener();
 });
