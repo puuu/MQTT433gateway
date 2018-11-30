@@ -27,11 +27,11 @@
   SOFTWARE.
 */
 
-import gateway from './gateway';
 import settingUi from './setting-ui';
 import debugUi from './debugflag-ui';
 import commandUi from './command-ui';
 import updateUi from './update-ui';
+import logUi from './log-ui';
 
 require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
@@ -112,36 +112,13 @@ $(() => {
     },
   };
 
-  function openLogListener() {
-    function onNewStatus(state) {
-      $('#log-status').text(state);
-    }
-
-    function onMessage(message) {
-      const pre = $('#log-container');
-      const element = pre.get(0);
-      const isScrollDown = (element.scrollTop === element.scrollHeight - element.clientHeight);
-      pre.append(message);
-      if (isScrollDown) {
-        // scroll down if current bottom is shown
-        element.scrollTop = element.scrollHeight - element.clientHeight;
-      }
-    }
-
-    function onConnect() {
-      updateUi.loadVersion();
-    }
-
-    return new gateway.LogListener(onMessage, onNewStatus, onConnect);
+  function onConnect() {
+    updateUi.loadVersion();
   }
-  // Clear log
-  $('#btn-clear-log').click(() => {
-    $('#log-container').empty();
-  });
 
   settingUi.init(CONFIG_ITEMS);
   debugUi.init(DEBUG_FLAGS, $('#debugflags'));
   commandUi.init(SystemCommandActions);
   updateUi.init();
-  openLogListener();
+  logUi.init(onConnect);
 });
