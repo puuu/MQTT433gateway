@@ -31,6 +31,7 @@ import gateway from './gateway';
 import settingUi from './setting-ui';
 import debugUi from './debugflag-ui';
 import commandUi from './command-ui';
+import updateUi from './update-ui';
 
 require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
@@ -111,18 +112,6 @@ $(() => {
     },
   };
 
-  function loadFwVersion() {
-    gateway.fetchFirmware().then((data) => {
-      $('#current-fw-version').text(data.version);
-      $('#chip-id').text(data.chipId);
-      const container = $('#fw-build-with');
-      container.empty();
-      $.each(data.build_with, (dependency, version) => {
-        container.append($('<li>', { text: `${dependency}: ${version}` }));
-      });
-    });
-  }
-
   function openLogListener() {
     function onNewStatus(state) {
       $('#log-status').text(state);
@@ -140,7 +129,7 @@ $(() => {
     }
 
     function onConnect() {
-      loadFwVersion();
+      updateUi.loadVersion();
     }
 
     return new gateway.LogListener(onMessage, onNewStatus, onConnect);
@@ -150,28 +139,9 @@ $(() => {
     $('#log-container').empty();
   });
 
-  $('#update-form').submit((formEvent) => {
-    formEvent.preventDefault();
-    $('#update-form').children('input').prop('disabled', true);
-    const file = $('#fw-file').get(0).files[0];
-    const statusElement = $('#upload-status');
-    gateway.uploadFirmware(file, (progressEvent) => {
-      const progress = Math.ceil(progressEvent.loaded / progressEvent.total * 100);
-      statusElement.text(`Uploading: ${progress} %`);
-    }).then((result) => {
-      if (result.success) {
-        statusElement.text('Update successful. Device will reboot and try to reconnect in 20 seconds.');
-        setTimeout(() => {
-          window.location.reload(true);
-        }, 20000);
-      } else {
-        statusElement.text('Update failed. More information can be found on the log console. Device will reboot with old firmware. Please reconnect and try to flash again.');
-      }
-    });
-  });
-
   settingUi.init(CONFIG_ITEMS);
   debugUi.init(DEBUG_FLAGS, $('#debugflags'));
   commandUi.init(SystemCommandActions);
+  updateUi.init();
   openLogListener();
 });
