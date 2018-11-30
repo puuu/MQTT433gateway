@@ -30,16 +30,18 @@
 import gateway from './gateway';
 /* global $ */
 
+const $status = $('#log-status');
+const $logContainer = $('#log-container');
+
 function onNewStatus(state) {
-  $('#log-status').text(state);
+  $status.text(state);
 }
 
 function onMessage(message) {
-  const pre = $('#log-container');
-  const element = pre.get(0);
-  const isScrollDown = (element.scrollTop === element.scrollHeight - element.clientHeight);
-  pre.append(message);
-  if (isScrollDown) {
+  const element = $logContainer.get(0);
+  const isScrolledDown = (element.scrollTop === element.scrollHeight - element.clientHeight);
+  $logContainer.append(message);
+  if (isScrolledDown) {
     // scroll down if current bottom is shown
     element.scrollTop = element.scrollHeight - element.clientHeight;
   }
@@ -47,7 +49,7 @@ function onMessage(message) {
 
 function init(onConnect) {
   $('#btn-clear-log').click(() => {
-    $('#log-container').empty();
+    $logContainer.empty();
   });
   return new gateway.LogListener(onMessage, onNewStatus, onConnect);
 }
