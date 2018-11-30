@@ -30,6 +30,8 @@
 import gateway from './gateway';
 /* global $ */
 
+const $status = $('#upload-status');
+
 function loadVersion() {
   gateway.fetchFirmware().then((data) => {
     $('#current-fw-version').text(data.version);
@@ -45,22 +47,32 @@ function loadVersion() {
 function init() {
   $('#update-form').submit((formEvent) => {
     formEvent.preventDefault();
-    $('#update-form').children('input').prop('disabled', true);
     const file = $('#fw-file').get(0).files[0];
-    const statusElement = $('#upload-status');
+    if (!file) {
+      $status.text('Please select a file to upload!');
+      return;
+    }
+    $('#update-form').children('input').prop('disabled', true);
     gateway.uploadFirmware(file, (progressEvent) => {
       const progress = Math.ceil(progressEvent.loaded / progressEvent.total * 100);
-      statusElement.text(`Uploading: ${progress} %`);
-    }).then((result) => {
-      if (result.success) {
-        statusElement.text('Update successful. Device will reboot and try to reconnect in 20 seconds.');
-        setTimeout(() => {
-          window.location.reload(true);
-        }, 20000);
-      } else {
-        statusElement.text('Update failed. More information can be found on the log console. Device will reboot with old firmware. Please reconnect and try to flash again.');
-      }
-    });
+      $status.text(`Uploading: ${progress} %`);
+    })
+      .then((result) => {
+        if (result.success) {
+          $status.text('Update successful. Device will reboot and try to reconnect in 20 seconds.');
+          setTimeout(() => {
+            window.location.reload(true);
+          }, 20000);
+        } else {
+          $status.text('Update failed. More information can be found on the log console. Device will reboot with old firmware. Please reconnect and try to flash again.');
+        }
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error('fetchConfig: ', error);
+        $status.text('Firmware upload failed! Please try again.');
+        $('#update-form').children('input').prop('disabled', false);
+      });
   });
 }
 
