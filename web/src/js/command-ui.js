@@ -30,28 +30,25 @@
 import gateway from './gateway';
 /* global $ */
 
-function throttle(callback, limit) {
-  let wait = false;
-  return (...args) => {
-    if (!wait) {
-      callback.apply(this, args);
-      wait = true;
-      setTimeout(() => {
-        wait = false;
-      }, limit);
-    }
-  };
-}
+const $status = $('#command-status');
+const $buttons = $('.system-btn');
 
 function init(systemCommandActions) {
-  const sendCommand = throttle(
-    (params) => {
-      gateway.pushCommand(params).then(systemCommandActions[params.command]);
-    },
-    1000,
-  );
+  function sendCommand(params) {
+    $status.text(`Sending command: "${params.command}"`);
+    $buttons.prop('disabled', true);
+    gateway.pushCommand(params).then(systemCommandActions[params.command])
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error('pushCommand: ', error);
+        $status.text(`Sending command: "${params.command}" failed!`);
+      })
+      .then(() => {
+        $buttons.prop('disabled', false);
+      });
+  }
 
-  $('.system-btn').click(function onSystemButtonClick() {
+  $buttons.click(function onSystemButtonClick() {
     sendCommand({ command: $(this).data('command') });
   });
 }
