@@ -30,17 +30,31 @@
 import gateway from './gateway';
 /* global $ */
 
+const $status = $('#debugflags-status');
+let $fieldset;
 
 function apply(data) {
   $.each(data, (key, value) => {
     $(`#debug-${key}`).prop('checked', value);
+    $status.text('');
   });
 }
 
 function submit(item) {
   const data = {};
   data[item.name] = item.checked;
-  gateway.pushDebug(data).then(apply);
+  $status.text('Submitting debug flags.');
+  $fieldset.prop('disabled', true);
+  gateway.pushDebug(data)
+    .then(apply)
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error('pushDebug: ', error);
+      $status.text('Submitting of debug flags failed!');
+    })
+    .then(() => {
+      $fieldset.prop('disabled', false);
+    });
 }
 
 function create(debugFlag, helpText) {
@@ -69,9 +83,10 @@ function load() {
   gateway.fetchDebug().then(apply);
 }
 
-function init(debugFlags, container) {
+function init(debugFlags, $container) {
+  $fieldset = $container.parent('fieldset');
   $.each(debugFlags, (debugFlag, helpText) => {
-    container.append(create(debugFlag, helpText));
+    $container.append(create(debugFlag, helpText));
   });
 }
 
