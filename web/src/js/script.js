@@ -114,6 +114,7 @@ $(() => {
 
   function onConnect() {
     updateUi.loadVersion();
+    debugUi.load();
   }
 
   settingUi.init(CONFIG_ITEMS);

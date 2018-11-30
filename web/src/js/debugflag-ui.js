@@ -65,13 +65,17 @@ function create(debugFlag, helpText) {
   ]));
 }
 
+function load() {
+  gateway.fetchDebug().then(apply);
+}
+
 function init(debugFlags, container) {
   $.each(debugFlags, (debugFlag, helpText) => {
     container.append(create(debugFlag, helpText));
   });
-  gateway.fetchDebug().then(apply);
 }
 
 export default {
+  load,
   init,
 };
