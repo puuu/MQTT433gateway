@@ -30,6 +30,7 @@
 import gateway from './gateway';
 import settingUi from './setting-ui';
 import debugUi from './debugflag-ui';
+import commandUi from './command-ui';
 
 require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
@@ -110,30 +111,6 @@ $(() => {
     },
   };
 
-  function throttle(callback, limit) {
-    let wait = false;
-    return (...args) => {
-      if (!wait) {
-        callback.apply(this, args);
-        wait = true;
-        setTimeout(() => {
-          wait = false;
-        }, limit);
-      }
-    };
-  }
-
-  const sendCommand = throttle(
-    (params) => {
-      gateway.pushCommand(params).then(SystemCommandActions[params.command]);
-    },
-    1000,
-  );
-
-  $('.system-btn').click(function onSystemButtonClick() {
-    sendCommand({ command: $(this).data('command') });
-  });
-
   function loadFwVersion() {
     gateway.fetchFirmware().then((data) => {
       $('#current-fw-version').text(data.version);
@@ -195,5 +172,6 @@ $(() => {
 
   settingUi.init(CONFIG_ITEMS);
   debugUi.init(DEBUG_FLAGS, $('#debugflags'));
+  commandUi.init(SystemCommandActions);
   openLogListener();
 });
