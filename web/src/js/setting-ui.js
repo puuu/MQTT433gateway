@@ -45,20 +45,6 @@ function registerConfigUi(element, item) {
   });
 }
 
-function ConfigItem(name, factory, apply, fetch, help) {
-  this.name = name;
-  this.factory = factory;
-  this.apply = apply;
-  this.fetch = fetch;
-  this.help = help;
-}
-
-function GroupItem(name, factory) {
-  this.name = name;
-  this.container = true;
-  this.factory = factory;
-}
-
 function inputLabelFactory(item) {
   return $('<label>', {
     text: item.name,
@@ -302,6 +288,34 @@ function protocolGet() {
   return $.map(checked, x => $(x).val());
 }
 
+function ConfigItem(name, type, help) {
+  this.name = name;
+  this.factory = type.factory;
+  this.apply = type.apply || inputApply;
+  this.fetch = type.fetch || inputGet;
+  this.help = help;
+}
+
+function GroupItem(name) {
+  this.name = name;
+  this.container = true;
+  this.factory = legendFactory;
+}
+
+const Type = {
+  deviceName: { factory: deviceNameInputFactory },
+  devicePassword: { factory: devicePasswordInputFactory, apply: devicePasswordApply },
+  hostName: { factory: hostNameInputFactory },
+  portNumber: { factory: portNumberInputFactory, fetch: inputGetInt },
+  text: { factory: inputFieldFactory },
+  password: { factory: passwordFieldFactory },
+  checkbox: { factory: checkboxFactory, apply: checkboxApply, fetch: checkboxGet },
+  mqttTopic: { factory: mqttTopicInputFactory },
+  pinNumber: { factory: pinNumberInputFactory, fetch: inputGetInt },
+  protocol: { factory: protocolInputField, apply: protocolApply, fetch: protocolGet },
+  logLevel: { factory: logLevelInputFactory },
+};
+
 function init(configItems) {
   function applyConfig(data) {
     configItems.forEach((item) => {
@@ -366,29 +380,7 @@ function init(configItems) {
 export default {
   GroupItem,
   ConfigItem,
-
-  legendFactory,
-  deviceNameInputFactory,
-  devicePasswordInputFactory,
-  hostNameInputFactory,
-  portNumberInputFactory,
-  inputFieldFactory,
-  passwordFieldFactory,
-  checkboxFactory,
-  mqttTopicInputFactory,
-  pinNumberInputFactory,
-  protocolInputField,
-  logLevelInputFactory,
-
-  inputApply,
-  devicePasswordApply,
-  checkboxApply,
-  protocolApply,
-
-  inputGet,
-  inputGetInt,
-  checkboxGet,
-  protocolGet,
+  Type,
 
   init,
 };
