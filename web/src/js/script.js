@@ -29,12 +29,12 @@
 
 import gateway from './gateway';
 import settingUi from './setting-ui';
+import debugUi from './debugflag-ui';
 
 require('purecss/build/pure-min.css');
 require('purecss/build/grids-responsive-min.css');
 require('../css/style.css');
 /* global $ */
-/* eslint no-use-before-define: "warn" */
 
 $(() => {
   'strict mode';
@@ -123,47 +123,6 @@ $(() => {
     };
   }
 
-  function initDebugUi(debugFlags, container) {
-    function create(debugFlag, helpText) {
-      const checkbox = $('<input>', {
-        type: 'checkbox',
-        class: 'debug-item',
-        id: `debug-${debugFlag}`,
-        name: debugFlag,
-      });
-      checkbox.change(function onDebugClick() {
-        submit(this);
-      });
-      return $('<div>', {
-        class: 'pure-u-1 pure-u-md-1-3',
-      }).append($('<label>', { class: 'pure-checkbox' }).append([
-        checkbox,
-        ` ${debugFlag}`,
-        $('<span>', {
-          class: 'pure-form-message',
-          text: helpText,
-        }),
-      ]));
-    }
-
-    function apply(data) {
-      $.each(data, (key, value) => {
-        $(`#debug-${key}`).prop('checked', value);
-      });
-    }
-
-    function submit(item) {
-      const data = {};
-      data[item.name] = item.checked;
-      gateway.pushDebug(data).then(apply);
-    }
-
-    $.each(debugFlags, (debugFlag, helpText) => {
-      container.append(create(debugFlag, helpText));
-    });
-    gateway.fetchDebug().then(apply);
-  }
-
   const sendCommand = throttle(
     (params) => {
       gateway.pushCommand(params).then(SystemCommandActions[params.command]);
@@ -235,6 +194,6 @@ $(() => {
   });
 
   settingUi.init(CONFIG_ITEMS);
-  initDebugUi(DEBUG_FLAGS, $('#debugflags'));
+  debugUi.init(DEBUG_FLAGS, $('#debugflags'));
   openLogListener();
 });
