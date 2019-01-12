@@ -56,7 +56,7 @@ binaries should be sufficient.
 
 ![MQTT433gateway box](hardware/MQTT433gateway_photo.jpg) ![MQTT433gateway box open](hardware/MQTT433gateway_photo_inside.jpg)
 
-The Software is primary written for ESP8266 devices.  It is tested
+The Software is primarily written for ESP8266 devices.  It is tested
 with an
 [Adafruit HUZZAH ESP8266](https://www.adafruit.com/product/2471), but
 any other ESP8266 board should be fine too.  The circuitry can be
