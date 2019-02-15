@@ -318,7 +318,9 @@ const Type = {
 };
 
 function init(configItems) {
+  const $status = $('#settings-status');
   const $settings = $('#settings');
+  let $fieldset;
 
   function applyConfig(data) {
     configItems.forEach((item) => {
@@ -328,9 +330,13 @@ function init(configItems) {
     });
     changes = {};
     lastConfig = data;
+    $fieldset.prop('disabled', false);
+    $status.text('');
   }
 
   function loadConfig() {
+    $fieldset.prop('disabled', true);
+    $status.text('Loading...');
     gateway.fetchConfig().then(applyConfig);
   }
 
@@ -344,9 +350,12 @@ function init(configItems) {
       $container.append($result);
     }
   });
+  $fieldset = $('#settings-form>input,#settings-form fieldset');
   loadConfig();
   $('#settings-form').submit((event) => {
     event.preventDefault();
+    $fieldset.prop('disabled', true);
+    $status.text('Submitting settings...');
     let onSuccess = applyConfig;
     if ('configPassword' in changes) {
       // reload after new password to force password question
@@ -369,7 +378,16 @@ function init(configItems) {
         return onSuccessOld(data);
       };
     }
-    gateway.pushConfig(changes).then(onSuccess);
+    gateway.pushConfig(changes)
+      .then(onSuccess)
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error('Settings: ', error);
+        $status.text('Submitting of settings failed!');
+      })
+      .then(() => {
+        $fieldset.prop('disabled', false);
+      });
     return false;
   });
   $('#cfg-form-reset').click((event) => {
