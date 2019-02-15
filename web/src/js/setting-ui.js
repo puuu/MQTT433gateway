@@ -32,6 +32,7 @@ import gateway from './gateway';
 
 let lastConfig = {};
 let changes = {};
+
 function registerConfigUi(element, item) {
   element.change(() => {
     const newData = item.fetch(element);
@@ -60,7 +61,7 @@ function inputHelpFactory(item) {
 }
 
 function logLevelInputFactory(item) {
-  const element = $('<select>', {
+  const $element = $('<select>', {
     class: 'config-item',
     id: `cfg-${item.name}`,
     name: item.name,
@@ -71,16 +72,16 @@ function logLevelInputFactory(item) {
     $('<option>', { value: 'info', text: 'Info' }),
     $('<option>', { value: 'debug', text: 'Debug' }),
   ]);
-  registerConfigUi(element, item);
+  registerConfigUi($element, item);
   return [
     inputLabelFactory(item),
-    element,
+    $element,
     inputHelpFactory(item),
   ];
 }
 
 function inputFieldFactory(item, pattern, required) {
-  const element = $('<input>', {
+  const $element = $('<input>', {
     type: 'text',
     class: 'pure-input-1 config-item',
     id: `cfg-${item.name}`,
@@ -88,10 +89,10 @@ function inputFieldFactory(item, pattern, required) {
     required,
     name: item.name,
   });
-  registerConfigUi(element, item);
+  registerConfigUi($element, item);
   return [
     inputLabelFactory(item),
-    element,
+    $element,
     inputHelpFactory(item),
   ];
 }
@@ -109,7 +110,7 @@ function mqttTopicInputFactory(item) {
 }
 
 function inputFieldNumberFactory(item, min, max) {
-  const element = $('<input>', {
+  const $element = $('<input>', {
     type: 'number',
     class: 'pure-input-1 config-item',
     id: `cfg-${item.name}`,
@@ -117,10 +118,10 @@ function inputFieldNumberFactory(item, min, max) {
     min,
     max,
   });
-  registerConfigUi(element, item);
+  registerConfigUi($element, item);
   return [
     inputLabelFactory(item),
-    element,
+    $element,
     inputHelpFactory(item),
   ];
 }
@@ -134,17 +135,17 @@ function pinNumberInputFactory(item) {
 }
 
 function passwordFieldFactory(item, minlength) {
-  const element = $('<input>', {
+  const $element = $('<input>', {
     type: 'password',
     class: 'pure-input-1 config-item',
     id: `cfg-${item.name}`,
     name: item.name,
     minlength,
   });
-  registerConfigUi(element, item);
+  registerConfigUi($element, item);
   return [
     inputLabelFactory(item),
-    element,
+    $element,
     inputHelpFactory(item),
   ];
 }
@@ -155,47 +156,47 @@ function devicePasswordInputFactory(item) {
     class: 'pure-input-1 config-item',
     minlength: 8,
   };
-  const element1 = $('<input>', $.extend(properties, {
+  const $element1 = $('<input>', $.extend(properties, {
     id: `cfg-${item.name}`,
     name: item.name,
   }));
-  const element2 = $('<input>', $.extend(properties, {
+  const $element2 = $('<input>', $.extend(properties, {
     id: `cfg-${item.name}-confirm`,
     name: `${item.name}-confirm`,
   }));
   function validatePassword() {
     let message = '';
-    if (element1.val() !== element2.val()) {
+    if ($element1.val() !== $element2.val()) {
       message = "Passwords don't match!";
     }
-    element1.get(0).setCustomValidity(message);
-    element2.get(0).setCustomValidity(message);
+    $element1.get(0).setCustomValidity(message);
+    $element2.get(0).setCustomValidity(message);
   }
-  registerConfigUi(element1, item);
-  registerConfigUi(element2, item);
-  element1.on('input', validatePassword);
-  element2.on('input', validatePassword);
+  registerConfigUi($element1, item);
+  registerConfigUi($element2, item);
+  $element1.on('input', validatePassword);
+  $element2.on('input', validatePassword);
   return [
     inputLabelFactory(item),
-    element1,
+    $element1,
     inputLabelFactory({ name: `${item.name} (confirm)` }),
-    element2,
+    $element2,
     inputHelpFactory(item),
   ];
 }
 
 function checkboxFactory(item) {
-  const element = $('<input>', {
+  const $element = $('<input>', {
     type: 'checkbox',
     class: 'config-item',
     id: `cfg-${item.name}`,
     name: item.name,
   });
-  registerConfigUi(element, item);
+  registerConfigUi($element, item);
   return $('<label>', {
     class: 'pure-checkbox',
   }).append([
-    element,
+    $element,
     ` ${item.name}`,
     inputHelpFactory(item),
   ]);
@@ -209,33 +210,33 @@ function legendFactory(item) {
 
 let protocols;
 function protocolInputField(item) {
-  const container = $('<div>', {
+  const $container = $('<div>', {
     id: `cfg-${item.name}`,
     class: 'pure-g',
   });
-  registerConfigUi(container, item);
+  registerConfigUi($container, item);
   function protocolListFactory(protos) {
     protos.forEach((value) => {
-      const element = $('<input>', {
+      const $element = $('<input>', {
         type: 'checkbox',
         class: 'config-item protocols-item',
         id: `cfg-${item.name}-${value}`,
         name: item.name,
         value,
       });
-      container.append($('<div>', {
+      $container.append($('<div>', {
         class: 'pure-u-1 pure-u-md-1-2 pure-u-lg-1-3 pure-u-xl-1-4',
       }).append($('<label>', {
         class: 'pure-checkbox',
       }).append([
-        element,
+        $element,
         ` Protocol ${value}`,
       ])));
     });
     protocols = protos;
   }
   gateway.fetchProtocols().then(protocolListFactory);
-  return container;
+  return $container;
 }
 
 function inputApply(itemName, data) {
@@ -281,11 +282,11 @@ function checkboxGet(element) {
 }
 
 function protocolGet() {
-  const checked = $('.protocols-item:checked');
-  if ($('.protocols-item').length === checked.length) {
+  const $checked = $('.protocols-item:checked');
+  if ($('.protocols-item').length === $checked.length) {
     return [];
   }
-  return $.map(checked, x => $(x).val());
+  return $.map($checked, x => $(x).val());
 }
 
 function ConfigItem(name, type, help) {
@@ -317,6 +318,8 @@ const Type = {
 };
 
 function init(configItems) {
+  const $settings = $('#settings');
+
   function applyConfig(data) {
     configItems.forEach((item) => {
       if (item.apply) {
@@ -331,15 +334,14 @@ function init(configItems) {
     gateway.fetchConfig().then(applyConfig);
   }
 
-  const settings = $('#settings');
-  let container;
+  let $container;
   configItems.forEach((item) => {
-    const result = item.factory(item);
+    const $result = item.factory(item);
     if (item.container) {
-      result.appendTo(settings);
-      container = result;
+      $result.appendTo($settings);
+      $container = $result;
     } else {
-      container.append(result);
+      $container.append($result);
     }
   });
   loadConfig();
@@ -359,9 +361,9 @@ function init(configItems) {
           const mdnsname = `${changes.deviceName}.local`;
           const url = `${window.location.protocol}//${mdnsname}`;
           window.location.assign(url);
-          const body = $('body');
-          body.empty();
-          body.append(`<a href="${url}">${mdnsname}</a>`);
+          const $body = $('body');
+          $body.empty();
+          $body.append(`<a href="${url}">${mdnsname}</a>`);
           return undefined;
         }
         return onSuccessOld(data);
