@@ -12,8 +12,11 @@ Import("env")
 CHARS_TO_ESCAPE = ("'", "{", "}")
 
 def get_fw_version():
-    return subprocess.check_output(['git', 'describe', '--abbrev=8', '--dirty',
-                                    '--always', '--tags']).strip()
+    try:
+        return subprocess.check_output(['git', 'describe', '--abbrev=8', '--dirty',
+                                        '--always', '--tags']).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return "na"
 
 def get_dependencies():
     lm = LibraryManager(platformio.util.get_projectlibdeps_dir())
