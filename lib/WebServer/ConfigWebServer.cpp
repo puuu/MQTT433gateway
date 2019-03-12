@@ -132,21 +132,24 @@ void ConfigWebServer::onConfigGet() {
 
 void ConfigWebServer::onSystemCommand() {
   Logger.debug.println(F("Webserver: system POST"));
-  DynamicJsonBuffer buffer;
-  JsonObject& request = buffer.parse(server.arg(FPSTR(PLAIN)));
+  DynamicJsonDocument jsonDoc(1024);
+  DeserializationError error =
+      deserializeJson(jsonDoc, server.arg(FPSTR(PLAIN)));
 
-  if (!request.success()) {
+  if (error) {
     server.send_P(400, TEXT_PLAIN, PSTR("Cannot parse command!"));
     return;
   }
 
-  if (!request.containsKey(F("command"))) {
+  const char* command = jsonDoc[F("command")];
+
+  if (!command) {
     server.send_P(400, TEXT_PLAIN, PSTR("No command found!"));
     return;
   }
 
   for (const auto& systemCommandHandler : systemCommandHandlers) {
-    if (systemCommandHandler.command == request[F("command")]) {
+    if (systemCommandHandler.command == command) {
       server.send_P(200, TEXT_PLAIN, PSTR("Run command!"));
       systemCommandHandler.cb();
       return;
@@ -158,17 +161,19 @@ void ConfigWebServer::onSystemCommand() {
 
 void ConfigWebServer::onDebugFlagSet() {
   Logger.debug.println(F("Webserver: debug PUT"));
-  DynamicJsonBuffer buffer;
-  JsonObject& request = buffer.parse(server.arg(FPSTR(PLAIN)));
+  DynamicJsonDocument jsonDoc(1024);
+  DeserializationError error =
+      deserializeJson(jsonDoc, server.arg(FPSTR(PLAIN)));
 
-  if (request.success()) {
+  if (!error) {
     for (const auto& debugFlagHandler : debugFlagHandlers) {
-      if (request.containsKey(debugFlagHandler.name)) {
-        debugFlagHandler.setState(request[debugFlagHandler.name].as<bool>());
+      JsonVariant value = jsonDoc[debugFlagHandler.name];
+      if (!value.isNull()) {
+        debugFlagHandler.setState(value.as<bool>());
         Logger.debug.print(F("Set debug flag "));
         Logger.debug.print(debugFlagHandler.name);
         Logger.debug.print(F(": "));
-        Logger.debug.println(request[debugFlagHandler.name].as<bool>());
+        Logger.debug.println(value.as<bool>());
       }
     }
   } else {
@@ -178,14 +183,13 @@ void ConfigWebServer::onDebugFlagSet() {
 }
 
 void ConfigWebServer::onDebugFlagGet() {
-  DynamicJsonBuffer buffer;
-  JsonObject& root = buffer.createObject();
+  DynamicJsonDocument jsonDoc(1024);
 
   for (const auto& debugFlagHandler : debugFlagHandlers) {
-    root[debugFlagHandler.name] = debugFlagHandler.getState();
+    jsonDoc[debugFlagHandler.name] = debugFlagHandler.getState();
   }
   String result;
-  root.printTo(result);
+  serializeJson(jsonDoc, result);
   server.send(200, FPSTR(APPLICATION_JSON), result);
 }
 
