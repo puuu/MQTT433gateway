@@ -53,7 +53,22 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
       rf.sendPulseTrain(rawpulses, rawlen);
       result = rawlen;
     } else {
-      result = -9999;
+      Logger.error.print(F("invalid pulse train message: "));
+      switch (rawlen) {
+        case ESPiLight::ERROR_INVALID_PULSETRAIN_MSG_C:
+          Logger.error.println(F("'c' not found in string, or has no data"));
+          break;
+        case ESPiLight::ERROR_INVALID_PULSETRAIN_MSG_P:
+          Logger.error.println(F("'p' not found in string, or has no data"));
+          break;
+        case ESPiLight::ERROR_INVALID_PULSETRAIN_MSG_END:
+          Logger.error.println(F("';' or '@' not found in data string"));
+          break;
+        case ESPiLight::ERROR_INVALID_PULSETRAIN_MSG_TYPE:
+          Logger.error.println(F("pulse type not defined"));
+          break;
+      }
+      return;
     }
   } else {
     result = rf.send(protocol, message);
@@ -77,9 +92,6 @@ void RfHandler::transmitCode(const String &protocol, const String &message) {
         break;
       case ESPiLight::ERROR_NO_OUTPUT_PIN:
         Logger.error.println(F("no transmitter pin"));
-        break;
-      case -9999:
-        Logger.error.println(F("invalid pulse train message"));
         break;
     }
   }
