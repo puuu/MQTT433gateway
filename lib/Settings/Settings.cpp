@@ -82,12 +82,18 @@ static void logInvalidWarning(const String &key) {
   Logger.warning.println(F(" is not valid, will ignore it."));
 }
 
+static void logJsonDeserializationError(const DeserializationError &error) {
+  Logger.error.print(F("deserializeJson() failed with code "));
+  Logger.error.println(error.c_str());
+}
+
 template <typename TVal, typename TKey>
-bool setIfPresent(JsonObject &obj, TKey key, TVal &var,
+bool setIfPresent(JsonDocument &obj, TKey key, TVal &var,
                   const std::function<bool(const TVal &)> &validator =
                       std::function<bool(const TVal &)>()) {
-  if (obj.containsKey(key)) {
-    TVal tmp = obj.get<TVal>(key);
+  JsonVariant variant = obj[key];
+  if (!variant.isNull()) {
+    TVal tmp = variant.as<TVal>();
     if (tmp != var) {
       if (!validator || validator(tmp)) {
         var = tmp;
@@ -121,12 +127,15 @@ void Settings::load() {
       Logger.error.println(F("Open settings file for read failed!"));
       return;
     }
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &parsedSettings = jsonBuffer.parseObject(file);
-
+    DynamicJsonDocument jsonDoc(SETTINGS_JSON_DOC_SIZE);
+    DeserializationError error = deserializeJson(jsonDoc, file);
+    if (error) {
+      logJsonDeserializationError(error);
+      return;
+    }
     file.close();
 
-    applyJson(parsedSettings);
+    applyJson(jsonDoc);
   }
 }
 
@@ -149,7 +158,7 @@ void Settings::save() {
 
 Settings::~Settings() = default;
 
-void Settings::doSerialize(JsonObject &root, bool sensible) const {
+void Settings::doSerialize(JsonDocument &root, bool sensible) const {
   root[JsonKey::deviceName] = this->deviceName;
   root[JsonKey::mqttBroker] = this->mqttBroker;
   root[JsonKey::mqttBrokerPort] = this->mqttBrokerPort;
@@ -163,14 +172,7 @@ void Settings::doSerialize(JsonObject &root, bool sensible) const {
   root[JsonKey::rfReceiverPin] = this->rfReceiverPin;
   root[JsonKey::rfTransmitterPin] = this->rfTransmitterPin;
   root[JsonKey::rfReceiverPinPullUp] = this->rfReceiverPinPullUp;
-  {
-    DynamicJsonBuffer protoBuffer;
-    JsonArray &parsedProtocols = protoBuffer.parseArray(this->rfProtocols);
-    JsonArray &protos = root.createNestedArray(JsonKey::rfProtocols);
-    for (const auto proto : parsedProtocols) {
-      protos.add(proto.as<String>());
-    }
-  }
+  root[JsonKey::rfProtocols] = serialized(this->rfProtocols);
   root[JsonKey::serialLogLevel] = this->serialLogLevel;
   root[JsonKey::webLogLevel] = this->webLogLevel;
   root[JsonKey::syslogLevel] = this->syslogLevel;
@@ -186,20 +188,18 @@ void Settings::doSerialize(JsonObject &root, bool sensible) const {
 }
 
 void Settings::deserialize(const String &json) {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &parsedSettings = jsonBuffer.parseObject(json);
-
-  onConfigChange(applyJson(parsedSettings));
+  DynamicJsonDocument jsonDoc(SETTINGS_JSON_DOC_SIZE);
+  DeserializationError error = deserializeJson(jsonDoc, json);
+  if (error) {
+    logJsonDeserializationError(error);
+    return;
+  }
+  onConfigChange(applyJson(jsonDoc));
 }
 
-Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
+Settings::SettingTypeSet Settings::applyJson(JsonDocument &parsedSettings) {
   Logger.debug.println(F("Applying config settings."));
   SettingTypeSet changed;
-
-  if (!parsedSettings.success()) {
-    Logger.warning.println(F("Parsing config data as JSON object failed!"));
-    return changed;
-  }
 
   changed.set(BASE, setIfPresent(parsedSettings, JsonKey::deviceName,
                                  deviceName, notEmpty()));
@@ -233,9 +233,9 @@ Settings::SettingTypeSet Settings::applyJson(JsonObject &parsedSettings) {
                         rfTransmitterPin),
            setIfPresent(parsedSettings, JsonKey::rfReceiverPinPullUp,
                         rfReceiverPinPullUp)}));
-  if (parsedSettings.containsKey(JsonKey::rfProtocols)) {
+  if (!parsedSettings[JsonKey::rfProtocols].isNull()) {
     String buff;
-    parsedSettings[JsonKey::rfProtocols].printTo(buff);
+    serializeJson(parsedSettings[JsonKey::rfProtocols], buff);
     if (buff != rfProtocols) {
       rfProtocols = buff;
       changed.set(RF_PROTOCOL, true);

@@ -64,6 +64,8 @@ enum SettingType {
   _END
 };
 
+const size_t SETTINGS_JSON_DOC_SIZE = 4096;
+
 class Settings {
  public:
   using SettingTypeSet = std::bitset<SettingType::_END>;
@@ -99,13 +101,12 @@ class Settings {
   void notifyAll();
   template <typename T>
   void serialize(T &target, bool pretty, bool sensible = true) const {
-    DynamicJsonBuffer buffer;
-    JsonObject &root = buffer.createObject();
-    doSerialize(root, sensible);
+    DynamicJsonDocument jsonDoc(SETTINGS_JSON_DOC_SIZE);
+    doSerialize(jsonDoc, sensible);
     if (pretty) {
-      root.prettyPrintTo(target);
+      serializeJsonPretty(jsonDoc, target);
     } else {
-      root.printTo(target);
+      serializeJson(jsonDoc, target);
     }
   }
   void deserialize(const String &json);
@@ -149,8 +150,8 @@ class Settings {
   };
 
   void onConfigChange(SettingTypeSet typeSet) const;
-  SettingTypeSet applyJson(JsonObject &parsedSettings);
-  void doSerialize(JsonObject &obj, bool sensible = true) const;
+  SettingTypeSet applyJson(JsonDocument &parsedSettings);
+  void doSerialize(JsonDocument &jsonDoc, bool sensible = true) const;
 
   std::forward_list<SettingListener> listeners;
 };
