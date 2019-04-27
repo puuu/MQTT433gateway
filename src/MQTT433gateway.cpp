@@ -205,6 +205,7 @@ void setupStatusLED(const Settings &s) {
 
 void setupWifi() {
   WiFiManager wifiManager;
+  WiFi.hostname(settings.deviceName);
   wifiManager.setConfigPortalTimeout(180);
   wifiManager.setAPCallback([](WiFiManager *) {
     Logger.info.println(F("Start wifimanager config portal."));
