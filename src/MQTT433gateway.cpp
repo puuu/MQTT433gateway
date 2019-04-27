@@ -185,6 +185,7 @@ void setupMdns(const Settings &s) {
   if (0 == settings.deviceName.length()) {
     return;
   }
+  MDNS.close();
   if (!MDNS.begin(settings.deviceName.c_str())) {
     Logger.error.println(F("Error setting up MDNS responder"));
     return;
@@ -312,6 +313,8 @@ void loop() {
   if (statusLED) {
     statusLED->loop();
   }
+
+  MDNS.update();
 
   if (webServer) {
     webServer->loop();
