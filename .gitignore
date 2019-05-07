@@ -9,3 +9,5 @@ web/dist/
 web/node_modules/
 src/config.h
 dist/version_build.h
+__pycache__
+*.pyc
