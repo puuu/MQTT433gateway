@@ -24,6 +24,7 @@ def build_web():
         print("WARNING: npm is not avaiable. web interface will not be build.")
         return
     print("Attempting to build webpage...")
+    check_call(["npm", "install", "--prefix", "web"])
     check_call(["npm", "run", "--prefix", "web", "build"])
     dump("web/dist/index.html.gz", "dist/index.html.gz.h", "index_html_gz")
 
