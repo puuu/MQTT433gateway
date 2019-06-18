@@ -2,6 +2,7 @@
 
 Project home: https://github.com/puuu/MQTT433gateway/
 """
+import os
 import subprocess
 import json
 import platformio
@@ -19,7 +20,8 @@ def get_fw_version():
         return "na"
 
 def get_dependencies():
-    lm = LibraryManager(platformio.util.get_projectlibdeps_dir())
+    lib_storage = os.path.join(env['PROJECTLIBDEPS_DIR'], env['PIOENV'])
+    lm = LibraryManager(lib_storage)
     dependencies = {library['name']: library['version']
                     for library in lm.get_installed()}
     platform = env['PIOPLATFORM']
