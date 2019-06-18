@@ -15,7 +15,7 @@ CHARS_TO_ESCAPE = ("'", "{", "}")
 def get_fw_version():
     try:
         return subprocess.check_output(['git', 'describe', '--abbrev=8', '--dirty',
-                                        '--always', '--tags']).strip()
+                                        '--always', '--tags']).strip().decode()
     except (subprocess.CalledProcessError, OSError):
         return "na"
 
