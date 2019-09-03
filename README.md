@@ -126,10 +126,12 @@ possible to use a common topic for multiple gateways in one network and thus to
 expand the radio range.
 
 After (re)connecting to the MQTT broker, the gateway sends the message
-`{"chipId":"<chipId>","firmware":"<git tag or hash>","state":"online"}` to the
-topic that is set to setting `deviceName`.  In addition, it registered with the
-last will set to the same message but with `state` set to `offline` for the same
-topic. This allows to check the status of the MQTT433gateway.
+`{"version":"<git tag or hash>","chipId":"<chipId>"}` to the version
+topic that is set in `mqttVersionTopic` as well as the message
+`online` to the state topic that is set in `mqttStateTopic`.  In
+addition, it registered with the last will set to the message
+`offline` for the state topic. This allows to check the status of the
+MQTT433gateway, e.g. as a availability topic in Home Assistant.
 
 MQTT subscription is done to the topic `<mqttSendTopic><protocol>`.  The
 messages to be transmitted must be a valid pilight JSON messages.  The setting
@@ -155,11 +157,11 @@ Status of the MQTT433gateway:
 ```yaml
 binary_sensor:
   - platform: mqtt
-    state_topic: "rf434"
+    state_topic: "rf434/state"
     name: "rf434"
     payload_on: "online"
     payload_off: "offline"
-    value_template: '{{ value_json.state }}'
+    device_class: connectivity
 ```
 
 The message of a TCM 218943 weather station sensor looks like this:
@@ -173,20 +175,26 @@ sensor:
     unit_of_measurement: "°C"
     name: "tcm_a_temp"
     value_template: '{{ value_json.temperature }}'
+    device_class: temperature
+    availability_topic: "rf434/state"
   - platform: mqtt
     state_topic: "rf434/recv/tcm/108"
     unit_of_measurement: "%"
     name: "tcm_a_humidity"
-    value_template: '{{ value_json.humidity }}'
+    value_template: '{{ value_json.humidity }}
+    device_class: humidity
+    availability_topic: "rf434/state"
 
 binary_sensor:
   - platform: mqtt
     state_topic: "rf434/recv/tcm/108"
     name: "tcm_a_battery"
     sensor_class: power
-    payload_on: 1
-    payload_off: 0
+    payload_on: 0
+    payload_off: 1
     value_template: '{{ value_json.battery }}'
+    device_class: battery
+    availability_topic: "rf434/state"
 ```
 
 Impulse RC socket switches, like many RC socket switches with DIP
@@ -199,16 +207,19 @@ switch:
     command_topic: "rf434/send/impuls"
     payload_on: '{"systemcode":24,"programcode":1,"on":1}'
     payload_off: '{"systemcode":24,"programcode":1,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "impuls_24_2"
     command_topic: "rf434/send/impuls"
     payload_on: '{"systemcode":24,"programcode":2,"on":1}'
     payload_off: '{"systemcode":24,"programcode":2,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "impuls_24_3"
     command_topic: "rf434/send/impuls"
     payload_on: '{"systemcode":24,"programcode":4,"on":1}'
     payload_off: '{"systemcode":24,"programcode":4,"off":1}'
+    availability_topic: "rf434/state"
 ```
 
 Elro 800 based RC socket switches:
@@ -220,21 +231,25 @@ switch:
     command_topic: "rf434/send/elro_800_switch"
     payload_on: '{"systemcode":13,"unitcode":1,"on":1}'
     payload_off: '{"systemcode":13,"unitcode":1,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "elro800_13_B"
     command_topic: "rf434/send/elro_800_switch"
     payload_on: '{"systemcode":13,"unitcode":2,"on":1}'
     payload_off: '{"systemcode":13,"unitcode":2,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "elro800_13_C"
     command_topic: "rf434/send/elro_800_switch"
     payload_on: '{"systemcode":13,"unitcode":4,"on":1}'
     payload_off: '{"systemcode":13,"unitcode":4,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "elro800_13_D"
     command_topic: "rf434/send/elro_800_switch"
     payload_on: '{"systemcode":13,"unitcode":8,"on":1}'
     payload_off: '{"systemcode":13,"unitcode":8,"off":1}'
+    availability_topic: "rf434/state"
 ```
 
 Quigg GT9000 based RC socket switches, e.g., Tevion GT-9000,
@@ -247,16 +262,19 @@ switch:
     command_topic: "rf434/send/quigg_gt9000"
     payload_on: '{"id":590715,"unit":0,"on":1}'
     payload_off: '{"id":590715,"unit":0,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "gt9000_590715_2"
     command_topic: "rf434/send/quigg_gt9000"
     payload_on: '{"id":590715,"unit":2,"on":1}'
     payload_off: '{"id":590715,"unit":2,"off":1}'
+    availability_topic: "rf434/state"
   - platform: mqtt
     name: "gt9000_590715_3"
     command_topic: "rf434/send/quigg_gt9000"
     payload_on: '{"id":590715,"unit":3,"on":1}'
     payload_off: '{"id":590715,"unit":3,"off":1}'
+    availability_topic: "rf434/state"
 ```
 
 
@@ -267,7 +285,7 @@ programming) via the web frontend.  To do this, you need the binary
 file that can be found under
 [releases](https://github.com/puuu/MQTT433gateway/releases) or, if you
 build with PlatformIO, at `<BUILD_DIR>/firmware.bin`,
-e.g. `.pioenvs/huzzah/firmware.bin`.
+e.g. `.pio/build/esp12e/firmware.bin`.
 
 
 ## Debugging/RF-protocol analyzing
