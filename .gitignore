@@ -8,3 +8,4 @@
 web/build/
 web/node_modules/
 src/config.h
+dist/version_build.h

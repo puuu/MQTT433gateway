@@ -31,20 +31,7 @@
 
 #include "Version.h"
 
-#ifndef FIRMWARE_VERSION
-#define FIRMWARE_VERSION unknown
-#endif
-
-#ifndef FW_BUILD_WITH
-#define FW_BUILD_WITH \
-  {}
-#endif
-
-#define X_QUOTE(x...) #x
-#define QUOTE(x) X_QUOTE(x)
-
-static const char PROGMEM fw_version[] = QUOTE(FIRMWARE_VERSION);
-static const char PROGMEM fw_build_with[] = QUOTE(FW_BUILD_WITH);
+#include "../../dist/version_build.h"
 
 String fwVersion() { return String(FPSTR(fw_version)); }
 

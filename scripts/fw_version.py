@@ -10,14 +10,21 @@ from platformio.managers.lib import LibraryManager
 from platformio.managers.platform import PlatformFactory
 Import("env")
 
-CHARS_TO_ESCAPE = ("'", "{", "}")
+
+OUTFILE = "dist/version_build.h"
+TEMPLATE = """
+static const char PROGMEM fw_version[] = "{version:s}";
+static const char PROGMEM fw_build_with[] = "{build_with:s}";
+"""
+CHARS_TO_ESCAPE = ('\\', '"')
+
 
 def get_fw_version():
     try:
         return subprocess.check_output(['git', 'describe', '--abbrev=8', '--dirty',
                                         '--always', '--tags']).strip().decode()
     except (subprocess.CalledProcessError, OSError):
-        return "na"
+        return "unknown"
 
 def get_dependencies():
     lib_storage = os.path.join(env['PROJECTLIBDEPS_DIR'], env['PIOENV'])
@@ -37,13 +44,10 @@ def escape_string(text, escape_chars=CHARS_TO_ESCAPE):
         text = text.replace(char, '\\'+char)
     return text
 
-def gen_build_flag_macro(macro, value):
-    return "-D{name}='{definition}'".format(name=macro,
-                                            definition=escape_string(value))
+def generate_file():
+    with open(OUTFILE, 'w') as f:
+        f.write(TEMPLATE.format(version=escape_string(get_fw_version()),
+                                build_with=escape_string(get_dependencies_json())))
 
-env.Append(
-    BUILD_FLAGS=[
-        gen_build_flag_macro('FIRMWARE_VERSION', get_fw_version()),
-        gen_build_flag_macro('FW_BUILD_WITH', get_dependencies_json())
-    ]
-)
+
+generate_file()
