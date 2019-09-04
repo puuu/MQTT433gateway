@@ -12,6 +12,6 @@ VERSION=$(git describe --abbrev=8 --dirty --always --tags)
 echo "Preparing release for tagged version: $VERSION"
 
 for file in .pio/build/*/firmware.bin; do
-  env=$(echo "$file" | cut -f2 -d'/')
+  env=$(echo "$file" | cut -f3 -d'/')
   cp "$file" "dist/mqtt433gateway_${env}-${VERSION}.bin"
 done
