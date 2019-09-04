@@ -98,13 +98,13 @@ $(() => {
     reset_wifi() {
       const body = $('body');
       body.empty();
-      body.append('<p>Devices WIFI settings where cleared!</p><p>Please reconfigure it.</p>');
+      body.append('<p>Devices Wi-Fi settings where cleared!</p><p>Please reconfigure it.</p>');
     },
     reset_config() {
       const body = $('body');
       body.empty();
       body.append('<p>Devices Config was reset - reboot device!</p>'
-                + '<p>You might have to reconfigure the wifi!</p>'
+                + '<p>You might have to reconfigure the Wi-Fi!</p>'
                 + '<p>Reload page in 10 seconds...</p>');
       setTimeout(() => {
         window.location.reload(true);
