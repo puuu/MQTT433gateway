@@ -31,6 +31,9 @@
 
 #include <FS.h>
 #include <WString.h>
+#ifndef ESP8266
+#include <SPIFFS.h>
+#endif
 
 #include <ArduinoSimpleLogging.h>
 

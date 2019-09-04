@@ -37,9 +37,14 @@ class PayloadString : public String {
  public:
   PayloadString(const uint8_t *data, unsigned int length) : String() {
     if (reserve(length)) {
+#ifdef ESP8266
       setLen(length);
       memmove(wbuffer(), data, length);
       wbuffer()[length] = 0;
+#else
+      memcpy(buffer, data, length);
+      len = length;
+#endif
     }
   }
 };

@@ -27,9 +27,13 @@
   SOFTWARE.
 */
 
-#include <ESP8266httpUpdate.h>
+#ifdef ESP8266
 #include <ESP8266mDNS.h>
 #include <FS.h>
+#else
+#include <ESPmDNS.h>
+#include <SPIFFS.h>
+#endif
 
 #include <ArduinoSimpleLogging.h>
 #include <WiFiManager.h>
@@ -147,7 +151,9 @@ void setupWebServer() {
       delete mqttClient;
       mqttClient = nullptr;
     }
+#ifdef ESP8266
     WiFiUDP::stopAll();
+#endif
   });
   webServer->registerDebugFlagHandler(
       F("protocolRaw"), []() { return rf && rf->isRawModeEnabled(); },
@@ -185,7 +191,9 @@ void setupMdns(const Settings &s) {
   if (0 == settings.deviceName.length()) {
     return;
   }
+#ifdef ESP8266
   MDNS.close();
+#endif
   if (!MDNS.begin(settings.deviceName.c_str())) {
     Logger.error.println(F("Error setting up MDNS responder"));
     return;
@@ -205,7 +213,11 @@ void setupStatusLED(const Settings &s) {
 
 void setupWifi() {
   WiFiManager wifiManager;
+#ifdef ESP8266
   WiFi.hostname(settings.deviceName);
+#else
+  WiFi.setHostname(settings.deviceName.c_str());
+#endif
   wifiManager.setConfigPortalTimeout(180);
   wifiManager.setAPCallback([](WiFiManager *) {
     Logger.info.println(F("Start wifimanager config portal."));
@@ -227,7 +239,11 @@ void setupWifi() {
 }
 
 void setup() {
+#ifdef ESP8266
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
+#else
+  Serial.begin(115200);
+#endif
   Logger.addHandler(Logger.DEBUG, Serial);
   if (!SPIFFS.begin()) {
     Logger.error.println(F("Initializing of SPIFFS failed!"));
@@ -315,7 +331,9 @@ void loop() {
     statusLED->loop();
   }
 
+#ifdef ESP8266
   MDNS.update();
+#endif
 
   if (webServer) {
     webServer->loop();

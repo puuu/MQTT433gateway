@@ -27,8 +27,10 @@
   SOFTWARE.
 */
 
-#include <ESP8266WebServer.h>
 #include <WString.h>
+#ifndef ESP8266
+#include <Update.h>
+#endif
 
 #include <ArduinoJson.h>
 #include <ArduinoSimpleLogging.h>
@@ -268,8 +270,8 @@ void ConfigWebServer::loop() {
 
 Print& ConfigWebServer::logTarget() { return wsLogTarget; }
 
-ESP8266WebServer::THandlerFunction ConfigWebServer::authenticated(
-    const ESP8266WebServer::THandlerFunction& handler) {
+WebServer::THandlerFunction ConfigWebServer::authenticated(
+    const WebServer::THandlerFunction& handler) {
   return [=]() {
     if (!server.authenticate(ADMIN_USERNAME,
                              this->settings.configPassword.c_str())) {

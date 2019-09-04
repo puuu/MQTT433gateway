@@ -35,7 +35,11 @@
 
 String fwVersion() { return String(FPSTR(fw_version)); }
 
+#ifdef ESP8266
 String chipId() { return String(ESP.getChipId(), HEX); }
+#else
+String chipId() { return String((uint32_t)ESP.getEfuseMac(), HEX); }
+#endif
 
 String fwJsonVersion(bool withBuildIn) {
   return String(F("{\"version\":\"")) + fwVersion() + F("\",\"chipId\":\"") +

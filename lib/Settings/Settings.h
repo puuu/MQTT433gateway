@@ -39,6 +39,10 @@
 
 #include <ArduinoJson.h>
 
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 2
+#endif
+
 const char PROGMEM SETTINGS_FILE[] = "/settings.json";
 
 const char PROGMEM DEFAULT_NAME[] = "rf434";

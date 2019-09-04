@@ -35,7 +35,12 @@
 #include <algorithm>
 #include <forward_list>
 
+#ifdef ESP8266
 #include <ESP8266WebServer.h>
+#define WebServer ESP8266WebServer
+#else
+#include <WebServer.h>
+#endif
 
 #include <Settings.h>
 
@@ -85,8 +90,8 @@ class ConfigWebServer {
         : name(state), getState(getState), setState(setState) {}
   };
 
-  ESP8266WebServer::THandlerFunction authenticated(
-      const ESP8266WebServer::THandlerFunction& handler);
+  WebServer::THandlerFunction authenticated(
+      const WebServer::THandlerFunction& handler);
   void onConfigGet();
   void onSystemCommand();
   void onDebugFlagGet();
@@ -95,7 +100,7 @@ class ConfigWebServer {
   void onFirmwareUpload();
 
   Settings& settings;
-  ESP8266WebServer server;
+  WebServer server;
   WebSocketLogTarget wsLogTarget;
   std::forward_list<SystemCommandHandler> systemCommandHandlers;
   ProtocolProviderCb protocolProvider;
