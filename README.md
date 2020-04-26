@@ -2,7 +2,7 @@
 
 # MQTT433gateway
 
-This Project implements a [MQTT](https://en.wikipedia.org/wiki/MQTT)
+This Project implements an [MQTT](https://en.wikipedia.org/wiki/MQTT)
 433.92MHz radio-frequency device gateway.  This is a IoT bridge to
 couple popular RF devices like RC power-socket switches or weather
 stations to internet capable devices like smartphone and tables.  In
@@ -118,7 +118,7 @@ reasons the device will not start working before this password is changed.
 
 ## MQTT/Automation
 
-The MQTT433gateway communicates via MQTT, therefore a MQTT broker is needed,
+The MQTT433gateway communicates via MQTT, therefore an MQTT broker is needed,
 e.g., [Mosquitto](https://mosquitto.org/). The topics for receiving and
 transmitting can be configured with the `mqttReceiveTopic` and `mqttSendTopic`
 settings. They default to `rf434/recv/` and `rf434/send/`, respectively.  It is
